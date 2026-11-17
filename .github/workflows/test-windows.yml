@@ -96,18 +96,17 @@ jobs:
           cd build-test
           conan install .. `
               -s build_type=RelWithDebInfo `
-              -c tools.cmake.cmaketoolchain:generator="NMake Makefiles" `
+              -c tools.cmake.cmaketoolchain:generator="Ninja" `
               -b missing `
               --output-folder=. `
               -o with_openssl3="$Env:C2_USE_OPENSSL3"
 
-      # The image CRT can be older than the compiler. Copy the matching desktop
-      # redist next to the test binaries and list it so the log shows the files
-      # that will sit beside the executables.
+      # The image CRT can be older than the compiler. Copy the OneCore redist
+      # next to the test binaries, matching the upstream Windows test job.
       - name: Install CRT
         run: |
           mkdir -Force build-test/bin
-          $crt = (Get-ChildItem $Env:VCToolsRedistDir/x64 -Filter '*.CRT')[0].FullName
+          $crt = (Get-ChildItem $Env:VCToolsRedistDir/onecore/x64 -Filter '*.CRT')[0].FullName
           echo "VCToolsRedistDir=$Env:VCToolsRedistDir"
           echo "Copying CRT from $crt"
           Copy-Item "$crt/*" build-test/bin
@@ -120,10 +119,18 @@ jobs:
           Expand-Archive httpbox.zip -DestinationPath httpbox
           rm httpbox.zip
 
+      # MSVC 14.51 still aborts twitch-eventsub-ws-test.exe with 0xc0000409
+      # during gtest discovery after the segment heap is left off and the
+      # desktop CRT is beside the executable. Build the tests with clang-cl
+      # and lld, which is how the upstream Windows tests launch this binary.
       - name: Build
         run: |
           cmake `
-              -G"NMake Makefiles" `
+              -G Ninja `
+              -DCMAKE_CXX_COMPILER=clang-cl `
+              -DCMAKE_C_COMPILER=clang-cl `
+              -DCMAKE_RC_COMPILER=llvm-rc `
+              -DCMAKE_LINKER_TYPE=LLD `
               -DCMAKE_BUILD_TYPE=RelWithDebInfo `
               -DBUILD_TESTS=On `
               -DBUILD_APP=OFF `
@@ -132,8 +139,7 @@ jobs:
               -DBUILD_WITH_CRASHPAD="$Env:C2_ENABLE_CRASHPAD" `
               -DCHATTERINO_SPELLCHECK=On `
               ..
-          set cl=/MP
-          nmake /S /NOLOGO
+          ninja
         working-directory: build-test
 
       - name: Download and extract Twitch PubSub Server Test

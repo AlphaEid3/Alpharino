@@ -82,7 +82,9 @@ if (MSVC)
     #   - Enable all optimizations - by default when /DEBUG is specified,
     #     these optimizations will be disabled. We need /DEBUG to generate a PDB.
     # See https://gitlab.kitware.com/cmake/cmake/-/issues/20812 for more details.
-    set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "/DEBUG /INCREMENTAL:NO /OPT:REF,ICF,LBR")
+    # /OPT:LBR is ARM-only. MSVC link accepts it on x64, but lld-link does not,
+    # and the Windows tests link with lld.
+    set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "/DEBUG /INCREMENTAL:NO /OPT:REF,ICF")
 
     # Use the function inlining level from 'Release' mode (2).
     string(REPLACE "/Ob1" "/Ob2" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")

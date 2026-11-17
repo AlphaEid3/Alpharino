@@ -21,9 +21,13 @@
 
 #ifdef Q_OS_WIN
 
-#    include <VersionHelpers.h>
+// VersionHelpers.h uses Win32 types from Windows.h. Keep this order:
+// clang-format sorts the includes and would put VersionHelpers.h first.
+// clang-format off
 #    include <Windows.h>
+#    include <VersionHelpers.h>
 #    include <WtsApi32.h>
+// clang-format on
 
 #endif
 
