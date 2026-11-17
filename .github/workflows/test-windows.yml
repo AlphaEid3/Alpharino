@@ -23,7 +23,9 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest]
-        qt-version: [6.7.1]
+        # The vendored kimageformats uses Qt 6.8 color-space APIs. The
+        # Windows build ships Qt 6.9.3, so tests use that same version.
+        qt-version: [6.9.3]
         skip-artifact: [false]
         skip-crashpad: [false]
       fail-fast: false
