@@ -55,12 +55,10 @@ jobs:
         uses: Chatterino/msvc-dev-cmd@v2.0.5
         with:
           arch: x64
-          # windows-latest's default MSVC 14.51 rejects libwebm's private
-          # nested HasTag helpers (C2248). The VS 2026 image still ships the
-          # 14.44 toolset, which compiles that code.
-          toolset: "14.44"
 
       - name: Setup sccache
+        # A transient GitHub download failure should not fail the tests.
+        continue-on-error: true
         # sccache v0.7.4
         uses: hendrikmuhs/ccache-action@v1.2.23
         with:
@@ -89,20 +87,14 @@ jobs:
 
       - name: Install dependencies
         run: |
+          $hookDir = Join-Path $env:USERPROFILE ".conan2\extensions\hooks"
+          New-Item -ItemType Directory -Force -Path $hookDir | Out-Null
+          Copy-Item .github/conan/hooks/hook_libwebm_msvc.py $hookDir
           mkdir build-test
           cd build-test
-          # Profile detection sees VS 18 and selects MSVC 14.51 (compiler.version
-          # 195). Conan then re-runs vcvars with vcvars_ver=14.5, which
-          # overrides the 14.44 prompt and fails to compile libwebm (C2248).
-          # compiler.version=194 plus the VS 18 install path keeps the 14.44
-          # toolset that is still shipped on the image.
           conan install .. `
-              -s compiler.version=194 `
-              -s:b compiler.version=194 `
               -s build_type=RelWithDebInfo `
               -c tools.cmake.cmaketoolchain:generator="NMake Makefiles" `
-              -c tools.microsoft.msbuild:vs_version=18 `
-              -c tools.microsoft:msvc_update=4.35207 `
               -b missing `
               --output-folder=. `
               -o with_openssl3="$Env:C2_USE_OPENSSL3"
