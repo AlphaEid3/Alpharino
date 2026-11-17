@@ -101,11 +101,15 @@ jobs:
               --output-folder=. `
               -o with_openssl3="$Env:C2_USE_OPENSSL3"
 
-      # The Windows runners currently use an older version of the CRT
+      # The image CRT can be older than the compiler. Copy the matching desktop
+      # redist next to the test binaries. The OneCore variant loads first and
+      # makes gtest discovery abort with 0xc0000409.
       - name: Install CRT
         run: |
           mkdir -Force build-test/bin
-          cp "$((ls $Env:VCToolsRedistDir/onecore/x64 -Filter '*.CRT')[0].FullName)/*" build-test/bin
+          $crt = (ls $Env:VCToolsRedistDir/x64 -Filter '*.CRT')[0].FullName
+          echo "Copying CRT from $crt"
+          cp "$crt/*" build-test/bin
 
       - name: Install httpbox
         run: |
