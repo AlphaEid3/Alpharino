@@ -209,12 +209,13 @@ if(MSVC)
 endif()
 
 foreach(_moltorino_pathmap_pair IN LISTS _moltorino_pathmap_pairs)
-    if(MSVC)
-        add_compile_options("$<${_moltorino_public_config}:/pathmap:${_moltorino_pathmap_pair}>")
-    elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    # clang-cl sets MSVC, but it rejects cl's /pathmap flag.
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         add_compile_options("$<${_moltorino_public_config}:-ffile-prefix-map=${_moltorino_pathmap_pair}>")
         add_compile_options("$<${_moltorino_public_config}:-fdebug-prefix-map=${_moltorino_pathmap_pair}>")
         add_compile_options("$<${_moltorino_public_config}:-fmacro-prefix-map=${_moltorino_pathmap_pair}>")
+    elseif(MSVC)
+        add_compile_options("$<${_moltorino_public_config}:/pathmap:${_moltorino_pathmap_pair}>")
     endif()
 endforeach()
 
