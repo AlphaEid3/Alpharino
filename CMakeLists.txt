@@ -204,7 +204,9 @@ endif()
 
 set(_moltorino_public_config "$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>,$<CONFIG:MinSizeRel>>")
 
-if(MSVC)
+# clang-cl sets MSVC, but it treats cl-only switches such as
+# /experimental:deterministic as input file names.
+if(MSVC AND NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_compile_options("$<${_moltorino_public_config}:/experimental:deterministic>")
 endif()
 
