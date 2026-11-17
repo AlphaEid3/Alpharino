@@ -130,9 +130,18 @@ jobs:
         run: |
           mkdir build
           cd build
+          # Profile detection sees VS 18 and selects MSVC 14.51 (compiler.version
+          # 195). Conan then re-runs vcvars with vcvars_ver=14.5, which
+          # overrides the 14.44 prompt and fails to compile libwebm (C2248).
+          # compiler.version=194 plus the VS 18 install path keeps the 14.44
+          # toolset that is still shipped on the image.
           conan install .. \
+              -s compiler.version=194 \
+              -s:b compiler.version=194 \
               -s build_type=RelWithDebInfo \
               -c tools.cmake.cmaketoolchain:generator="Ninja" \
+              -c tools.microsoft.msbuild:vs_version=18 \
+              -c tools.microsoft:msvc_update=4.35207 \
               -b missing \
               -c tools.build:jobs=4 \
               --output-folder=. \
