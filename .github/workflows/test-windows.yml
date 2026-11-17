@@ -57,6 +57,9 @@ jobs:
         uses: Chatterino/msvc-dev-cmd@v2.0.5
         with:
           arch: x64
+          # Qt 6.9's official binaries are built with MSVC 2022 (14.44).
+          # Linking them with the image default 14.51 aborts at startup.
+          toolset: "14.44"
 
       - name: Setup sccache
         # A transient GitHub download failure should not fail the tests.
@@ -95,19 +98,29 @@ jobs:
           mkdir build-test
           cd build-test
           conan install .. `
+              -s compiler.version=194 `
+              -s:b compiler.version=194 `
               -s build_type=RelWithDebInfo `
               -c tools.cmake.cmaketoolchain:generator="NMake Makefiles" `
+              -c tools.microsoft.msbuild:vs_version=18 `
+              -c tools.microsoft:msvc_update=4.35207 `
               -b missing `
               --output-folder=. `
               -o with_openssl3="$Env:C2_USE_OPENSSL3"
 
-      # The image CRT can be older than the compiler. Copy the matching desktop
-      # redist next to the test binaries. The OneCore variant loads first and
-      # makes gtest discovery abort with 0xc0000409.
+      # Place the 14.44 desktop CRT beside the tests when that redist is
+      # installed. VCToolsRedistDir stays on 14.51 even after the toolset pin,
+      # and copying that runtime next to Qt's 14.44 DLLs aborts the process.
       - name: Install CRT
         run: |
           mkdir -Force build-test/bin
-          $crt = (ls $Env:VCToolsRedistDir/x64 -Filter '*.CRT')[0].FullName
+          $msvcRedist = Split-Path $Env:VCToolsRedistDir -Parent
+          $toolsetRedist = Get-ChildItem $msvcRedist -Directory -Filter '14.44*' | Select-Object -First 1
+          if (-not $toolsetRedist) {
+            echo "No 14.44 redist under $msvcRedist"
+            exit 0
+          }
+          $crt = (Get-ChildItem (Join-Path $toolsetRedist.FullName 'x64') -Filter '*.CRT' | Select-Object -First 1).FullName
           echo "Copying CRT from $crt"
           cp "$crt/*" build-test/bin
 
@@ -123,6 +136,7 @@ jobs:
           cmake `
               -G"NMake Makefiles" `
               -DCMAKE_BUILD_TYPE=RelWithDebInfo `
+              -DCMAKE_GTEST_DISCOVER_TESTS_DISCOVERY_MODE=PRE_TEST `
               -DBUILD_TESTS=On `
               -DBUILD_APP=OFF `
               -DCMAKE_TOOLCHAIN_FILE="conan_toolchain.cmake" `
