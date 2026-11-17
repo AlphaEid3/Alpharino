@@ -211,8 +211,12 @@ if(MSVC AND NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 foreach(_moltorino_pathmap_pair IN LISTS _moltorino_pathmap_pairs)
-    # clang-cl sets MSVC, but it rejects cl's /pathmap flag.
-    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    # clang-cl sets MSVC and rejects both /pathmap and -f*-prefix-map.
+    # Crashpad compiles with /WX, so either form stops the test build.
+    # The Windows application build still uses cl and /pathmap.
+    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
+        # No path remapping for clang-cl.
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         add_compile_options("$<${_moltorino_public_config}:-ffile-prefix-map=${_moltorino_pathmap_pair}>")
         add_compile_options("$<${_moltorino_public_config}:-fdebug-prefix-map=${_moltorino_pathmap_pair}>")
         add_compile_options("$<${_moltorino_public_config}:-fmacro-prefix-map=${_moltorino_pathmap_pair}>")
