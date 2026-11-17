@@ -62,4 +62,4 @@ inline QStandardItem *emptyItem()
     return item;
 }
 
-}
+}  // namespace chatterino

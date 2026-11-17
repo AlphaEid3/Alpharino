@@ -27,9 +27,9 @@ struct IgnoredMessageParameters {
 
 bool isIgnoredMessage(IgnoredMessageParameters &&params);
 
-void processIgnorePhrases(const std::vector<IgnorePhrase> &phrases,
-                          QString &content,
-                          std::vector<TwitchEmoteOccurrence> &twitchEmotes,
-                          std::vector<TwitchGifOccurrence> *twitchGifs = nullptr);
+void processIgnorePhrases(
+    const std::vector<IgnorePhrase> &phrases, QString &content,
+    std::vector<TwitchEmoteOccurrence> &twitchEmotes,
+    std::vector<TwitchGifOccurrence> *twitchGifs = nullptr);
 
-}
+}  // namespace chatterino

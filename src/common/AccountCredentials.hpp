@@ -40,4 +40,4 @@ private:
 
 AccountCredentials &accountCredentials();
 
-}
+}  // namespace chatterino

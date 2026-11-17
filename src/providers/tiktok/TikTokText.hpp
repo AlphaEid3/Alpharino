@@ -19,4 +19,4 @@ std::optional<qsizetype> incomingIndexToUtf16(const QString &content,
                                               qsizetype index,
                                               qsizetype precedingEmotes);
 
-}
+}  // namespace chatterino::tiktok::livetext

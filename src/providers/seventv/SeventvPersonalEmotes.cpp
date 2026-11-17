@@ -58,14 +58,14 @@ std::optional<std::shared_ptr<const EmoteMap>>
     };
     for (const auto &user : users)
     {
-        std::visit(variant::Overloaded{
-                       [&](const seventv::eventapi::TwitchUser &u) {
-                           tryAssign(this->twitchEmoteSets_[u.id]);
-                       },
-                       [&](const seventv::eventapi::KickUser &u) {
-                           tryAssign(this->kickEmoteSets_[u.id]);
-                       }},
-                   user);
+        std::visit(
+            variant::Overloaded{[&](const seventv::eventapi::TwitchUser &u) {
+                                    tryAssign(this->twitchEmoteSets_[u.id]);
+                                },
+                                [&](const seventv::eventapi::KickUser &u) {
+                                    tryAssign(this->kickEmoteSets_[u.id]);
+                                }},
+            user);
     }
 
     DebugCount::increase(DebugObject::SeventvPersonalEmoteAssignments,
@@ -79,8 +79,7 @@ std::optional<std::shared_ptr<const EmoteMap>>
 }
 
 void SeventvPersonalEmotes::unassignUsersFromEmoteSet(
-    const QString &emoteSetID,
-    std::span<const seventv::eventapi::User> users)
+    const QString &emoteSetID, std::span<const seventv::eventapi::User> users)
 {
     std::unique_lock<std::shared_mutex> lock(this->mutex_);
 
@@ -101,14 +100,14 @@ void SeventvPersonalEmotes::unassignUsersFromEmoteSet(
 
     for (const auto &user : users)
     {
-        std::visit(variant::Overloaded{
-                       [&](const seventv::eventapi::TwitchUser &u) {
-                           unassign(this->twitchEmoteSets_, u.id);
-                       },
-                       [&](const seventv::eventapi::KickUser &u) {
-                           unassign(this->kickEmoteSets_, u.id);
-                       }},
-                   user);
+        std::visit(
+            variant::Overloaded{[&](const seventv::eventapi::TwitchUser &u) {
+                                    unassign(this->twitchEmoteSets_, u.id);
+                                },
+                                [&](const seventv::eventapi::KickUser &u) {
+                                    unassign(this->kickEmoteSets_, u.id);
+                                }},
+            user);
     }
 
     DebugCount::decrease(DebugObject::SeventvPersonalEmoteAssignments,
@@ -122,7 +121,6 @@ void SeventvPersonalEmotes::updateEmoteSet(
     auto emoteSet = this->emoteSets_.find(id);
     if (emoteSet != this->emoteSets_.end())
     {
-
         if (emoteSet->second.get()->contains(
                 EmoteName{dispatch.emoteJson["name"].toString()}))
         {
@@ -331,4 +329,4 @@ EmotePtr SeventvPersonalEmotes::findInEmoteSets(
     return {};
 }
 
-}
+}  // namespace chatterino

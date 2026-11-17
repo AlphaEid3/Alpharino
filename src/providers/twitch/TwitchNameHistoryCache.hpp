@@ -33,4 +33,4 @@ private:
     std::deque<TwitchNameHistoryPtr> order_;
 };
 
-}
+}  // namespace chatterino::detail

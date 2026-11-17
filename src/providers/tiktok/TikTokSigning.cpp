@@ -554,7 +554,7 @@ KeyWords randomKeys()
     QRandomGenerator::system()->fillRange(keys.data(), keys.size());
     return keys;
 }
-}
+}  // namespace
 
 SigningResult signExactQuery(
     const QString &query, const QString &body, const SigningState &state,
@@ -602,4 +602,4 @@ SigningResult signExactQuery(
         joined + QStringLiteral("&X-Bogus=1&X-Gnarly=") + result.gnarly;
     return result;
 }
-}
+}  // namespace chatterino::tiktok

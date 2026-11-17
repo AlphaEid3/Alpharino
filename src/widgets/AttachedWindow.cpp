@@ -325,4 +325,4 @@ void AttachedWindow::updateWindowRect(void *_attachedPtr)
 
 std::vector<AttachedWindow::Item> AttachedWindow::items;
 
-}
+}  // namespace chatterino

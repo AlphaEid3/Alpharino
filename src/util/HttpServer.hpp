@@ -36,4 +36,4 @@ private:
     RequestHandlerCb handler_;
 };
 
-}
+}  // namespace chatterino

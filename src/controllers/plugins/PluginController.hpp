@@ -91,5 +91,5 @@ private:
     friend class PluginControllerAccess;
 };
 
-}
+}  // namespace chatterino
 #endif

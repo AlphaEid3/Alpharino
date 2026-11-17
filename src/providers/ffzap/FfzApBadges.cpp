@@ -88,7 +88,7 @@ EmotePtr makeBadgeEmote(const QString &id, const QString &tooltip)
     });
 }
 
-}
+}  // namespace
 
 void FfzApBadges::initialize()
 {
@@ -134,11 +134,11 @@ void FfzApBadges::loadCache()
     QFile metadata(metadataPath());
     if (metadata.open(QIODevice::ReadOnly))
     {
-        this->etag_ = QJsonDocument::fromJson(
-                          metadata.read(MAX_METADATA_SIZE + 1))
-                          .object()
-                          .value(QStringLiteral("etag"))
-                          .toString();
+        this->etag_ =
+            QJsonDocument::fromJson(metadata.read(MAX_METADATA_SIZE + 1))
+                .object()
+                .value(QStringLiteral("etag"))
+                .toString();
     }
 
     QFile cache(cachePath());
@@ -250,9 +250,8 @@ bool FfzApBadges::applyPayload(const QByteArray &payload)
                 ? QColor(object.value(QStringLiteral("badge_color")).toString())
                 : QColor{};
         badges.insert_or_assign(
-            id, BadgeEntry{.tooltip = tooltip,
-                           .emote = nullptr,
-                           .color = color});
+            id,
+            BadgeEntry{.tooltip = tooltip, .emote = nullptr, .color = color});
     }
     if (badges.empty())
     {
@@ -299,4 +298,4 @@ void FfzApBadges::scheduleRetry()
     });
 }
 
-}
+}  // namespace chatterino

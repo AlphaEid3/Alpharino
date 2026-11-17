@@ -161,4 +161,4 @@ void AccountSwitchPopup::paintEvent(QPaintEvent *)
     painter.drawRect(0, 0, this->width() - 1, this->height() - 1);
 }
 
-}
+}  // namespace chatterino

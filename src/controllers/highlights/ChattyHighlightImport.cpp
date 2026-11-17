@@ -264,7 +264,7 @@ void addIssue(ChattyHighlightImportResult &result, qsizetype line,
     }
 }
 
-}
+}  // namespace
 
 qsizetype ChattyHighlightImportResult::importedRuleCount() const
 {
@@ -286,8 +286,7 @@ ChattyHighlightImportResult importChattyHighlightRules(const QString &text)
     ChattyHighlightImportResult result;
     if (text.size() > CHATTY_HIGHLIGHT_IMPORT_MAX_SOURCE_CHARACTERS)
     {
-        addIssue(result, 0,
-                 QStringLiteral("This text is too large to import."),
+        addIssue(result, 0, QStringLiteral("This text is too large to import."),
                  {}, false);
         return result;
     }
@@ -537,4 +536,4 @@ bool looksLikeRegularExpressionList(const QString &text)
     return rules > 0 && strongRules > 0 && strongRules * 3 >= rules;
 }
 
-}
+}  // namespace chatterino

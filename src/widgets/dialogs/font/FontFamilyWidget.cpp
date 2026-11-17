@@ -25,7 +25,7 @@ QStringList getFontFamilies(const QString &selected)
     return families;
 }
 
-}
+}  // namespace
 
 FontFamilyWidget::FontFamilyWidget(const QFont &startFont, QWidget *parent)
     : QWidget(parent)
@@ -94,4 +94,4 @@ QString FontFamilyWidget::getSelected() const
     return this->model->data(modelIndex).toString();
 }
 
-}
+}  // namespace chatterino

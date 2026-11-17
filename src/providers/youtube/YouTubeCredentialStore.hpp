@@ -16,4 +16,4 @@ void writeYouTubeCredential(const QString &channelID,
                             const QString &refreshToken,
                             std::function<void(ExpectedStr<void>)> callback);
 
-}
+}  // namespace chatterino

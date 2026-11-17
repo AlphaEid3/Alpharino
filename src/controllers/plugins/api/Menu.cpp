@@ -82,7 +82,7 @@ void connectPluginAction(QAction *action, chatterino::Plugin &plugin,
                      });
 }
 
-}
+}  // namespace
 
 namespace chatterino::lua::api::menu {
 
@@ -124,6 +124,6 @@ void createUserType(sol::table &c2)
         });
 }
 
-}
+}  // namespace chatterino::lua::api::menu
 
 #endif

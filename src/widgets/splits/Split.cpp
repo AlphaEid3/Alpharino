@@ -43,7 +43,9 @@
 #include "widgets/helper/ChannelView.hpp"
 #include "widgets/helper/DebugPopup.hpp"
 #include "widgets/helper/NotebookTab.hpp"
+#include "widgets/helper/PinnedMessageBanner.hpp"
 #include "widgets/helper/PollBanner.hpp"
+#include "widgets/helper/PredictionBanner.hpp"
 #include "widgets/helper/ResizingTextEdit.hpp"
 #include "widgets/helper/SearchPopup.hpp"
 #include "widgets/Notebook.hpp"
@@ -53,8 +55,6 @@
 #include "widgets/splits/SplitContainer.hpp"
 #include "widgets/splits/SplitHeader.hpp"
 #include "widgets/splits/SplitInput.hpp"
-#include "widgets/helper/PinnedMessageBanner.hpp"
-#include "widgets/helper/PredictionBanner.hpp"
 #include "widgets/splits/SplitOverlay.hpp"
 #include "widgets/Window.hpp"
 
@@ -70,8 +70,8 @@
 #include <QMovie>
 #include <QPainter>
 #include <QSet>
-#include <QVector>
 #include <QVBoxLayout>
+#include <QVector>
 
 #include <functional>
 #include <optional>
@@ -314,30 +314,31 @@ Split::Split(QWidget *parent)
             this->refreshModerationMode();
         });
 
-    this->signalHolder_.managedConnect(
-        modifierStatusChanged, [this](Qt::KeyboardModifiers status) {
-            if ((status ==
-                 SHOW_SPLIT_OVERLAY_MODIFIERS /*|| status == showAddSplitRegions*/) &&
-                this->isMouseOver_)
-            {
-                this->ensureOverlay()->show();
-            }
-            else if (this->overlay_ != nullptr)
-            {
-                this->overlay_->hide();
-            }
+    this->signalHolder_.managedConnect(modifierStatusChanged, [this](
+                                                                  Qt::KeyboardModifiers
+                                                                      status) {
+        if ((status ==
+             SHOW_SPLIT_OVERLAY_MODIFIERS /*|| status == showAddSplitRegions*/) &&
+            this->isMouseOver_)
+        {
+            this->ensureOverlay()->show();
+        }
+        else if (this->overlay_ != nullptr)
+        {
+            this->overlay_->hide();
+        }
 
-            if (getSettings()->pauseChatModifier.getEnum() != Qt::NoModifier &&
-                status == getSettings()->pauseChatModifier.getEnum() &&
-                this->isVisible())
-            {
-                this->view_->pause(PauseReason::KeyboardModifier);
-            }
-            else
-            {
-                this->view_->unpause(PauseReason::KeyboardModifier);
-            }
-        });
+        if (getSettings()->pauseChatModifier.getEnum() != Qt::NoModifier &&
+            status == getSettings()->pauseChatModifier.getEnum() &&
+            this->isVisible())
+        {
+            this->view_->pause(PauseReason::KeyboardModifier);
+        }
+        else
+        {
+            this->view_->unpause(PauseReason::KeyboardModifier);
+        }
+    });
 
     this->deferredTwitchRefreshTimer_ = new QTimer(this);
     this->deferredTwitchRefreshTimer_->setSingleShot(true);
@@ -349,9 +350,8 @@ Split::Split(QWidget *parent)
                      });
 
     auto updateAcceptDrops = [this]() {
-        this->setAcceptDrops(
-            getSettings()->imageUploaderEnabled ||
-            getSettings()->urlShortenerEnabled);
+        this->setAcceptDrops(getSettings()->imageUploaderEnabled ||
+                             getSettings()->urlShortenerEnabled);
     };
 
     getSettings()->imageUploaderEnabled.connect(
@@ -750,7 +750,8 @@ void Split::cycleBannerSelection()
         {
             visibleId = 0;
         }
-        else if (this->predictionBanner_ && !this->predictionBanner_->isHidden())
+        else if (this->predictionBanner_ &&
+                 !this->predictionBanner_->isHidden())
         {
             visibleId = 1;
         }
@@ -1738,12 +1739,14 @@ void Split::scheduleDeferredTwitchRefresh(bool interactive)
         return;
     }
 
-    const int delayMs = interactive ? INTERACTIVE_TWITCH_FEATURE_REFRESH_DELAY_MS
-                                    : DEFERRED_TWITCH_FEATURE_REFRESH_DELAY_MS;
+    const int delayMs = interactive
+                            ? INTERACTIVE_TWITCH_FEATURE_REFRESH_DELAY_MS
+                            : DEFERRED_TWITCH_FEATURE_REFRESH_DELAY_MS;
 
     if (this->deferredTwitchRefreshTimer_->isActive())
     {
-        const int remaining = this->deferredTwitchRefreshTimer_->remainingTime();
+        const int remaining =
+            this->deferredTwitchRefreshTimer_->remainingTime();
         if (remaining >= 0 && remaining <= delayMs)
         {
             this->deferredTwitchRefreshInteractive_ =
@@ -1794,19 +1797,18 @@ void Split::runDeferredTwitchRefresh()
 
     this->deferredTwitchRefreshRetries_ = 0;
     this->deferredTwitchRefreshInteractive_ = false;
-    const bool forcePersonalRefresh =
-        this->deferredTwitchForcePersonalRefresh_;
+    const bool forcePersonalRefresh = this->deferredTwitchForcePersonalRefresh_;
     this->deferredTwitchForcePersonalRefresh_ = false;
 
-    const int pollOffsetMs =
-        interactive ? INTERACTIVE_TWITCH_POLL_REFRESH_OFFSET_MS
-                    : DEFERRED_TWITCH_POLL_REFRESH_OFFSET_MS;
+    const int pollOffsetMs = interactive
+                                 ? INTERACTIVE_TWITCH_POLL_REFRESH_OFFSET_MS
+                                 : DEFERRED_TWITCH_POLL_REFRESH_OFFSET_MS;
     const int editorOffsetMs = interactive
                                    ? INTERACTIVE_TWITCH_EDITOR_REFRESH_OFFSET_MS
                                    : DEFERRED_TWITCH_EDITOR_REFRESH_OFFSET_MS;
-    const int pointsOffsetMs =
-        interactive ? INTERACTIVE_TWITCH_POINTS_REFRESH_OFFSET_MS
-                    : DEFERRED_TWITCH_POINTS_REFRESH_OFFSET_MS;
+    const int pointsOffsetMs = interactive
+                                   ? INTERACTIVE_TWITCH_POINTS_REFRESH_OFFSET_MS
+                                   : DEFERRED_TWITCH_POINTS_REFRESH_OFFSET_MS;
     const int warningOffsetMs =
         interactive ? INTERACTIVE_TWITCH_WARNING_REFRESH_OFFSET_MS
                     : DEFERRED_TWITCH_WARNING_REFRESH_OFFSET_MS;
@@ -1899,35 +1901,32 @@ void Split::runDeferredTwitchRefresh()
     }
     if (getSettings()->enablePolls)
     {
-        QTimer::singleShot(pollOffsetMs, this,
-                           [this, runIfStillActive, forcePersonalRefresh] {
-                               runIfStillActive([forcePersonalRefresh](
-                                                    TwitchChannel *tc) {
-                                   tc->refreshPollIfStale(forcePersonalRefresh);
-                               });
-                           });
+        QTimer::singleShot(
+            pollOffsetMs, this, [this, runIfStillActive, forcePersonalRefresh] {
+                runIfStillActive([forcePersonalRefresh](TwitchChannel *tc) {
+                    tc->refreshPollIfStale(forcePersonalRefresh);
+                });
+            });
     }
     if (getSettings()->enableChannelPointsDisplay)
     {
-        QTimer::singleShot(pointsOffsetMs, this,
-                           [this, runIfStillActive, forcePersonalRefresh] {
-                               runIfStillActive([forcePersonalRefresh](
-                                                    TwitchChannel *tc) {
-                                   tc->refreshChannelPointsIfStale(
-                                       forcePersonalRefresh);
-                               });
-                           });
+        QTimer::singleShot(
+            pointsOffsetMs, this,
+            [this, runIfStillActive, forcePersonalRefresh] {
+                runIfStillActive([forcePersonalRefresh](TwitchChannel *tc) {
+                    tc->refreshChannelPointsIfStale(forcePersonalRefresh);
+                });
+            });
     }
     if (shouldRefreshWarnings)
     {
-        QTimer::singleShot(warningOffsetMs, this,
-                           [this, runIfStillActive, forcePersonalRefresh] {
-                               runIfStillActive([forcePersonalRefresh](
-                                                    TwitchChannel *tc) {
-                                   tc->refreshChatWarningIfStale(
-                                       forcePersonalRefresh);
-                               });
-                           });
+        QTimer::singleShot(
+            warningOffsetMs, this,
+            [this, runIfStillActive, forcePersonalRefresh] {
+                runIfStillActive([forcePersonalRefresh](TwitchChannel *tc) {
+                    tc->refreshChatWarningIfStale(forcePersonalRefresh);
+                });
+            });
     }
 }
 
@@ -2105,8 +2104,7 @@ QString pinBannerKey(const std::optional<TwitchChannel::PinnedMessage> &pin)
 
     if (pin->endsAt && pin->endsAt->isValid())
     {
-        key += QStringLiteral("|") +
-               pin->endsAt->toUTC().toString(Qt::ISODate);
+        key += QStringLiteral("|") + pin->endsAt->toUTC().toString(Qt::ISODate);
     }
     return key;
 }
@@ -2119,9 +2117,8 @@ QString predictionBannerKey(
         return {};
     }
 
-    return prediction->id + QStringLiteral("|") +
-           prediction->status.toUpper() + QStringLiteral("|") +
-           prediction->winningOutcomeId;
+    return prediction->id + QStringLiteral("|") + prediction->status.toUpper() +
+           QStringLiteral("|") + prediction->winningOutcomeId;
 }
 
 QString pollBannerKey(const std::optional<TwitchChannel::PollEvent> &poll)
@@ -2317,17 +2314,17 @@ void Split::updateBannerVisibility()
         activeBannerIds.push_back(2);
     }
 
-    auto firstActiveFromOrder = [&activeBannerIds](
-                                    std::initializer_list<int> order) {
-        for (const int id : order)
-        {
-            if (activeBannerIds.contains(id))
+    auto firstActiveFromOrder =
+        [&activeBannerIds](std::initializer_list<int> order) {
+            for (const int id : order)
             {
-                return id;
+                if (activeBannerIds.contains(id))
+                {
+                    return id;
+                }
             }
-        }
-        return activeBannerIds.isEmpty() ? -1 : activeBannerIds.front();
-    };
+            return activeBannerIds.isEmpty() ? -1 : activeBannerIds.front();
+        };
 
     int selectedId = -1;
     if (this->bannerAttentionOverride_ >= 0)
@@ -3265,8 +3262,7 @@ void Split::dragEnterEvent(QDragEnterEvent *event)
 {
     if ((getSettings()->imageUploaderEnabled &&
          (event->mimeData()->hasImage() || event->mimeData()->hasUrls())) ||
-        (getSettings()->urlShortenerEnabled &&
-         event->mimeData()->hasText()))
+        (getSettings()->urlShortenerEnabled && event->mimeData()->hasText()))
     {
         event->acceptProposedAction();
     }
@@ -3280,8 +3276,7 @@ void Split::dropEvent(QDropEvent *event)
 {
     if ((getSettings()->imageUploaderEnabled &&
          (event->mimeData()->hasImage() || event->mimeData()->hasUrls())) ||
-        (getSettings()->urlShortenerEnabled &&
-         event->mimeData()->hasText()))
+        (getSettings()->urlShortenerEnabled && event->mimeData()->hasText()))
     {
         auto *edit = this->ensureInput()->ui_.textEdit;
         event->acceptProposedAction();

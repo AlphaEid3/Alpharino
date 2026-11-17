@@ -246,7 +246,8 @@ QString chatterKey(const QString &login, MessagePlatform platform,
     auto key = QString::number(static_cast<int>(platform));
     key += QChar(0);
     const auto source = channelName.trimmed();
-    key += platform == MessagePlatform::YouTube ? source : source.toCaseFolded();
+    key +=
+        platform == MessagePlatform::YouTube ? source : source.toCaseFolded();
     key += QChar(0);
     key += identityKind;
     key += QChar(0);
@@ -260,7 +261,7 @@ QString channelKey(MessagePlatform platform, const QString &channelName)
     return QStringLiteral("%1:%2")
         .arg(static_cast<int>(platform))
         .arg(platform == MessagePlatform::YouTube ? source
-                                                 : source.toCaseFolded());
+                                                  : source.toCaseFolded());
 }
 
 QString platformName(MessagePlatform platform)
@@ -472,11 +473,11 @@ void finishCommunityRequest(const QString &login,
 
         while (cache.entries.size() > COMMUNITY_CACHE_LIMIT)
         {
-            const auto oldest = std::min_element(
-                cache.entries.begin(), cache.entries.end(),
-                [](const auto &left, const auto &right) {
-                    return left.lastUsedAt < right.lastUsedAt;
-                });
+            const auto oldest =
+                std::min_element(cache.entries.begin(), cache.entries.end(),
+                                 [](const auto &left, const auto &right) {
+                                     return left.lastUsedAt < right.lastUsedAt;
+                                 });
             cache.entries.erase(oldest);
         }
     }
@@ -1241,7 +1242,7 @@ QString countLabel(int count, const QString &singular, const QString &plural)
                                        count == 1 ? singular : plural);
 }
 
-}
+}  // namespace
 
 class ChatterListWidgetPrivate
 {
@@ -2232,4 +2233,4 @@ void ChatterListWidget::scaleChangedEvent(float scale)
     }
 }
 
-}
+}  // namespace chatterino

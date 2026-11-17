@@ -52,8 +52,7 @@ QNetworkRequest makeStreamRequest(const QString &liveChatID,
 
     QNetworkRequest request(url);
     request.setRawHeader("Accept", "application/x-ndjson");
-    request.setRawHeader("X-Moltorino-YouTube-Ticket",
-                         readTicket.toUtf8());
+    request.setRawHeader("X-Moltorino-YouTube-Ticket", readTicket.toUtf8());
     request.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
                          QNetworkRequest::NoLessSafeRedirectPolicy);
 
@@ -65,8 +64,7 @@ QString responseError(const QByteArray &body, const QString &fallback)
 {
     QJsonParseError parseError;
     const auto document = QJsonDocument::fromJson(body, &parseError);
-    if (parseError.error != QJsonParseError::NoError ||
-        !document.isObject())
+    if (parseError.error != QJsonParseError::NoError || !document.isObject())
     {
         return fallback;
     }
@@ -106,11 +104,11 @@ std::optional<std::chrono::milliseconds> retryAfter(QNetworkReply *reply)
     {
         return {};
     }
-    return std::chrono::milliseconds{
-        std::clamp<qint64>(seconds, 1, 15 * 60) * 1000};
+    return std::chrono::milliseconds{std::clamp<qint64>(seconds, 1, 15 * 60) *
+                                     1000};
 }
 
-}
+}  // namespace
 
 namespace chatterino {
 
@@ -131,18 +129,17 @@ struct YouTubeLiveChatSession::Runtime {
 };
 
 YouTubeLiveChatSession::YouTubeLiveChatSession(
-    QString liveChatID, QString readTicket,
-    MessagesCallback messages, StateCallback state,
-    std::shared_ptr<YouTubeMessageDeduper> deduper)
+    QString liveChatID, QString readTicket, MessagesCallback messages,
+    StateCallback state, std::shared_ptr<YouTubeMessageDeduper> deduper)
     : liveChatID_(std::move(liveChatID))
     , readTicket_(std::move(readTicket))
     , messagesCallback_(std::move(messages))
     , stateCallback_(std::move(state))
     , runtime_(std::make_unique<Runtime>())
 {
-    this->runtime_->deduper =
-        deduper ? std::move(deduper)
-                : std::make_shared<YouTubeMessageDeduper>();
+    this->runtime_->deduper = deduper
+                                  ? std::move(deduper)
+                                  : std::make_shared<YouTubeMessageDeduper>();
     this->runtime_->reconnectTimer.setSingleShot(true);
     QObject::connect(&this->runtime_->reconnectTimer, &QTimer::timeout, this,
                      [this] {
@@ -150,15 +147,14 @@ YouTubeLiveChatSession::YouTubeLiveChatSession(
                      });
     this->runtime_->bufferReleaseTimer.setSingleShot(true);
     this->runtime_->bufferReleaseTimer.setInterval(BUFFER_RELEASE_IDLE);
-    QObject::connect(&this->runtime_->bufferReleaseTimer, &QTimer::timeout,
-                     this, [this] {
-                         if (this->runtime_->buffer.isEmpty() &&
-                             this->runtime_->buffer.capacity() >
-                                 RETAINED_BUFFER_LIMIT)
-                         {
-                             this->runtime_->buffer.squeeze();
-                         }
-                     });
+    QObject::connect(
+        &this->runtime_->bufferReleaseTimer, &QTimer::timeout, this, [this] {
+            if (this->runtime_->buffer.isEmpty() &&
+                this->runtime_->buffer.capacity() > RETAINED_BUFFER_LIMIT)
+            {
+                this->runtime_->buffer.squeeze();
+            }
+        });
 }
 
 YouTubeLiveChatSession::~YouTubeLiveChatSession()
@@ -235,18 +231,17 @@ void YouTubeLiveChatSession::openStream()
     this->runtime_->parserError.clear();
     this->runtime_->connected = false;
 
-    const auto request = makeStreamRequest(
-        this->liveChatID_, this->readTicket_, this->runtime_->cursor);
+    const auto request = makeStreamRequest(this->liveChatID_, this->readTicket_,
+                                           this->runtime_->cursor);
     auto *reply = this->runtime_->network.get(request);
     reply->setReadBufferSize(MAX_FRAME_BYTES + 1);
     this->runtime_->reply = reply;
-    QObject::connect(reply, &QNetworkReply::readyRead, this,
-                     [this, reply] {
-                         if (this->runtime_->reply == reply)
-                         {
-                             this->readAvailable(reply);
-                         }
-                     });
+    QObject::connect(reply, &QNetworkReply::readyRead, this, [this, reply] {
+        if (this->runtime_->reply == reply)
+        {
+            this->readAvailable(reply);
+        }
+    });
     QObject::connect(reply, &QNetworkReply::finished, this, [this, reply] {
         if (this->runtime_->reply == reply)
         {
@@ -329,8 +324,7 @@ bool YouTubeLiveChatSession::processLine(const QByteArray &line)
     }
     QJsonParseError parseError;
     const auto document = QJsonDocument::fromJson(trimmed, &parseError);
-    if (parseError.error != QJsonParseError::NoError ||
-        !document.isObject())
+    if (parseError.error != QJsonParseError::NoError || !document.isObject())
     {
         this->runtime_->parserError =
             u"Moltorino returned malformed YouTube chat data: "_s +
@@ -434,8 +428,8 @@ void YouTubeLiveChatSession::processFrame(const QJsonObject &frame)
     }
     if (!messages.empty())
     {
-        const bool historical = type == u"snapshot"_s ||
-                                frame.value("historical").toBool();
+        const bool historical =
+            type == u"snapshot"_s || frame.value("historical").toBool();
         this->dispatchMessages(std::move(messages), historical);
     }
 }
@@ -497,11 +491,10 @@ void YouTubeLiveChatSession::streamFinished(QNetworkReply *reply)
         return;
     }
 
-    this->scheduleReconnect(
-        networkError == QNetworkReply::NoError
-            ? u"Moltorino closed the YouTube chat stream."_s
-            : detail,
-        serverDelay);
+    this->scheduleReconnect(networkError == QNetworkReply::NoError
+                                ? u"Moltorino closed the YouTube chat stream."_s
+                                : detail,
+                            serverDelay);
 }
 
 void YouTubeLiveChatSession::scheduleReconnect(
@@ -519,10 +512,10 @@ void YouTubeLiveChatSession::scheduleReconnect(
     auto delay = requestedDelay.value_or(this->runtime_->backoff);
     if (!requestedDelay)
     {
-        this->runtime_->backoff = std::min(
-            this->runtime_->backoff * 2,
-            std::chrono::duration_cast<std::chrono::milliseconds>(
-                std::chrono::seconds(30)));
+        this->runtime_->backoff =
+            std::min(this->runtime_->backoff * 2,
+                     std::chrono::duration_cast<std::chrono::milliseconds>(
+                         std::chrono::seconds(30)));
         const auto jitter =
             static_cast<int>(QRandomGenerator::global()->bounded(401)) - 200;
         delay = std::max(std::chrono::milliseconds(250),
@@ -562,16 +555,14 @@ void YouTubeLiveChatSession::dispatchMessages(
 void YouTubeLiveChatSession::dispatchState(State state, QString detail)
 {
     const auto generation = this->runtime_->callbackGeneration;
-    QTimer::singleShot(0, this,
-                       [self = QPointer(this), generation, state,
-                        detail = std::move(detail)] {
-                           if (self &&
-                               self->runtime_->callbackGeneration ==
-                                   generation)
-                           {
-                               self->stateCallback_(state, detail);
-                           }
-                       });
+    QTimer::singleShot(
+        0, this,
+        [self = QPointer(this), generation, state, detail = std::move(detail)] {
+            if (self && self->runtime_->callbackGeneration == generation)
+            {
+                self->stateCallback_(state, detail);
+            }
+        });
 }
 
-}
+}  // namespace chatterino

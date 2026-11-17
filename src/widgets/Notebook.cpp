@@ -109,7 +109,7 @@ void showThemedWarning(QWidget *parent, const QString &title,
     installMoltorinoDialogTheme(box);
     box->exec();
 }
-}
+}  // namespace
 
 Notebook::Notebook(QWidget *parent)
     : BaseWidget(parent)

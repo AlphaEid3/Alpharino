@@ -22,4 +22,4 @@ private:
 
 std::pair<MessagePtrMut, HighlightAlert> makeTikTokMessage(
     TikTokChannel *channel, const TikTokEvent &event);
-}
+}  // namespace chatterino

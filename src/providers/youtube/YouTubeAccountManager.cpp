@@ -87,7 +87,7 @@ bool isYouTubeChannelID(const QString &channelID)
     return pattern.match(channelID).hasMatch();
 }
 
-}
+}  // namespace
 
 namespace chatterino {
 
@@ -893,17 +893,16 @@ void YouTubeAccountManager::removeStoredCredential(
             if (attempt < 2)
             {
                 const auto delay = attempt == 0 ? 1000 : 5000;
-                QTimer::singleShot(
-                    delay,
-                    [this, lifetime, channelID, cleanupGeneration, attempt] {
-                        if (!lifetime.expired() &&
-                            this->isCredentialCleanupCurrent(channelID,
-                                                             cleanupGeneration))
-                        {
-                            this->removeStoredCredential(
-                                channelID, cleanupGeneration, attempt + 1);
-                        }
-                    });
+                QTimer::singleShot(delay, [this, lifetime, channelID,
+                                           cleanupGeneration, attempt] {
+                    if (!lifetime.expired() &&
+                        this->isCredentialCleanupCurrent(channelID,
+                                                         cleanupGeneration))
+                    {
+                        this->removeStoredCredential(
+                            channelID, cleanupGeneration, attempt + 1);
+                    }
+                });
                 return;
             }
 
@@ -1437,4 +1436,4 @@ bool YouTubeAccountManager::isTokenRefreshCurrent(
            it->second.account.lock() == account;
 }
 
-}
+}  // namespace chatterino

@@ -40,7 +40,7 @@ QString deleteMessages(TwitchChannel *twitchChannel, const QString &messageID)
     return "";
 }
 
-}
+}  // namespace
 
 namespace chatterino::commands {
 
@@ -96,7 +96,6 @@ QString deleteOneMessage(const CommandContext &ctx)
     auto uuid = QUuid(messageID);
     if (uuid.isNull())
     {
-
         ctx.channel->addSystemMessage(
             QString("Invalid msg-id: \"%1\"").arg(messageID));
         return "";
@@ -118,4 +117,4 @@ QString deleteOneMessage(const CommandContext &ctx)
     return deleteMessages(ctx.twitchChannel, messageID);
 }
 
-}
+}  // namespace chatterino::commands

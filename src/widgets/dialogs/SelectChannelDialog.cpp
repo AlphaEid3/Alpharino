@@ -9,9 +9,9 @@
 #include "providers/kick/KickChatServer.hpp"
 #include "providers/tiktok/TikTokChatServer.hpp"
 #include "providers/tiktok/TikTokTypes.hpp"
-#include "providers/youtube/YouTubeChatServer.hpp"
 #include "providers/twitch/TwitchChannel.hpp"
 #include "providers/twitch/TwitchIrcServer.hpp"
+#include "providers/youtube/YouTubeChatServer.hpp"
 #include "singletons/Fonts.hpp"
 #include "singletons/Theme.hpp"
 #include "util/MultiChannel.hpp"
@@ -732,8 +732,7 @@ IndirectChannel SelectChannelDialog::getSelectedChannel() const
         const auto channelName = this->ui_.channelName->text().trimmed();
         if (this->ui_.channelAnonymous->isChecked())
         {
-            return getApp()->getTwitch()->getOrAddAnonymousChannel(
-                channelName);
+            return getApp()->getTwitch()->getOrAddAnonymousChannel(channelName);
         }
 
         return getApp()->getTwitch()->getOrAddChannel(channelName);

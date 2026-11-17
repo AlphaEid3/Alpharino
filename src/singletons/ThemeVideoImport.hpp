@@ -23,4 +23,4 @@ ThemeWallpaperData prepareThemeVideo(const QString &source,
                                      std::stop_token cancellation = {},
                                      int seconds = 0);
 
-}
+}  // namespace chatterino

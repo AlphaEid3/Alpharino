@@ -41,6 +41,6 @@ function c2.DateTime:to_utc() end
 */
 void createUserTypes(sol::table &c2);
 
-}
+}  // namespace chatterino::lua::api::datetime
 
 #endif

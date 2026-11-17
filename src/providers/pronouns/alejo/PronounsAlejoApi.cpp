@@ -33,7 +33,7 @@ constexpr int PRONOUN_LIST_COOLDOWN_MS = 5 * 60 * 1000;
 constexpr size_t MAX_CONCURRENT_USER_FETCHES = 4;
 constexpr size_t MAX_QUEUED_USER_FETCHES = 1000;
 
-}
+}  // namespace
 
 namespace chatterino::pronouns {
 
@@ -113,9 +113,9 @@ void AlejoApi::startUserFetch(PendingFetch fetch)
 
     const auto username = fetch.username;
     QString endpoint = API_URL % API_USERS_ENDPOINT % "/" % username;
-    auto onDone = std::make_shared<
-        std::function<void(std::optional<UserPronouns>)>>(
-        std::move(fetch.onDone));
+    auto onDone =
+        std::make_shared<std::function<void(std::optional<UserPronouns>)>>(
+            std::move(fetch.onDone));
 
     NetworkRequest(endpoint)
         .caller(this)
@@ -131,7 +131,6 @@ void AlejoApi::startUserFetch(PendingFetch fetch)
             auto status = result.status();
             if (status.has_value() && status == 404)
             {
-
                 this->finishUserFetch();
                 (*onDone)({UserPronouns()});
                 return;
@@ -262,15 +261,40 @@ void AlejoApi::scheduleAvailablePronounsRetry()
         this->pronounsCooldownActive_ = true;
 
         this->failPendingFetches();
-        postToThread([this] {
-            QTimer::singleShot(PRONOUN_LIST_COOLDOWN_MS, this, [this] {
+        postToThread(
+            [this] {
+                QTimer::singleShot(PRONOUN_LIST_COOLDOWN_MS, this, [this] {
+                    if (isAppAboutToQuit())
+                    {
+                        return;
+                    }
+                    this->pronounsCooldownActive_ = false;
+                    this->pronounsRetryScheduled_ = false;
+                    this->pronounsLoadRetryCount_ = 0;
+
+                    {
+                        std::shared_lock lock(this->mutex);
+                        if (!this->pronouns.empty())
+                        {
+                            return;
+                        }
+                    }
+                    this->loadAvailablePronouns();
+                });
+            },
+            this);
+        return;
+    }
+
+    const auto delayMs = (retryCount + 1) * 5000;
+    postToThread(
+        [this, delayMs] {
+            QTimer::singleShot(delayMs, this, [this] {
                 if (isAppAboutToQuit())
                 {
                     return;
                 }
-                this->pronounsCooldownActive_ = false;
                 this->pronounsRetryScheduled_ = false;
-                this->pronounsLoadRetryCount_ = 0;
 
                 {
                     std::shared_lock lock(this->mutex);
@@ -281,29 +305,8 @@ void AlejoApi::scheduleAvailablePronounsRetry()
                 }
                 this->loadAvailablePronouns();
             });
-        }, this);
-        return;
-    }
-
-    const auto delayMs = (retryCount + 1) * 5000;
-    postToThread([this, delayMs] {
-        QTimer::singleShot(delayMs, this, [this] {
-            if (isAppAboutToQuit())
-            {
-                return;
-            }
-            this->pronounsRetryScheduled_ = false;
-
-            {
-                std::shared_lock lock(this->mutex);
-                if (!this->pronouns.empty())
-                {
-                    return;
-                }
-            }
-            this->loadAvailablePronouns();
-        });
-    }, this);
+        },
+        this);
 }
 
 UserPronouns AlejoApi::parsePronoun(const QJsonObject &object)
@@ -330,8 +333,7 @@ UserPronouns AlejoApi::parsePronoun(const QJsonObject &object)
 
     if (alternateValue.isString())
     {
-        const auto alternate =
-            this->pronouns.find(alternateValue.toString());
+        const auto alternate = this->pronouns.find(alternateValue.toString());
         if (alternate != this->pronouns.end())
         {
             return {QString(primary->second.subject % "/" %
@@ -346,4 +348,4 @@ UserPronouns AlejoApi::parsePronoun(const QJsonObject &object)
     return {QString(primary->second.subject % "/" % primary->second.object)};
 }
 
-}
+}  // namespace chatterino::pronouns

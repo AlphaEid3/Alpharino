@@ -53,6 +53,12 @@ jobs:
 
       - name: Enable Developer Command Prompt
         uses: Chatterino/msvc-dev-cmd@v2.0.5
+        with:
+          arch: x64
+          # windows-latest's default MSVC 14.51 rejects libwebm's private
+          # nested HasTag helpers (C2248). The VS 2026 image still ships the
+          # 14.44 toolset, which compiles that code.
+          toolset: "14.44"
 
       - name: Setup sccache
         # sccache v0.7.4

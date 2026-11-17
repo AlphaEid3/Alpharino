@@ -45,7 +45,7 @@ QUrl canonicalUrl(const QString &path)
     return url;
 }
 
-}
+}  // namespace
 
 std::optional<LinkTarget> parseLink(const QUrl &input)
 {
@@ -192,4 +192,4 @@ QString makeUnavailableTooltip(const QString &displayUrl)
            QStringLiteral("<br>TikTok preview unavailable");
 }
 
-}
+}  // namespace chatterino::tiktok

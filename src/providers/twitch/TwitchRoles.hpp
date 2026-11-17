@@ -2,8 +2,8 @@
 
 #include <QDate>
 #include <QString>
-#include <QVector>
 #include <QtGlobal>
+#include <QVector>
 
 #include <array>
 #include <cstdint>
@@ -70,14 +70,12 @@ QUrl summaryUrl(Perspective perspective, const QString &userID);
 QUrl pageUrl(Perspective perspective, Role role, const QString &userID,
              const QString &cursor = {});
 QUrl websiteUrl(Perspective perspective, const QString &login);
-bool repeatsCursor(const QString &requestedCursor,
-                   const QString &nextCursor);
+bool repeatsCursor(const QString &requestedCursor, const QString &nextCursor);
 void sortNewestFirst(QVector<Entry> &entries);
 
 std::optional<Summary> parseSummary(const QByteArray &data,
                                     QString *error = nullptr);
-std::optional<Page> parsePage(const QByteArray &data,
-                              QString *error = nullptr);
+std::optional<Page> parsePage(const QByteArray &data, QString *error = nullptr);
 
-}
-}
+}  // namespace detail
+}  // namespace chatterino::twitch_roles

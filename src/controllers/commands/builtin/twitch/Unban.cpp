@@ -53,7 +53,6 @@ void unbanUserByID(const ChannelPtr &channel, const QString &channelID,
                 break;
 
                 case Error::TargetNotBanned: {
-
                     errorMessage =
                         QString("%1 is not banned from this channel.")
                             .arg(displayName);
@@ -61,7 +60,6 @@ void unbanUserByID(const ChannelPtr &channel, const QString &channelID,
                 break;
 
                 case Error::UserMissingScope: {
-
                     errorMessage += "Missing required scope. "
                                     "Re-login with your "
                                     "account and try again.";
@@ -69,7 +67,6 @@ void unbanUserByID(const ChannelPtr &channel, const QString &channelID,
                 break;
 
                 case Error::UserNotAuthorized: {
-
                     errorMessage += "You don't have permission to "
                                     "perform that action.";
                 }
@@ -85,7 +82,7 @@ void unbanUserByID(const ChannelPtr &channel, const QString &channelID,
         });
 }
 
-}
+}  // namespace
 
 namespace chatterino::commands {
 
@@ -145,7 +142,6 @@ QString unbanUser(const CommandContext &ctx)
         }
         else
         {
-
             userIDs.append(action.target.id);
         }
         if (action.channel.id.isEmpty())
@@ -157,13 +153,11 @@ QString unbanUser(const CommandContext &ctx)
         }
         else
         {
-
             userIDs.append(action.channel.id);
         }
 
         if (!userLoginsToFetch.isEmpty())
         {
-
             getHelix()->fetchUsers(
                 userIDs, userLoginsToFetch,
                 [channel{ctx.channel}, actionChannel{action.channel},
@@ -196,7 +190,6 @@ QString unbanUser(const CommandContext &ctx)
         }
         else
         {
-
             unbanUserByID(ctx.channel, action.channel.id,
                           currentUser->getUserId(), action.target.id,
                           action.target.id);
@@ -206,4 +199,4 @@ QString unbanUser(const CommandContext &ctx)
     return "";
 }
 
-}
+}  // namespace chatterino::commands

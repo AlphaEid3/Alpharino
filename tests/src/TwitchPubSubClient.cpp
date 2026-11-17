@@ -123,7 +123,10 @@ TEST(TwitchPubSubClient, ServerRespondsToPings)
     pubSub.listenToChannelPointRewards("123456");
 
     ASSERT_TRUE(QTest::qWaitFor(
-        [&] { return pubSub.diag.listenResponses == 1; }, 1000));
+        [&] {
+            return pubSub.diag.listenResponses == 1;
+        },
+        1000));
     QTest::qWait(150);
 
     ASSERT_EQ(pubSub.wsDiag().connectionsOpened, 1);
@@ -164,10 +167,10 @@ TEST(TwitchPubSubClient, UnlistenResponseIsTrackedSeparately)
     ASSERT_FALSE(nonce.isEmpty());
 
     client.onMessage(QJsonDocument(QJsonObject{
-                         {"type", "RESPONSE"},
-                         {"nonce", nonce},
-                         {"error", ""},
-                     })
+                                       {"type", "RESPONSE"},
+                                       {"nonce", nonce},
+                                       {"error", ""},
+                                   })
                          .toJson());
 
     EXPECT_EQ(pubSub.diag.listenResponses, 0);

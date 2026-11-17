@@ -30,4 +30,4 @@ private:
     std::vector<HiddenUser> hiddenUsers_;
 };
 
-}
+}  // namespace chatterino

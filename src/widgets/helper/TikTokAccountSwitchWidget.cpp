@@ -85,4 +85,4 @@ void TikTokAccountSwitchWidget::refreshItems()
     }
 }
 
-}
+}  // namespace chatterino

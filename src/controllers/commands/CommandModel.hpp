@@ -27,7 +27,6 @@ class CommandModel : public SignalVectorModel<Command>
     };
 
 protected:
-
     Command getItemFromRow(std::vector<QStandardItem *> &row,
                            const Command &command) override;
 
@@ -37,4 +36,4 @@ protected:
     friend class CommandController;
 };
 
-}
+}  // namespace chatterino

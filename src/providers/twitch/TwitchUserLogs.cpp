@@ -354,7 +354,8 @@ void loadNextPageChunk(const std::shared_ptr<CompletePageRequest> &request)
                 request->page.sourceRecordCount + sourceCount > 100000)
             {
                 auto callback = std::move(request->onError);
-                callback(QStringLiteral("This period is too large. Choose a single day."));
+                callback(QStringLiteral(
+                    "This period is too large. Choose a single day."));
                 return;
             }
             request->page.messages.reserve(request->page.messages.size() +
@@ -404,7 +405,7 @@ void loadCompletePage(const QUrl &url, PageCallback onSuccess,
     loadNextPageChunk(request);
 }
 
-}
+}  // namespace
 
 QString Period::key() const
 {
@@ -543,7 +544,7 @@ void resolveMessageAnchor(const QUrl &url, const Message &expected,
         std::move(onError));
 }
 
-}
+}  // namespace
 
 void resolvePeriodMessageAnchor(const QString &channel, const QString &user,
                                 const Period &period, const Message &expected,
@@ -893,5 +894,5 @@ std::optional<Message> parseJsonMessage(const QByteArray &data, QString *error)
     };
 }
 
-}
-}
+}  // namespace detail
+}  // namespace chatterino::twitch_user_logs

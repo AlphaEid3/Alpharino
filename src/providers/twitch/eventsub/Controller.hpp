@@ -169,7 +169,6 @@ public:
 
     void setQuitting() override
     {
-
     }
 
     [[nodiscard]] SubscriptionHandle subscribe(
@@ -193,4 +192,4 @@ public:
     }
 };
 
-}
+}  // namespace chatterino::eventsub

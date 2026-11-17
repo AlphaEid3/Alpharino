@@ -43,7 +43,6 @@ struct BackupFile {
 };
 
 struct FileData {
-
     QString fileName;
     QString directory;
 
@@ -62,6 +61,6 @@ void loadSettingManagerWithBackups(
     const FileData &fileData,
     const std::shared_ptr<pajlada::Settings::SettingManager> &manager);
 
-}
+}  // namespace chatterino::backup
 
 Q_DECLARE_METATYPE(chatterino::backup::BackupFile);

@@ -29,8 +29,9 @@ public:
 
     Pronouns();
     explicit Pronouns(
-        Fetcher fetcher,
-        NowProvider nowProvider = [] { return Clock::now(); });
+        Fetcher fetcher, NowProvider nowProvider = [] {
+            return Clock::now();
+        });
 
     void getUserPronoun(
         const QString &username,
@@ -78,4 +79,4 @@ private:
     NowProvider nowProvider_;
 };
 
-}
+}  // namespace chatterino::pronouns

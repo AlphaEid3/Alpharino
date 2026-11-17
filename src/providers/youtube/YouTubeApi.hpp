@@ -48,7 +48,7 @@ struct PublicLivePageState {
 
 PublicLivePageState parsePublicLivePage(QByteArrayView page);
 
-}
+}  // namespace youtube::detail
 
 struct YouTubeOwnChannel {
     QString channelID;
@@ -92,7 +92,7 @@ std::optional<QString> findMatchingLiveChatMessageID(
 
 bool shouldResolveLiveChatMessageDelete(const YouTubeApiError &error);
 
-}
+}  // namespace youtube::detail
 
 class YouTubeApi
 {
@@ -143,4 +143,4 @@ public:
                           AuthenticatedCallback<void> callback);
 };
 
-}
+}  // namespace chatterino

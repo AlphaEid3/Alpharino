@@ -50,4 +50,4 @@ private:
     bool finished_ = false;
 };
 
-}
+}  // namespace chatterino::detail

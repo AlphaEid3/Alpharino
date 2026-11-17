@@ -1,8 +1,8 @@
 #include "TikTokLoginView.hpp"
 
+#include "providers/tiktok/TikTokRequestSigning.hpp"
 #include "TikTokLoginBrowser.hpp"
 #include "TikTokLoginQrCode.hpp"
-#include "providers/tiktok/TikTokRequestSigning.hpp"
 
 #include <QBuffer>
 #include <QDateTime>
@@ -59,8 +59,7 @@ protected:
     {
         QLabel::resizeEvent(event);
         const auto height = std::max(8, this->fontMetrics().height() / 2);
-        this->progress_->setGeometry(this->width() / 4,
-                                     this->height() * 3 / 4,
+        this->progress_->setGeometry(this->width() / 4, this->height() * 3 / 4,
                                      this->width() / 2, height);
     }
 
@@ -88,7 +87,7 @@ protected:
         painter.setPen(this->palette().color(QPalette::Text));
         painter.drawText(QRect(8, this->height() / 2 + 4, this->width() - 16,
                                this->fontMetrics().height() * 2),
-                          Qt::AlignHCenter | Qt::AlignTop, this->text());
+                         Qt::AlignHCenter | Qt::AlignTop, this->text());
     }
 
 private:
@@ -233,7 +232,7 @@ QImage qrImage(const QJsonObject &qr)
     renderer.render(&painter);
     return image;
 }
-}
+}  // namespace
 
 struct TikTokLoginView::Impl {
     TikTokLoginView *view = nullptr;
@@ -339,8 +338,7 @@ struct TikTokLoginView::Impl {
                 .ready =
                     [weak, browserGeneration] {
                         if (!weak || weak->impl_->closed ||
-                            weak->impl_->browserGeneration !=
-                                browserGeneration)
+                            weak->impl_->browserGeneration != browserGeneration)
                             return;
                         auto &self = *weak->impl_;
                         self.ready = true;
@@ -355,8 +353,7 @@ struct TikTokLoginView::Impl {
                 .error =
                     [weak, browserGeneration](const QString &message) {
                         if (!weak || weak->impl_->closed ||
-                            weak->impl_->browserGeneration !=
-                                browserGeneration)
+                            weak->impl_->browserGeneration != browserGeneration)
                             return;
                         QTimer::singleShot(
                             0, weak.data(), [weak, browserGeneration, message] {
@@ -382,8 +379,7 @@ struct TikTokLoginView::Impl {
         if (state == u"scanned")
         {
             this->clearCode(u"Scanned"_s, true);
-            this->status->setText(
-                u"Confirm the login on your phone."_s);
+            this->status->setText(u"Confirm the login on your phone."_s);
             return;
         }
 
@@ -412,8 +408,7 @@ struct TikTokLoginView::Impl {
                 branded.setDevicePixelRatio(ratio);
                 this->qr->setBusy(false);
                 this->qr->setPixmap(QPixmap::fromImage(branded));
-                this->status->setText(
-                    u"Scan this code with your phone."_s);
+                this->status->setText(u"Scan this code with your phone."_s);
             }
         }
 
@@ -529,7 +524,6 @@ struct TikTokLoginView::Impl {
                     return;
                 }
 
-
                 self.poll.stop();
                 QTimer::singleShot(
                     0, weak.data(),
@@ -563,8 +557,7 @@ struct TikTokLoginView::Impl {
 };
 
 TikTokLoginView::TikTokLoginView(QWidget *parent, Callback callback)
-    : TikTokLoginView(parent, std::move(callback),
-                      &TikTokLoginBrowser::create)
+    : TikTokLoginView(parent, std::move(callback), &TikTokLoginBrowser::create)
 {
 }
 
@@ -616,7 +609,7 @@ TikTokLoginView::TikTokLoginView(QWidget *parent, Callback callback,
     this->impl_->qr->setBusy(true);
     qrLayout->addWidget(this->impl_->qr, 0, Qt::AlignHCenter);
     this->impl_->qrPage->setSizePolicy(QSizePolicy::Preferred,
-                                      QSizePolicy::Maximum);
+                                       QSizePolicy::Maximum);
     this->impl_->pages->addWidget(this->impl_->qrPage);
 
     this->impl_->surface = new QWidget(this);
@@ -626,8 +619,7 @@ TikTokLoginView::TikTokLoginView(QWidget *parent, Callback callback,
     this->impl_->pages->addWidget(this->impl_->surface);
     layout->addWidget(this->impl_->pages);
 
-    this->impl_->status =
-        new QLabel(u"Opening TikTok login..."_s, this);
+    this->impl_->status = new QLabel(u"Opening TikTok login..."_s, this);
     this->impl_->status->setObjectName(u"tiktokLoginStatus"_s);
     this->impl_->status->setWordWrap(true);
     this->impl_->status->setFixedWidth(codeSize);
@@ -702,4 +694,4 @@ void TikTokLoginView::done(int result)
     this->impl_->close();
     QDialog::done(result);
 }
-}
+}  // namespace chatterino

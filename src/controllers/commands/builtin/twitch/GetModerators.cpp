@@ -71,7 +71,7 @@ QString formatModsError(HelixGetModeratorsError error, const QString &message)
     return errorMessage;
 }
 
-}
+}  // namespace
 
 namespace chatterino::commands {
 
@@ -95,8 +95,8 @@ QString getModerators(const CommandContext &ctx)
     {
         getHelix()->getModerators(
             ctx.twitchChannel->roomId(), 500,
-            [channel{ctx.channel}, twitchChannel{ctx.twitchChannel}](
-                auto result) {
+            [channel{ctx.channel},
+             twitchChannel{ctx.twitchChannel}](auto result) {
                 if (result.empty())
                 {
                     channel->addSystemMessage(
@@ -119,19 +119,19 @@ QString getModerators(const CommandContext &ctx)
 
     getIvr()->getModVip(
         channelLogin,
-        [channel{ctx.channel}](
-            const std::vector<HelixModerator> &mods,
-            const std::vector<HelixVip> &) {
+        [channel{ctx.channel}](const std::vector<HelixModerator> &mods,
+                               const std::vector<HelixVip> &) {
             if (mods.empty())
             {
-                channel->addSystemMessage("This channel does not have any moderators.");
+                channel->addSystemMessage(
+                    "This channel does not have any moderators.");
                 return;
             }
 
-            channel->addMessage(MessageBuilder::makeListOfUsersMessage(
-                                    "The moderators of this channel are",
-                                    mods, channel.get()),
-                                MessageContext::Original);
+            channel->addMessage(
+                MessageBuilder::makeListOfUsersMessage(
+                    "The moderators of this channel are", mods, channel.get()),
+                MessageContext::Original);
         },
         [channel{ctx.channel}] {
             channel->addSystemMessage("Could not get moderator list!");
@@ -140,4 +140,4 @@ QString getModerators(const CommandContext &ctx)
     return "";
 }
 
-}
+}  // namespace chatterino::commands

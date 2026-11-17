@@ -4,12 +4,11 @@
 
 #pragma once
 
-#include <QString>
 #include <QPointer>
+#include <QString>
 #include <QTextCursor>
 
-namespace chatterino
-{
+namespace chatterino {
 
 class ResizingTextEdit;
 class Channel;
@@ -21,19 +20,18 @@ class UrlShortener final
 {
 public:
     void shorten(const QString &url, ChannelPtr channel,
-                 QPointer<ResizingTextEdit> textEdit,
-                 QTextCursor cursor);
+                 QPointer<ResizingTextEdit> textEdit, QTextCursor cursor);
 
 private:
     void sendShortenRequest(const QString &url, ChannelPtr channel,
                             QPointer<ResizingTextEdit> textEdit,
                             QTextCursor cursor);
 
-    void handleSuccessfulShorten(const NetworkResult &result, ChannelPtr channel,
+    void handleSuccessfulShorten(const NetworkResult &result,
+                                 ChannelPtr channel,
                                  QPointer<ResizingTextEdit> textEdit,
                                  QTextCursor cursor, const QString &url);
 
-    void handleFailedShorten(const NetworkResult &result,
-                             ChannelPtr channel);
+    void handleFailedShorten(const NetworkResult &result, ChannelPtr channel);
 };
-}
+}  // namespace chatterino

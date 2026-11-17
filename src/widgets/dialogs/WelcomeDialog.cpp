@@ -13,4 +13,4 @@ WelcomeDialog::WelcomeDialog()
     this->setWindowTitle("Alpharino quick setup");
 }
 
-}
+}  // namespace chatterino

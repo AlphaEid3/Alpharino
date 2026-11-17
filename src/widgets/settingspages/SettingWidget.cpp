@@ -32,7 +32,7 @@ const auto MAX_TOOLTIP_LINE_LENGTH_PATTERN =
 const QRegularExpression MAX_TOOLTIP_LINE_LENGTH_REGEX(
     MAX_TOOLTIP_LINE_LENGTH_PATTERN);
 
-}
+}  // namespace
 
 namespace chatterino {
 
@@ -387,7 +387,7 @@ SettingWidget *SettingWidget::dropdown(
         widget->managedConnections);
 
     QObject::connect(combo, &QComboBox::currentTextChanged,
-                     [label, combo, &setting](const auto & ) {
+                     [label, combo, &setting](const auto &) {
                          auto stringValue = combo->currentData().toString();
 
                          setting.setValue(stringValue);
@@ -544,7 +544,6 @@ SettingWidget *SettingWidget::setTooltip(QString tooltip)
 
     if (tooltip.length() > MAX_TOOLTIP_LINE_LENGTH)
     {
-
         tooltip.replace(MAX_TOOLTIP_LINE_LENGTH_REGEX, "\n");
     }
 
@@ -654,4 +653,4 @@ void SettingWidget::registerWidget(GeneralPageView &view)
     view.registerWidget(this->actionWidget, this->keywords, this);
 }
 
-}
+}  // namespace chatterino

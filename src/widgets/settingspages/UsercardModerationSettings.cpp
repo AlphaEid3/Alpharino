@@ -537,7 +537,7 @@ QFrame *makePanel(QWidget *parent = nullptr)
     return panel;
 }
 
-}
+}  // namespace
 
 namespace chatterino {
 
@@ -1082,11 +1082,10 @@ struct UsercardModerationSettings::Impl {
             rightClick, &QCheckBox::toggled, this->owner, [](bool checked) {
                 getSettings()->timeoutReasonPromptOnRightClick = checked;
             });
-        QObject::connect(modifier, &QCheckBox::toggled, this->owner,
-                         [](bool checked) {
-                             getSettings()->timeoutReasonPromptOnModifier =
-                                 checked;
-                         });
+        QObject::connect(
+            modifier, &QCheckBox::toggled, this->owner, [](bool checked) {
+                getSettings()->timeoutReasonPromptOnModifier = checked;
+            });
         QObject::connect(modifierKey, &QComboBox::currentTextChanged,
                          this->owner, [](const QString &key) {
                              getSettings()->timeoutReasonPromptModifier = key;
@@ -1109,11 +1108,13 @@ struct UsercardModerationSettings::Impl {
                 },
                 this->signalHolder, false);
         };
-        bindCheckbox(getSettings()->timeoutReasonPromptOnRightClick, rightClick);
+        bindCheckbox(getSettings()->timeoutReasonPromptOnRightClick,
+                     rightClick);
         bindCheckbox(getSettings()->timeoutReasonPromptOnModifier, modifier);
         bindCheckbox(getSettings()->timeoutReasonPromptPrefillSavedReason,
                      prefill);
-        bindCheckbox(getSettings()->timeoutReasonPromptShowSendButton, showSend);
+        bindCheckbox(getSettings()->timeoutReasonPromptShowSendButton,
+                     showSend);
         getSettings()->timeoutReasonPromptOnModifier.connect(
             [modifierKey](bool enabled) {
                 modifierKey->setEnabled(enabled);
@@ -1905,4 +1906,4 @@ UsercardModerationSettings::UsercardModerationSettings(QWidget *parent)
 
 UsercardModerationSettings::~UsercardModerationSettings() = default;
 
-}
+}  // namespace chatterino

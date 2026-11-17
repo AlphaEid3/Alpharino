@@ -21,10 +21,14 @@ namespace chatterino {
 namespace {
 
 const QStringList INPUT_OPTIONS{
-    QStringLiteral("-v"), QStringLiteral("error"),
-    QStringLiteral("-protocol_whitelist"), QStringLiteral("file,pipe"),
-    QStringLiteral("-probesize"), QStringLiteral("5000000"),
-    QStringLiteral("-analyzeduration"), QStringLiteral("5000000"),
+    QStringLiteral("-v"),
+    QStringLiteral("error"),
+    QStringLiteral("-protocol_whitelist"),
+    QStringLiteral("file,pipe"),
+    QStringLiteral("-probesize"),
+    QStringLiteral("5000000"),
+    QStringLiteral("-analyzeduration"),
+    QStringLiteral("5000000"),
 };
 
 QString mediaTool(const QString &name)
@@ -107,7 +111,7 @@ double ratio(const QString &text, QChar separator)
     return denominator > 0 ? numerator / denominator : 0;
 }
 
-}
+}  // namespace
 
 bool isThemeVideoInput(const QString &source)
 {
@@ -332,4 +336,4 @@ ThemeWallpaperData prepareThemeVideo(const QString &source,
     return {std::move(bytes), {}, QStringLiteral("webm")};
 }
 
-}
+}  // namespace chatterino

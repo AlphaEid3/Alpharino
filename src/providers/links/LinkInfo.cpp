@@ -7,6 +7,7 @@
 #include "debug/AssertInGuiThread.hpp"
 
 #include <QString>
+
 #include <algorithm>
 
 namespace chatterino {
@@ -130,4 +131,4 @@ void LinkInfo::setThumbnailSizeRange(int minimum, int maximum)
     this->maximumThumbnailSize_ = maximum;
 }
 
-}
+}  // namespace chatterino

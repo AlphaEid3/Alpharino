@@ -58,4 +58,4 @@ private:
     QList<QPointer<ChannelView>> searchChannels_;
 };
 
-}
+}  // namespace chatterino

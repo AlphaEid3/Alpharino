@@ -24,4 +24,4 @@ private:
     const QColor color_;
 };
 
-}
+}  // namespace chatterino

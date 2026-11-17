@@ -82,14 +82,20 @@ jobs:
         uses: jurplel/install-qt-action@v4.3.1
         with:
           cache: true
-          cache-key-prefix: ${{ runner.os }}-QtCache-${{ matrix.qt-version }}-v2
-          modules: qtimageformats qtsvg
+          cache-key-prefix: ${{ runner.os }}-QtCache-${{ matrix.qt-version }}-v3
+          # qtsvg ships inside the base Qt archives. aqtinstall 3.3 rejects it
+          # as a --modules package ("not found while parsing XML").
+          modules: qtimageformats
           version: ${{ matrix.qt-version }}
 
       - name: Enable Developer Command Prompt (Windows)
         uses: Chatterino/msvc-dev-cmd@v2.0.5
         with:
           arch: x64
+          # windows-latest's default MSVC 14.51 rejects libwebm's private
+          # nested HasTag helpers (C2248). The VS 2026 image still ships the
+          # 14.44 toolset, which compiles that code.
+          toolset: "14.44"
 
       - name: Setup sccache (Windows)
         # sccache v0.7.4

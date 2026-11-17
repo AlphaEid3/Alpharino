@@ -59,4 +59,4 @@ bool isExtendedTwitchClientNonce(QStringView nonce)
            INVISIBLE_NONCE_AND_MESSAGE_BYTES - TWITCH_MESSAGE_LIMIT * 4;
 }
 
-}
+}  // namespace chatterino

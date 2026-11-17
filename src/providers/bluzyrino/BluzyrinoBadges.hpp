@@ -46,4 +46,4 @@ private:
     int failures_ = 0;
 };
 
-}
+}  // namespace chatterino

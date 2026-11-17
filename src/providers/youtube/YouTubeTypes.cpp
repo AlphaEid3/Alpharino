@@ -51,9 +51,9 @@ QString normalizedMessageText(QStringView text)
     return text.toString().normalized(QString::NormalizationForm_C);
 }
 
-bool isRecentPendingMatch(
-    const YouTubePendingSend &pending, const QDateTime &publishedAt,
-    std::chrono::steady_clock::time_point now)
+bool isRecentPendingMatch(const YouTubePendingSend &pending,
+                          const QDateTime &publishedAt,
+                          std::chrono::steady_clock::time_point now)
 {
     if (publishedAt.isValid() && pending.sentAt.isValid())
     {
@@ -73,7 +73,7 @@ bool isRecentPendingMatch(
            now - pending.trackedAt <= YouTubePendingSendTracker::MATCH_WINDOW;
 }
 
-}
+}  // namespace
 
 namespace chatterino {
 
@@ -134,8 +134,8 @@ bool shouldJoinYouTubeMessageRuns(const YouTubeMessageRun &left,
     }
 
     const auto isRenderedCustomEmoji = [](const YouTubeMessageRun &run) {
-        return run.kind == YouTubeMessageRun::Kind::Emoji &&
-               run.customEmoji && !run.emojiImageUrl.isEmpty();
+        return run.kind == YouTubeMessageRun::Kind::Emoji && run.customEmoji &&
+               !run.emojiImageUrl.isEmpty();
     };
     if (left.kind == YouTubeMessageRun::Kind::Emoji ||
         right.kind == YouTubeMessageRun::Kind::Emoji)
@@ -231,8 +231,7 @@ std::optional<QString> YouTubePendingSendTracker::acknowledge(
 }
 
 std::optional<YouTubePendingSend> YouTubePendingSendTracker::takeMatching(
-    const YouTubeMessage &message,
-    std::chrono::steady_clock::time_point now)
+    const YouTubeMessage &message, std::chrono::steady_clock::time_point now)
 {
     if (message.kind != YouTubeMessageKind::Text ||
         message.liveChatId.isEmpty())
@@ -251,16 +250,14 @@ std::optional<YouTubePendingSend> YouTubePendingSendTracker::takeMatching(
             });
     }
 
-    if (pending == this->pending_.end() &&
-        !message.author.channelId.isEmpty())
+    if (pending == this->pending_.end() && !message.author.channelId.isEmpty())
     {
         const auto normalizedText = normalizedMessageText(message.text);
         pending = std::ranges::find_if(
             this->pending_,
             [&message, &normalizedText, now](const auto &candidate) {
                 return candidate.liveChatID == message.liveChatId &&
-                       candidate.author.channelId ==
-                           message.author.channelId &&
+                       candidate.author.channelId == message.author.channelId &&
                        candidate.text == normalizedText &&
                        isRecentPendingMatch(candidate, message.publishedAt,
                                             now);
@@ -313,8 +310,8 @@ std::optional<YouTubePendingSend> YouTubePendingSendTracker::takeByMessageID(
     return matched;
 }
 
-std::vector<QString>
-YouTubePendingSendTracker::unacknowledgedLocalMessageIDs() const
+std::vector<QString> YouTubePendingSendTracker::unacknowledgedLocalMessageIDs()
+    const
 {
     std::vector<QString> ids;
     ids.reserve(this->pending_.size());
@@ -437,8 +434,7 @@ YouTubeMessage parseYouTubeMessage(const QJsonObject &object)
             const auto details =
                 snippet.value(QStringLiteral("superChatDetails")).toObject();
             message.amountDisplayString =
-                details.value(QStringLiteral("amountDisplayString"))
-                    .toString();
+                details.value(QStringLiteral("amountDisplayString")).toString();
             message.text =
                 details.value(QStringLiteral("userComment")).toString();
             if (message.amountDisplayString.isEmpty())
@@ -459,20 +455,18 @@ YouTubeMessage parseYouTubeMessage(const QJsonObject &object)
             }
             else if (details.value(QStringLiteral("isUpgrade")).toBool())
             {
-                message.eventText = message.membershipLevelName.isEmpty()
-                                        ? QStringLiteral(
-                                              "%1 upgraded their membership")
-                                              .arg(eventAuthorName)
-                                        : QStringLiteral(
-                                              "%1 upgraded to %2")
-                                              .arg(eventAuthorName,
-                                                   message.membershipLevelName);
+                message.eventText =
+                    message.membershipLevelName.isEmpty()
+                        ? QStringLiteral("%1 upgraded their membership")
+                              .arg(eventAuthorName)
+                        : QStringLiteral("%1 upgraded to %2")
+                              .arg(eventAuthorName,
+                                   message.membershipLevelName);
             }
             else
             {
                 message.eventText = message.membershipLevelName.isEmpty()
-                                        ? QStringLiteral(
-                                              "%1 became a member")
+                                        ? QStringLiteral("%1 became a member")
                                               .arg(eventAuthorName)
                                         : QStringLiteral("%1 joined as %2")
                                               .arg(eventAuthorName,
@@ -532,9 +526,8 @@ YouTubeMessage parseYouTubeMessage(const QJsonObject &object)
             }
             else
             {
-                message.eventText =
-                    QStringLiteral("%1 gifted memberships")
-                        .arg(eventAuthorName);
+                message.eventText = QStringLiteral("%1 gifted memberships")
+                                        .arg(eventAuthorName);
             }
             message.text.clear();
             break;
@@ -860,4 +853,4 @@ void YouTubeReplayBuffer::pruneAuthors()
     });
 }
 
-}
+}  // namespace chatterino

@@ -70,7 +70,6 @@ ModerationAction::ModerationAction(const QString &action, const QUrl &iconPath)
         }
         else
         {
-
             if (amount > 2 * week)
             {
                 this->line1_ = ">2";
@@ -155,13 +154,13 @@ const std::optional<ImagePtr> &ModerationAction::getImage() const
     {
         if (getTheme()->isLightTheme())
         {
-            this->image_ =
-                Image::fromResourcePixmap(getResources().buttons.pinModActionLight);
+            this->image_ = Image::fromResourcePixmap(
+                getResources().buttons.pinModActionLight);
         }
         else
         {
-            this->image_ =
-                Image::fromResourcePixmap(getResources().buttons.pinModActionDark);
+            this->image_ = Image::fromResourcePixmap(
+                getResources().buttons.pinModActionDark);
         }
     }
 
@@ -193,4 +192,4 @@ ModerationAction::Type ModerationAction::getType() const
     return this->type_;
 }
 
-}
+}  // namespace chatterino

@@ -31,7 +31,9 @@ public:
                                 const boost::json::value &jv) = 0;
 
     virtual void onRevocation(const messages::Metadata &,
-                              const boost::json::value &) {}
+                              const boost::json::value &)
+    {
+    }
 
     virtual void onClose(
         std::unique_ptr<Listener> self,

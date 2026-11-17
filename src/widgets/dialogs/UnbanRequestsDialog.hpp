@@ -163,4 +163,4 @@ private:
     static std::vector<QPointer<UnbanRequestsDialog>> activeDialogs_;
 };
 
-}
+}  // namespace chatterino

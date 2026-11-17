@@ -39,4 +39,4 @@ void initMoltorinoUpdateButton(PixmapButton &button,
                                 });
 }
 
-}
+}  // namespace chatterino

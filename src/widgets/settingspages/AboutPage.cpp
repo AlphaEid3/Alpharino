@@ -110,12 +110,34 @@ AboutPage::AboutPage()
         {
             auto l = aboutChatterino.emplace<QVBoxLayout>();
 
-            l.emplace<QLabel>("Alpharino is a Windows Twitch chat client. Downloads are on <a href=\"https://github.com/AlphaEid3/Alpharino/releases\">GitHub releases</a>.")->setOpenExternalLinks(true);
-            l.emplace<QLabel>("Report issues on <a href=\"https://github.com/AlphaEid3/Alpharino/issues\">GitHub</a>.")->setOpenExternalLinks(true);
-            l.emplace<QLabel>("Alpharino keeps the features of <a href=\"https://github.com/EEVA-inc/Moltorino\">Moltorino</a>, a fork of <a href=\"https://github.com/SevenTV/chatterino7\">Chatterino7</a>, which is based on <a href=\"" % LINK_CHATTERINO_SOURCE % "\">Chatterino 2</a>.")->setOpenExternalLinks(true);
-            l.emplace<QLabel>("Chatterino Wiki can be found <a href=\"" % LINK_CHATTERINO_WIKI % "\">here</a>. Chatterino's feature list is <a href=\"" % LINK_CHATTERINO_FEATURES % "\">here</a>.")->setOpenExternalLinks(true);
-            l.emplace<QLabel>("Join the official Chatterino <a href=\"" % LINK_CHATTERINO_DISCORD % "\">Discord</a> or the 7TV <a href=\"" % LINK_SEVENTV_DISCORD % "\">Discord</a>.")->setOpenExternalLinks(true);
-
+            l.emplace<QLabel>("Alpharino is a Windows Twitch chat client. "
+                              "Downloads are on <a "
+                              "href=\"https://github.com/AlphaEid3/Alpharino/"
+                              "releases\">GitHub releases</a>.")
+                ->setOpenExternalLinks(true);
+            l.emplace<QLabel>("Report issues on <a "
+                              "href=\"https://github.com/AlphaEid3/Alpharino/"
+                              "issues\">GitHub</a>.")
+                ->setOpenExternalLinks(true);
+            l.emplace<QLabel>(
+                 "Alpharino keeps the features of <a "
+                 "href=\"https://github.com/EEVA-inc/Moltorino\">Moltorino</"
+                 "a>, a fork of <a "
+                 "href=\"https://github.com/SevenTV/chatterino7\">Chatterino7</"
+                 "a>, which is based on <a href=\"" %
+                 LINK_CHATTERINO_SOURCE % "\">Chatterino 2</a>.")
+                ->setOpenExternalLinks(true);
+            l.emplace<QLabel>(
+                 "Chatterino Wiki can be found <a href=\"" %
+                 LINK_CHATTERINO_WIKI %
+                 "\">here</a>. Chatterino's feature list is <a href=\"" %
+                 LINK_CHATTERINO_FEATURES % "\">here</a>.")
+                ->setOpenExternalLinks(true);
+            l.emplace<QLabel>("Join the official Chatterino <a href=\"" %
+                              LINK_CHATTERINO_DISCORD %
+                              "\">Discord</a> or the 7TV <a href=\"" %
+                              LINK_SEVENTV_DISCORD % "\">Discord</a>.")
+                ->setOpenExternalLinks(true);
         }
 
         auto licenses =
@@ -216,13 +238,26 @@ AboutPage::AboutPage()
         {
             auto l = attributions.emplace<QVBoxLayout>();
 
-            l.emplace<QLabel>("Twemoji emojis provided by <a href=\"https://github.com/twitter/twemoji\">Twitter's Twemoji</a>")->setOpenExternalLinks(true);
-            l.emplace<QLabel>("Facebook emojis provided by <a href=\"https://facebook.com\">Facebook</a>")->setOpenExternalLinks(true);
-            l.emplace<QLabel>("Apple emojis provided by <a href=\"https://apple.com\">Apple</a>")->setOpenExternalLinks(true);
-            l.emplace<QLabel>("Google emojis provided by <a href=\"https://google.com\">Google</a>")->setOpenExternalLinks(true);
-            l.emplace<QLabel>("Emoji datasource provided by <a href=\"https://www.iamcal.com/\">Cal Henderson</a> "
-                              "(<a href=\"https://github.com/iamcal/emoji-data/blob/master/LICENSE\">show license</a>)")->setOpenExternalLinks(true);
-
+            l.emplace<QLabel>("Twemoji emojis provided by <a "
+                              "href=\"https://github.com/twitter/"
+                              "twemoji\">Twitter's Twemoji</a>")
+                ->setOpenExternalLinks(true);
+            l.emplace<QLabel>("Facebook emojis provided by <a "
+                              "href=\"https://facebook.com\">Facebook</a>")
+                ->setOpenExternalLinks(true);
+            l.emplace<QLabel>("Apple emojis provided by <a "
+                              "href=\"https://apple.com\">Apple</a>")
+                ->setOpenExternalLinks(true);
+            l.emplace<QLabel>("Google emojis provided by <a "
+                              "href=\"https://google.com\">Google</a>")
+                ->setOpenExternalLinks(true);
+            l.emplace<QLabel>(
+                 "Emoji datasource provided by <a "
+                 "href=\"https://www.iamcal.com/\">Cal Henderson</a> "
+                 "(<a "
+                 "href=\"https://github.com/iamcal/emoji-data/blob/master/"
+                 "LICENSE\">show license</a>)")
+                ->setOpenExternalLinks(true);
         }
 
         auto contributors = layout.emplace<QGroupBox>("People");
@@ -290,7 +325,6 @@ AboutPage::AboutPage()
                     QPixmap avatarPixmap;
                     if (avatarUrl.isEmpty())
                     {
-
                         avatarPixmap.load(":/avatars/anon.png");
                     }
                     else
@@ -359,4 +393,4 @@ void AboutPage::addLicense(QFormLayout *form, const QString &name,
     form->addRow(a, b);
 }
 
-}
+}  // namespace chatterino

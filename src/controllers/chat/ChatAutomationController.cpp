@@ -294,7 +294,7 @@ QString expandTemplate(const ChatAutomation &rule,
                                       std::move(context));
 }
 
-}
+}  // namespace
 
 namespace pajlada {
 
@@ -405,8 +405,7 @@ chatterino::ChatAutomation Deserialize<chatterino::ChatAutomation>::get(
     const bool validAccess =
         access >= 0 &&
         access <= static_cast<int>(ChatAutomationAccess::NamedUsers);
-    if (!validMatch || !validAction || !validAccess ||
-        arguments < 0 ||
+    if (!validMatch || !validAction || !validAccess || arguments < 0 ||
         arguments > static_cast<int>(ChatAutomationArguments::None) ||
         stream < 0 ||
         stream > static_cast<int>(ChatAutomationStream::Offline) ||
@@ -444,7 +443,7 @@ chatterino::ChatAutomation Deserialize<chatterino::ChatAutomation>::get(
     return rule;
 }
 
-}
+}  // namespace pajlada
 
 namespace chatterino {
 
@@ -1447,8 +1446,7 @@ void ChatAutomationController::handleMessage(
         if (!rule.enabled ||
             (rule.trigger.isEmpty() &&
              rule.match != ChatAutomationMatch::AnyMessage) ||
-            rule.response.isEmpty() ||
-            (fromBotAccount && !fromSelectedAccount))
+            rule.response.isEmpty() || (fromBotAccount && !fromSelectedAccount))
         {
             continue;
         }
@@ -1542,8 +1540,8 @@ void ChatAutomationController::handleMessage(
         }
         const auto responseIndex = this->nextResponseIndex(rule, key);
         auto output =
-            expandResponse(rule, match, channel, *message, *account,
-                           settings, *this->commands_, responseIndex, counter);
+            expandResponse(rule, match, channel, *message, *account, settings,
+                           *this->commands_, responseIndex, counter);
         output = output.trimmed();
         if (output.isEmpty())
         {
@@ -1589,4 +1587,4 @@ void ChatAutomationController::handleMessage(
     }
 }
 
-}
+}  // namespace chatterino

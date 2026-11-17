@@ -25,8 +25,7 @@ public:
                   const QString &login = {},
                   const QString &displayName = {}) const;
     bool shouldSuppressHighlights(MessagePlatform platform,
-                                  const QString &userID,
-                                  const QString &login,
+                                  const QString &userID, const QString &login,
                                   const QString &text) const;
     bool shouldHideMessage(const Message &message) const;
     bool setHidden(HiddenUserPlatform platform, const QString &userID,
@@ -52,4 +51,4 @@ private:
 
 HiddenUserPlatform hiddenUserPlatform(MessagePlatform platform);
 
-}
+}  // namespace chatterino

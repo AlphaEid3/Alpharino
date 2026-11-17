@@ -62,5 +62,5 @@ void deliverLive(const MessagePtr &message, Factory &&factory,
     deliver();
 }
 
-}
-}
+}  // namespace recording
+}  // namespace chatterino

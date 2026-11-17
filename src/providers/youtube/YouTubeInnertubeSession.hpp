@@ -62,4 +62,4 @@ private:
     bool stopping_ = false;
 };
 
-}
+}  // namespace chatterino

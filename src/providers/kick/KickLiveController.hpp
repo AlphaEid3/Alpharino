@@ -2,8 +2,8 @@
 
 #include <QList>
 #include <QObject>
-#include <QTimer>
 #include <QSet>
+#include <QTimer>
 
 #include <span>
 #include <vector>
@@ -38,4 +38,4 @@ private:
     QSet<uint64_t> publicRequests;
 };
 
-}
+}  // namespace chatterino

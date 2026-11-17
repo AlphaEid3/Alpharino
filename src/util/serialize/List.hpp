@@ -43,4 +43,4 @@ struct Deserialize<QList<T>> {
     }
 };
 
-}
+}  // namespace pajlada

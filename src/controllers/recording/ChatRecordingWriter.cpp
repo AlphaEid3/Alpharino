@@ -226,7 +226,7 @@ QString fileDigest(const QString &path)
     }
     return QString::fromLatin1(hash.result().toHex());
 }
-}
+}  // namespace
 
 QString recordingFileName(const QJsonObject &metadata,
                           const QJsonArray &sources)
@@ -651,8 +651,9 @@ struct Writer::Impl {
             QSqlQuery query(session->db);
             query.prepare("SELECT data FROM metadata WHERE key='recording'");
             sql(query);
-            const auto metadata =
-                next(query) ? object(query.value(0).toByteArray()) : QJsonObject{};
+            const auto metadata = next(query)
+                                      ? object(query.value(0).toByteArray())
+                                      : QJsonObject{};
             if (metadata.isEmpty())
             {
                 throw std::runtime_error(
@@ -1682,4 +1683,4 @@ void Writer::recover(const QStringList &ids)
     }
 }
 
-}
+}  // namespace chatterino::recording

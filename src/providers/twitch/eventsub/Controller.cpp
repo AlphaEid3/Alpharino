@@ -5,18 +5,18 @@
 #include "providers/twitch/eventsub/Controller.hpp"
 
 #include "Application.hpp"
-#include "util/PostToThread.hpp"
-#include "providers/twitch/TwitchIrcServer.hpp"
-#include "providers/twitch/TwitchChannel.hpp"
-#include "providers/twitch/TwitchAccount.hpp"
-#include "controllers/accounts/AccountController.hpp"
-#include "common/network/NetworkResult.hpp"
-#include "common/network/NetworkRequest.hpp"
 #include "common/Args.hpp"
+#include "common/network/NetworkRequest.hpp"
+#include "common/network/NetworkResult.hpp"
 #include "common/QLogging.hpp"
 #include "common/Version.hpp"
+#include "controllers/accounts/AccountController.hpp"
 #include "providers/twitch/api/Helix.hpp"
 #include "providers/twitch/eventsub/Connection.hpp"
+#include "providers/twitch/TwitchAccount.hpp"
+#include "providers/twitch/TwitchChannel.hpp"
+#include "providers/twitch/TwitchIrcServer.hpp"
+#include "util/PostToThread.hpp"
 #include "util/QMagicEnum.hpp"
 #include "util/RenameThread.hpp"
 
@@ -24,10 +24,10 @@
 #include <boost/asio/ssl.hpp>
 #include <boost/asio/ssl/verify_mode.hpp>
 #include <boost/certify/https_verification.hpp>
-#include <twitch-eventsub-ws/session.hpp>
-
 #include <QDateTime>
 #include <QUrlQuery>
+#include <twitch-eventsub-ws/session.hpp>
+
 #include <algorithm>
 #include <memory>
 #include <utility>
@@ -239,13 +239,13 @@ void Controller::reconnectConnection(
         {
             url.setPath("/");
         }
-        this->createConnection(url.host(QUrl::FullyEncoded).toStdString(),
-                               std::to_string(url.port(443)),
-                               url.toEncoded(QUrl::RemoveScheme |
-                                             QUrl::RemoveAuthority |
-                                             QUrl::RemoveFragment)
-                                   .toStdString(),
-                               std::move(connection));
+        this->createConnection(
+            url.host(QUrl::FullyEncoded).toStdString(),
+            std::to_string(url.port(443)),
+            url.toEncoded(QUrl::RemoveScheme | QUrl::RemoveAuthority |
+                          QUrl::RemoveFragment)
+                .toStdString(),
+            std::move(connection));
         return;
     }
 
@@ -291,7 +291,6 @@ void Controller::unsubscribe(const SubscriptionRequest &request,
     auto &subscription = it->second;
     // No longer interested in this topic, ensure we don't have a retry in flight
     subscription.retryTimer.reset();
-
 
     if (subscription.inFlight ||
         subscription.state == Subscription::State::Unsubscribing)
@@ -358,7 +357,7 @@ void Controller::unsubscribe(const SubscriptionRequest &request,
 }
 
 void Controller::subscriptionRevoked(const QString &subscriptionID,
-                                      const QString &status)
+                                     const QString &status)
 {
     if (this->quitting || subscriptionID.isEmpty())
     {
@@ -995,7 +994,6 @@ void Controller::markRequestSubscribed(const SubscriptionRequest &request,
         if (it == this->subscriptions.end() ||
             it->second.generation != generation)
         {
-
             getHelix()->deleteEventSubSubscription(
                 subscriptionID, [] {}, [](const auto &) {});
             return;

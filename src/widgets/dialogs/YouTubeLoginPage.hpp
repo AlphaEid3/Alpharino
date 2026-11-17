@@ -31,8 +31,7 @@ private:
 
     void startLogin();
     void setBusy(bool busy);
-    void setStatus(const QString &status,
-                   StatusKind kind = StatusKind::None);
+    void setStatus(const QString &status, StatusKind kind = StatusKind::None);
 
     QLabel *titleLabel_ = nullptr;
     QLabel *descriptionLabel_ = nullptr;
@@ -48,4 +47,4 @@ private:
     StatusKind statusKind_ = StatusKind::None;
 };
 
-}
+}  // namespace chatterino

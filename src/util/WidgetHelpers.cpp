@@ -88,7 +88,7 @@ void moveWithinScreen(QWidget *window, QScreen *screen, QPoint point)
     window->move(checked);
 }
 
-}
+}  // namespace
 
 namespace chatterino::widgets {
 
@@ -162,4 +162,4 @@ void showAndMoveWindowTo(QWidget *window, QPoint position, BoundsChecking mode)
 #endif
 }
 
-}
+}  // namespace chatterino::widgets

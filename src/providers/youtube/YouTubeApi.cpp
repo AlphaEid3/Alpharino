@@ -114,9 +114,8 @@ void jsonRequest(const QUrl &url, NetworkRequestType type,
                  const QString &accessToken, const QJsonObject *body,
                  bool hideBody, ApiJsonCallback callback)
 {
-    auto request = NetworkRequest(url, type)
-                       .timeout(20000)
-                       .maximumResponseSize(16 * 1024 * 1024);
+    auto request = NetworkRequest(url, type).timeout(20000).maximumResponseSize(
+        16 * 1024 * 1024);
     if (!accessToken.isEmpty())
     {
         request = std::move(request).header("Authorization",
@@ -163,15 +162,14 @@ void deleteLiveChatBan(const QString &banID, const QString &accessToken,
     jsonRequest(
         apiUrl(u"liveChat/bans"_s, query), NetworkRequestType::Delete,
         accessToken, nullptr, false,
-        [banID, accessToken, callback = std::move(callback), mayRetry](
-            Expected<QJsonObject, YouTubeApiError> result) mutable {
+        [banID, accessToken, callback = std::move(callback),
+         mayRetry](Expected<QJsonObject, YouTubeApiError> result) mutable {
             if (!result && mayRetry &&
                 youtube::detail::shouldRetryLiveChatBanDelete(result.error()))
             {
                 QTimer::singleShot(
-                    1250ms,
-                    [banID, accessToken,
-                     callback = std::move(callback)]() mutable {
+                    1250ms, [banID, accessToken,
+                             callback = std::move(callback)]() mutable {
                         deleteLiveChatBan(banID, accessToken,
                                           std::move(callback), false);
                     });
@@ -524,7 +522,7 @@ void tokenRequest(
         .execute();
 }
 
-}
+}  // namespace
 
 namespace chatterino {
 
@@ -560,8 +558,8 @@ bool YouTubeApi::isConfigured()
     const bool localTest =
         url.scheme() == u"http"_s &&
         (url.host() == u"127.0.0.1"_s || url.host() == u"localhost"_s);
-    return url.isValid() && !url.host().isEmpty() &&
-           url.userInfo().isEmpty() && !url.hasQuery() && !url.hasFragment() &&
+    return url.isValid() && !url.host().isEmpty() && url.userInfo().isEmpty() &&
+           !url.hasQuery() && !url.hasFragment() &&
            (url.scheme() == u"https"_s || localTest);
 }
 
@@ -593,9 +591,9 @@ void YouTubeApi::resolveSource(const QString &source,
 {
     if (!isConfigured())
     {
-        callback(makeUnexpected(
-            u"YouTube chat is not configured in this build. "
-            u"The builder must set a YouTube read relay."_s));
+        callback(
+            makeUnexpected(u"YouTube chat is not configured in this build. "
+                           u"The builder must set a YouTube read relay."_s));
         return;
     }
     const auto parsed = parseSource(source);
@@ -830,34 +828,33 @@ void YouTubeApi::getRecentLiveChatMessages(
         {u"part"_s, u"id,snippet,authorDetails"_s},
         {u"maxResults"_s, u"2000"_s},
     };
-    jsonRequest(
-        apiUrl(u"liveChat/messages"_s, query), NetworkRequestType::Get,
-        accessToken, nullptr, false,
-        [callback = std::move(callback)](
-            Expected<QJsonObject, YouTubeApiError> result) mutable {
-            if (!result)
-            {
-                callback(makeUnexpected(result.error()));
-                return;
-            }
+    jsonRequest(apiUrl(u"liveChat/messages"_s, query), NetworkRequestType::Get,
+                accessToken, nullptr, false,
+                [callback = std::move(callback)](
+                    Expected<QJsonObject, YouTubeApiError> result) mutable {
+                    if (!result)
+                    {
+                        callback(makeUnexpected(result.error()));
+                        return;
+                    }
 
-            std::vector<YouTubeMessage> messages;
-            const auto items = result->value(u"items"_s).toArray();
-            messages.reserve(items.size());
-            for (const auto &item : items)
-            {
-                if (!item.isObject())
-                {
-                    continue;
-                }
-                auto message = parseYouTubeMessage(item.toObject());
-                if (!message.isIgnored())
-                {
-                    messages.emplace_back(std::move(message));
-                }
-            }
-            callback(std::move(messages));
-        });
+                    std::vector<YouTubeMessage> messages;
+                    const auto items = result->value(u"items"_s).toArray();
+                    messages.reserve(items.size());
+                    for (const auto &item : items)
+                    {
+                        if (!item.isObject())
+                        {
+                            continue;
+                        }
+                        auto message = parseYouTubeMessage(item.toObject());
+                        if (!message.isIgnored())
+                        {
+                            messages.emplace_back(std::move(message));
+                        }
+                    }
+                    callback(std::move(messages));
+                });
 }
 
 void YouTubeApi::deleteMessage(const QString &messageID,
@@ -924,14 +921,12 @@ void YouTubeApi::unbanUser(const QString &banID, const QString &accessToken,
     deleteLiveChatBan(banID, accessToken, std::move(callback), true);
 }
 
-bool youtube::detail::shouldRetryLiveChatBanDelete(
-    const YouTubeApiError &error)
+bool youtube::detail::shouldRetryLiveChatBanDelete(const YouTubeApiError &error)
 {
     const auto reason = error.reason.trimmed();
-    return reason.compare(u"invalidLiveChatBanId"_s,
-                          Qt::CaseInsensitive) == 0 ||
-           reason.compare(u"liveChatBanNotFound"_s,
-                          Qt::CaseInsensitive) == 0;
+    return reason.compare(u"invalidLiveChatBanId"_s, Qt::CaseInsensitive) ==
+               0 ||
+           reason.compare(u"liveChatBanNotFound"_s, Qt::CaseInsensitive) == 0;
 }
 
 bool youtube::detail::shouldResolveLiveChatMessageDelete(
@@ -948,8 +943,9 @@ std::optional<QString> youtube::detail::findMatchingLiveChatMessageID(
     QStringView messageText, const QDateTime &publishedAt)
 {
     constexpr qint64 MATCH_WINDOW_MS = 60'000;
-    const auto normalizedText =
-        messageText.toString().normalized(QString::NormalizationForm_C).trimmed();
+    const auto normalizedText = messageText.toString()
+                                    .normalized(QString::NormalizationForm_C)
+                                    .trimmed();
     if (authorChannelID.isEmpty() || normalizedText.isEmpty())
     {
         return std::nullopt;
@@ -965,8 +961,7 @@ std::optional<QString> youtube::detail::findMatchingLiveChatMessageID(
                     candidate.text.trimmed().isEmpty()
                 ? candidate.amountDisplayString
                 : candidate.text;
-        if (!candidate.isUserChatMessage() ||
-            candidate.id.isEmpty() ||
+        if (!candidate.isUserChatMessage() || candidate.id.isEmpty() ||
             candidate.author.channelId != authorChannelID ||
             candidateText.normalized(QString::NormalizationForm_C).trimmed() !=
                 normalizedText)
@@ -990,8 +985,8 @@ std::optional<QString> youtube::detail::findMatchingLiveChatMessageID(
 
         const auto signedDifference =
             candidate.publishedAt.msecsTo(publishedAt);
-        const auto difference = signedDifference < 0 ? -signedDifference
-                                                      : signedDifference;
+        const auto difference =
+            signedDifference < 0 ? -signedDifference : signedDifference;
         if (difference > MATCH_WINDOW_MS)
         {
             continue;
@@ -1013,4 +1008,4 @@ std::optional<QString> youtube::detail::findMatchingLiveChatMessageID(
                                          : std::nullopt;
 }
 
-}
+}  // namespace chatterino

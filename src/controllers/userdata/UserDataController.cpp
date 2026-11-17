@@ -5,8 +5,8 @@
 #include "controllers/userdata/UserDataController.hpp"
 
 #include "singletons/Paths.hpp"
-#include "util/CombinePath.hpp"
 #include "util/Backup.hpp"
+#include "util/CombinePath.hpp"
 #include "util/Helpers.hpp"
 
 namespace {
@@ -30,7 +30,7 @@ std::shared_ptr<pajlada::Settings::SettingManager> initSettingsInstance(
     return sm;
 }
 
-}
+}  // namespace
 
 namespace chatterino {
 
@@ -92,7 +92,6 @@ void UserDataController::setUserColor(const QString &userID,
     {
         if (!finalColor)
         {
-
             return;
         }
 
@@ -112,7 +111,6 @@ void UserDataController::update(
     std::unordered_map<QString, UserData> &&newUsers,
     std::unique_lock<std::shared_mutex> usersLock)
 {
-
     std::erase_if(newUsers, [](const auto &pair) {
         return pair.second.isEmpty();
     });
@@ -146,4 +144,4 @@ pajlada::Signals::NoArgSignal &UserDataController::userDataUpdated()
     return this->userDataUpdated_;
 }
 
-}
+}  // namespace chatterino

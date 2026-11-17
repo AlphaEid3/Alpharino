@@ -52,7 +52,6 @@ int getUsernameBoldness()
         }
         else
         {
-
             break;
         }
     }
@@ -63,7 +62,7 @@ int getUsernameBoldness()
 #endif
 }
 
-}
+}  // namespace chatterino
 
 namespace {
 
@@ -219,7 +218,7 @@ QString fontFamily(FontStyle style)
     return QStringLiteral(DEFAULT_FONT_FAMILY);
 }
 
-}
+}  // namespace
 
 namespace chatterino {
 
@@ -413,7 +412,8 @@ Fonts::Fonts(Settings &settings)
     this->fontChangedListener.addSetting(settings.chatFontSize);
     this->fontChangedListener.addSetting(settings.chatFontWeight);
     this->fontChangedListener.addSetting(settings.boldScale);
-    this->themeConnections_.managedConnect(getTheme()->updated, invalidateFonts);
+    this->themeConnections_.managedConnect(getTheme()->updated,
+                                           invalidateFonts);
 }
 
 QFont Fonts::getFont(FontStyle type, float scale)
@@ -437,7 +437,6 @@ Fonts::FontData &Fonts::getOrCreateFontData(FontStyle type, float scale)
     auto it = map.find(scale);
     if (it != map.end())
     {
-
         return it->second;
     }
 
@@ -470,4 +469,4 @@ Fonts::FontData Fonts::createFontData(FontStyle type, float scale)
     return font;
 }
 
-}
+}  // namespace chatterino
