@@ -44,4 +44,4 @@ private:
     friend class IpcQueuePrivate;
 };
 
-}  // namespace chatterino::ipc
+}

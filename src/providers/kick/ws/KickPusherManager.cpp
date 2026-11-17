@@ -196,7 +196,7 @@ QByteArray KickPusherClient::encodeUnsubscription(const Subscription &sub)
 }
 // NOLINTEND(readability-convert-member-functions-to-static)
 
-}  // namespace
+}
 
 namespace chatterino {
 
@@ -247,4 +247,4 @@ void KickPusherManager::partChannel(const QString &name)
     this->private_->unsubscribe(name);
 }
 
-}  // namespace chatterino
+}

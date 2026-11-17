@@ -42,7 +42,8 @@ void GIFTimer::initialize()
     });
 
     QObject::connect(qApp, &QGuiApplication::applicationStateChanged,
-                     &this->timer, [](Qt::ApplicationState) {
+                     &this->timer,
+                     [](Qt::ApplicationState) {
                          if (auto *app = tryGetApp())
                          {
                              app->getWindows()->repaintTwitchGifs();
@@ -83,4 +84,4 @@ bool GIFTimer::shouldAnimate() const
            QApplication::activeWindow() != nullptr;
 }
 
-}  // namespace chatterino
+}

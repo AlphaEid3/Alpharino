@@ -16,4 +16,4 @@ struct Serialize<QStringView> {
     }
 };
 
-}  // namespace pajlada
+}

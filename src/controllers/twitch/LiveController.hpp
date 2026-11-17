@@ -32,6 +32,7 @@ public:
 class TwitchLiveController : public ITwitchLiveController
 {
 public:
+
     static constexpr std::chrono::seconds REFRESH_INTERVAL{30};
 
     static constexpr std::chrono::seconds IMMEDIATE_REQUEST_INTERVAL{1};
@@ -61,4 +62,4 @@ private:
     QTimer immediateRequestTimer;
 };
 
-}  // namespace chatterino
+}

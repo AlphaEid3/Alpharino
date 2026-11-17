@@ -30,6 +30,7 @@ EditHotkeyDialog::EditHotkeyDialog(const std::shared_ptr<Hotkey> hotkey,
             auto normalized = normalizeKeySequence(keySequence);
             if (normalized != keySequence)
             {
+
                 QSignalBlocker blocker(this->ui_->keyComboEdit);
                 this->ui_->keyComboEdit->setKeySequence(normalized);
             }
@@ -57,6 +58,7 @@ EditHotkeyDialog::EditHotkeyDialog(const std::shared_ptr<Hotkey> hotkey,
     }
     else
     {
+
         this->setWindowTitle("Add hotkey");
         this->ui_->categoryPicker->setCurrentIndex(
             size_t(HotkeyCategory::SplitInput));
@@ -178,11 +180,14 @@ void EditHotkeyDialog::afterEdit()
     bool isEditing = bool(this->data_);
     if (getApp()->getHotkeys()->getHotkeyByName(nameText))
     {
+
         if (isEditing && this->data()->name() == nameText)
         {
+
         }
         else
         {
+
             this->showEditError("Hotkey with this name already exists.");
             return;
         }
@@ -285,6 +290,7 @@ void EditHotkeyDialog::updatePossibleActions()
     if (this->data_ &&
         (currentText.isEmpty() || this->data_->category() == category))
     {
+
         currentText = this->data_->action();
     }
     this->ui_->actionPicker->clear();
@@ -300,6 +306,7 @@ void EditHotkeyDialog::updatePossibleActions()
                                              action.first);
             if (action.first == currentText)
             {
+
                 indexToSet = this->ui_->actionPicker->model()->rowCount() - 1;
             }
         }
@@ -417,4 +424,4 @@ void EditHotkeyDialog::showEditError(QString errorText)
     this->ui_->warningLabel->show();
 }
 
-}  // namespace chatterino
+}

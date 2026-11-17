@@ -26,7 +26,7 @@ auto withSelf(auto *ptr, auto cb)
     };
 }
 
-}  // namespace
+}
 
 namespace chatterino {
 
@@ -85,6 +85,7 @@ TwitchUsersPrivate::TwitchUsersPrivate(TwitchUsers *owner)
 
 std::shared_ptr<TwitchUser> TwitchUsersPrivate::makeUnresolved(const UserId &id)
 {
+
     auto ptr = this->cache
                    .emplace(id, std::make_shared<TwitchUser>(TwitchUser{
                                     .id = id.string,
@@ -157,4 +158,4 @@ void TwitchUsersPrivate::updateUsers(const std::vector<HelixUser> &users)
     }
 }
 
-}  // namespace chatterino
+}

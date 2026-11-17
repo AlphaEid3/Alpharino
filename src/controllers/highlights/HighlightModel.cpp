@@ -47,7 +47,7 @@ void setMatchAppearanceItem(QStandardItem *item, const QColor &color,
     item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 }
 
-}  // namespace
+}
 
 HighlightModel::HighlightModel(QObject *parent)
     : SignalVectorModel<HighlightPhrase>(Column::COUNT, parent)
@@ -116,6 +116,7 @@ HighlightChannelScope HighlightModel::channelScopeFromItem(
 HighlightPhrase HighlightModel::getItemFromRow(
     std::vector<QStandardItem *> &row, const HighlightPhrase &original)
 {
+
     auto highlightColor = original.getColor();
     *highlightColor =
         row[Column::Color]->data(Qt::DecorationRole).value<QColor>();
@@ -543,9 +544,11 @@ void HighlightModel::customRowSetData(const std::vector<QStandardItem *> &row,
                 }
                 else if (rowIndex == HighlightRowIndexes::RedeemedRow)
                 {
+
                 }
                 else if (rowIndex == HighlightRowIndexes::FirstMessageRow)
                 {
+
                 }
 
                 else if (rowIndex == HighlightRowIndexes::ThreadMessageRow)
@@ -581,9 +584,11 @@ void HighlightModel::customRowSetData(const std::vector<QStandardItem *> &row,
                 }
                 else if (rowIndex == HighlightRowIndexes::RedeemedRow)
                 {
+
                 }
                 else if (rowIndex == HighlightRowIndexes::FirstMessageRow)
                 {
+
                 }
 
                 else if (rowIndex == HighlightRowIndexes::ThreadMessageRow)
@@ -600,12 +605,15 @@ void HighlightModel::customRowSetData(const std::vector<QStandardItem *> &row,
         }
         break;
         case Column::UseRegex: {
+
         }
         break;
         case Column::CaseSensitive: {
+
         }
         break;
         case Column::SoundPath: {
+
             if (role == Qt::UserRole)
             {
                 if (rowIndex == HighlightRowIndexes::SelfHighlightRow)
@@ -637,6 +645,7 @@ void HighlightModel::customRowSetData(const std::vector<QStandardItem *> &row,
         }
         break;
         case Column::Color: {
+
             if (role == Qt::DecorationRole)
             {
                 const auto setColor = [&](auto &setting, ColorType ty) {
@@ -761,4 +770,4 @@ void HighlightModel::customRowSetData(const std::vector<QStandardItem *> &row,
     getApp()->getWindows()->forceLayoutChannelViews();
 }
 
-}  // namespace chatterino
+}

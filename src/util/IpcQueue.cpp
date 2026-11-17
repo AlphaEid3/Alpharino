@@ -49,7 +49,7 @@ void get_shared_dir(std::wstring &shared_dir)
 }
 #endif
 
-}  // namespace boost::interprocess::ipcdetail
+}
 
 namespace chatterino::ipc {
 
@@ -140,4 +140,4 @@ QByteArray IpcQueue::receive(std::chrono::milliseconds timeout)
     return {};
 }
 
-}  // namespace chatterino::ipc
+}

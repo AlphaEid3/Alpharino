@@ -36,15 +36,19 @@ struct IvrSubage {
         , totalSubMonths(
               root.value("cumulative").toObject().value("months").toInt())
         , followingSince(root.value("followedAt").toString())
-        , isGifted(
-              root.value("meta").toObject().value("type").toString().compare(
-                  "gift", Qt::CaseInsensitive) == 0)
-        , giftIsAnonymous(this->isGifted && !root.value("meta")
-                                                 .toObject()
-                                                 .value("giftMeta")
-                                                 .toObject()
-                                                 .value("gifter")
-                                                 .isObject())
+        , isGifted(root.value("meta")
+                       .toObject()
+                       .value("type")
+                       .toString()
+                       .compare("gift", Qt::CaseInsensitive) == 0)
+        , giftIsAnonymous(
+              this->isGifted &&
+              !root.value("meta")
+                   .toObject()
+                   .value("giftMeta")
+                   .toObject()
+                   .value("gifter")
+                   .isObject())
         , giftSource([&root] {
             const auto gifter = root.value("meta")
                                     .toObject()
@@ -98,6 +102,7 @@ struct IvrUserProfile {
 class IvrApi final
 {
 public:
+
     void getSubage(QString userName, QString channelName,
                    ResultCallback<IvrSubage> resultCallback,
                    IvrFailureCallback failureCallback);
@@ -109,8 +114,7 @@ public:
     void getFounders(QString channelName,
                      ResultCallback<std::vector<HelixModerator>> resultCallback,
                      IvrFailureCallback failureCallback);
-    void getUser(QString userName,
-                 ResultCallback<IvrUserProfile> resultCallback,
+    void getUser(QString userName, ResultCallback<IvrUserProfile> resultCallback,
                  IvrFailureCallback failureCallback);
 
     static void initialize();
@@ -129,4 +133,4 @@ private:
 
 IvrApi *getIvr();
 
-}  // namespace chatterino
+}

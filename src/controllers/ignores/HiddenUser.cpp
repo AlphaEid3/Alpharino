@@ -30,7 +30,7 @@ QString normalizedHiddenID(QString value)
     return value;
 }
 
-}  // namespace
+}
 
 QString hiddenUserPlatformName(HiddenUserPlatform platform)
 {
@@ -82,9 +82,9 @@ HiddenUser::HiddenUser(HiddenUserPlatform platform, QString userID,
 bool HiddenUser::operator==(const HiddenUser &other) const
 {
     return std::tie(this->platform_, this->userID_, this->login_,
-                    this->displayName_) == std::tie(other.platform_,
-                                                    other.userID_, other.login_,
-                                                    other.displayName_);
+                    this->displayName_) ==
+           std::tie(other.platform_, other.userID_, other.login_,
+                    other.displayName_);
 }
 
 HiddenUserPlatform HiddenUser::platform() const
@@ -122,8 +122,8 @@ QString HiddenUser::bestName() const
 
 QString HiddenUser::displayLabel() const
 {
-    return QStringLiteral("%1 (%2)").arg(
-        this->bestName(), hiddenUserPlatformName(this->platform_));
+    return QStringLiteral("%1 (%2)")
+        .arg(this->bestName(), hiddenUserPlatformName(this->platform_));
 }
 
 bool HiddenUser::matchesIdentity(HiddenUserPlatform platform,
@@ -146,9 +146,10 @@ bool HiddenUser::matchesIdentity(HiddenUserPlatform platform,
     const auto ownDisplayName = normalizedHiddenName(this->displayName_);
     const auto matchesName = [&](const QString &candidate) {
         const auto name = normalizedHiddenName(candidate);
-        return !name.isEmpty() && (name == ownLogin || name == ownDisplayName);
+        return !name.isEmpty() &&
+               (name == ownLogin || name == ownDisplayName);
     };
     return matchesName(login) || matchesName(displayName);
 }
 
-}  // namespace chatterino
+}

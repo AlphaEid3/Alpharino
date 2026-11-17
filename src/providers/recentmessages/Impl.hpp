@@ -26,11 +26,11 @@ void buildRecentMessagesBatched(
     std::function<void(std::vector<MessagePtr>)> onBuilt);
 
 QJsonArray mergeRecentMessageBatches(const std::vector<QJsonArray> &batches,
-                                     int limit);
+                                   int limit);
 
 QUrl constructRecentMessagesUrl(
     const QString &urlTemplate, const QString &name, int limit,
     std::optional<std::chrono::time_point<std::chrono::system_clock>> after,
     std::optional<std::chrono::time_point<std::chrono::system_clock>> before);
 
-}  // namespace chatterino::recentmessages::detail
+}

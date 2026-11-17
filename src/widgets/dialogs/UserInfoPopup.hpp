@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "providers/twitch/TwitchNameHistory.hpp"
 #include "singletons/Paths.hpp"
+#include "providers/twitch/TwitchNameHistory.hpp"
 #include "widgets/BaseWindow.hpp"
 #include "widgets/DraggablePopup.hpp"
 
@@ -76,7 +76,8 @@ public:
     void setData(const QString &name, const ChannelPtr &channel);
     void setData(const QString &name, const ChannelPtr &contextChannel,
                  const ChannelPtr &openingChannel);
-    void setYouTubeData(const MessagePtr &message, const YouTubeAuthor &author,
+    void setYouTubeData(const MessagePtr &message,
+                        const YouTubeAuthor &author,
                         const ChannelPtr &contextChannel,
                         const ChannelPtr &openingChannel);
     void setTikTokData(const TikTokAuthor &author,
@@ -295,7 +296,8 @@ private:
         twitchUserStateConnection_;
     std::unique_ptr<pajlada::Signals::ScopedConnection>
         twitchTargetRoleConnection_;
-    std::unique_ptr<pajlada::Signals::ScopedConnection> twitchRoomIdConnection_;
+    std::unique_ptr<pajlada::Signals::ScopedConnection>
+        twitchRoomIdConnection_;
     std::unique_ptr<pajlada::Signals::ScopedConnection>
         youtubeModerationStateConnection_;
     std::unique_ptr<pajlada::Signals::ScopedConnection>

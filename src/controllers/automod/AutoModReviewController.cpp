@@ -90,7 +90,7 @@ bool isResolvedState(ReviewState state)
            state == ReviewState::Expired;
 }
 
-}  // namespace
+}
 
 ReviewGroup reviewGroup(const ReviewItem &item)
 {
@@ -190,7 +190,8 @@ void AutoModReviewController::initialize()
             this->refreshPermissions();
         });
     const auto republish = [this](const auto &) {
-        for (auto it = this->entries_.begin(); it != this->entries_.end(); ++it)
+        for (auto it = this->entries_.begin(); it != this->entries_.end();
+             ++it)
         {
             this->publish(it.value(), false);
         }
@@ -208,8 +209,8 @@ void AutoModReviewController::initialize()
                                                     this->signalHolder_);
     getSettings()->autoModReviewContextOrder.connect(republish,
                                                      this->signalHolder_);
-    getSettings()->autoModReviewShowShortcutHints.connect(republish,
-                                                          this->signalHolder_);
+    getSettings()->autoModReviewShowShortcutHints.connect(
+        republish, this->signalHolder_);
 }
 
 QString AutoModReviewController::makeKey(QStringView broadcasterID,
@@ -242,9 +243,10 @@ void AutoModReviewController::ingestHold(
     HoldData data, const std::shared_ptr<TwitchChannel> &sourceChannel)
 {
     assertInGuiThread();
-    const auto notificationKey = data.notificationID.isEmpty()
-                                     ? QString{}
-                                     : u"hold:"_s % data.notificationID;
+    const auto notificationKey =
+        data.notificationID.isEmpty()
+            ? QString{}
+            : u"hold:"_s % data.notificationID;
     if (!this->rememberNotification(notificationKey) ||
         data.broadcasterID.isEmpty() || data.messageID.isEmpty())
     {
@@ -296,7 +298,8 @@ void AutoModReviewController::ingestHold(
     this->updateActionsAllowed(entry);
 
     MessageFlags holdFlags{MessageFlag::PubSub, MessageFlag::EventSub,
-                           MessageFlag::ModerationAction, MessageFlag::AutoMod,
+                           MessageFlag::ModerationAction,
+                           MessageFlag::AutoMod,
                            MessageFlag::AutoModOffendingMessage};
     holdFlags.set(MessageFlag::AutoModBlockedTerm, item.blockedTerm);
     auto [highlighted, highlightResult] = getApp()->getHighlights()->check(
@@ -351,9 +354,10 @@ void AutoModReviewController::ingestUpdate(
     UpdateData data, const std::shared_ptr<TwitchChannel> &sourceChannel)
 {
     assertInGuiThread();
-    const auto notificationKey = data.notificationID.isEmpty()
-                                     ? QString{}
-                                     : u"update:"_s % data.notificationID;
+    const auto notificationKey =
+        data.notificationID.isEmpty()
+            ? QString{}
+            : u"update:"_s % data.notificationID;
     if (!this->rememberNotification(notificationKey) ||
         data.broadcasterID.isEmpty() || data.messageID.isEmpty())
     {
@@ -470,8 +474,8 @@ void AutoModReviewController::ingestUpdate(
     else
     {
         item.state = ReviewState::HandledElsewhere;
-        item.statusDetail =
-            u"Twitch resolved this message as “%1”."_s.arg(data.status);
+        item.statusDetail = u"Twitch resolved this message as “%1”."_s.arg(
+            data.status);
         item.secondaryInProgress = false;
         item.secondaryFailed = false;
         item.secondaryAction = ReviewAction::None;
@@ -494,7 +498,8 @@ void AutoModReviewController::ingestUpdate(
 
     if (confirmedSecondary != ReviewAction::None)
     {
-        this->performSecondary(key, confirmedSecondary, previousTimeoutSeconds,
+        this->performSecondary(key, confirmedSecondary,
+                               previousTimeoutSeconds,
                                previousModerationReason,
                                previousActionAccountID);
     }
@@ -520,13 +525,15 @@ void AutoModReviewController::denyAndTimeout(const QString &key,
 
 void AutoModReviewController::denyAndBan(const QString &key, QString reason)
 {
-    this->performDecision(key, ReviewAction::DenyAndBan, 0, std::move(reason));
+    this->performDecision(key, ReviewAction::DenyAndBan, 0,
+                          std::move(reason));
 }
 
 void AutoModReviewController::performDecision(const QString &key,
                                               ReviewAction action,
                                               int timeoutSeconds,
-                                              QString reason, bool retrying)
+                                              QString reason,
+                                              bool retrying)
 {
     assertInGuiThread();
     auto it = this->entries_.find(key);
@@ -537,10 +544,10 @@ void AutoModReviewController::performDecision(const QString &key,
     auto &entry = it.value();
     auto &item = entry.item;
     this->updateActionsAllowed(entry);
-    const bool validState = retrying
-                                ? item.state == ReviewState::Failed ||
-                                      item.state == ReviewState::PermissionLost
-                                : item.state == ReviewState::Open;
+    const bool validState =
+        retrying ? item.state == ReviewState::Failed ||
+                       item.state == ReviewState::PermissionLost
+                 : item.state == ReviewState::Open;
     if (!validState)
     {
         return;
@@ -627,15 +634,17 @@ void AutoModReviewController::performDecision(const QString &key,
                 return;
             }
 
-            const auto secondary = action == ReviewAction::DenyAndBan
-                                       ? ReviewAction::Ban
-                                       : ReviewAction::Timeout;
-            this->performSecondary(key, secondary, successItem.timeoutSeconds,
+            const auto secondary =
+                action == ReviewAction::DenyAndBan ? ReviewAction::Ban
+                                                   : ReviewAction::Timeout;
+            this->performSecondary(key, secondary,
+                                   successItem.timeoutSeconds,
                                    successItem.moderationReason,
                                    account->getUserId());
         },
         [this, key, generation, action](HelixAutoModMessageError error) {
-            this->handleDecisionFailure(key, generation, action, error);
+            this->handleDecisionFailure(key, generation, action,
+                                        error);
         });
 }
 
@@ -644,7 +653,8 @@ void AutoModReviewController::handleDecisionFailure(
     HelixAutoModMessageError error)
 {
     auto it = this->entries_.find(key);
-    if (it == this->entries_.end() || it->item.actionGeneration != generation)
+    if (it == this->entries_.end() ||
+        it->item.actionGeneration != generation)
     {
         return;
     }
@@ -698,7 +708,8 @@ void AutoModReviewController::performSecondary(
         (entry.actionAccountGeneration != this->accountGeneration_ ||
          (account && !account->isAnon() &&
           account->getUserId() != expectedModeratorID));
-    if (!item.actionsAllowed || !account || account->isAnon() || accountChanged)
+    if (!item.actionsAllowed || !account || account->isAnon() ||
+        accountChanged)
     {
         item.state = ReviewState::Denied;
         item.pendingAction = ReviewAction::None;
@@ -708,8 +719,10 @@ void AutoModReviewController::performSecondary(
         item.actionAccountID.clear();
         if (accountChanged)
         {
-            item.secondaryError = u"Your Twitch account changed before the "_s %
-                                  reviewActionLabel(action) % u" could run.";
+            item.secondaryError =
+                u"Your Twitch account changed before the "_s %
+                reviewActionLabel(action) %
+                u" could run.";
         }
         else
         {
@@ -742,7 +755,8 @@ void AutoModReviewController::performSecondary(
         duration = std::clamp(timeoutSeconds, 1, 14 * 24 * 60 * 60);
     }
     getHelix()->banUser(
-        item.broadcasterID, account->getUserId(), item.userID, duration, reason,
+        item.broadcasterID, account->getUserId(), item.userID, duration,
+        reason,
         [this, key, generation, action, duration] {
             auto successIt = this->entries_.find(key);
             if (successIt == this->entries_.end() ||
@@ -762,7 +776,8 @@ void AutoModReviewController::performSecondary(
             successItem.updatedAt = QDateTime::currentDateTimeUtc();
             if (action == ReviewAction::Ban)
             {
-                successItem.statusDetail = u"Message denied and user banned."_s;
+                successItem.statusDetail =
+                    u"Message denied and user banned."_s;
             }
             else
             {
@@ -775,20 +790,19 @@ void AutoModReviewController::performSecondary(
             this->countsChanged.invoke();
         },
         [this, key, generation, action](HelixBanUserError error,
-                                        const QString &message) {
-            this->handleSecondaryFailure(key, generation, action, error,
-                                         message);
+                                       const QString &message) {
+            this->handleSecondaryFailure(key, generation, action,
+                                         error, message);
         });
 }
 
-void AutoModReviewController::handleSecondaryFailure(const QString &key,
-                                                     std::uint64_t generation,
-                                                     ReviewAction action,
-                                                     HelixBanUserError error,
-                                                     const QString &message)
+void AutoModReviewController::handleSecondaryFailure(
+    const QString &key, std::uint64_t generation, ReviewAction action,
+    HelixBanUserError error, const QString &message)
 {
     auto it = this->entries_.find(key);
-    if (it == this->entries_.end() || it->item.actionGeneration != generation)
+    if (it == this->entries_.end() ||
+        it->item.actionGeneration != generation)
     {
         return;
     }
@@ -805,7 +819,8 @@ void AutoModReviewController::handleSecondaryFailure(const QString &key,
     {
         item.secondaryFailed = false;
         item.secondaryError.clear();
-        item.statusDetail = u"Message denied. The user was already banned."_s;
+        item.statusDetail =
+            u"Message denied. The user was already banned."_s;
         item.updatedAt = QDateTime::currentDateTimeUtc();
         this->publish(entry, false);
         this->itemChanged.invoke(key);
@@ -895,10 +910,11 @@ void AutoModReviewController::publish(Entry &entry, bool addIfMissing)
 {
     auto source = entry.sourceChannel.lock();
     this->updateActionsAllowed(entry);
-    const auto chatPresentation =
-        getSettings()->advancedAutoModInChat
-            ? eventsub::AutoModReviewPresentation::ChatAdvanced
-            : eventsub::AutoModReviewPresentation::ChatLegacy;
+    const auto chatPresentation = getSettings()->advancedAutoModInChat
+                                      ? eventsub::AutoModReviewPresentation::
+                                            ChatAdvanced
+                                      : eventsub::AutoModReviewPresentation::
+                                            ChatLegacy;
     auto chatMessage = eventsub::makeAutoModReviewMessage(
         source.get(), entry.item, chatPresentation);
     auto queueMessage = eventsub::makeAutoModReviewMessage(
@@ -950,9 +966,8 @@ void AutoModReviewController::watchChannelPermissions(
     }
 
     this->permissionChannels_.insert(key, sourceChannel);
-    this->signalHolder_.managedConnect(sourceChannel->userStateChanged, [this] {
-        this->refreshPermissions();
-    });
+    this->signalHolder_.managedConnect(sourceChannel->userStateChanged,
+                                       [this] { this->refreshPermissions(); });
 }
 
 void AutoModReviewController::refreshPermissions()
@@ -975,8 +990,8 @@ void AutoModReviewController::updateActionsAllowed(Entry &entry)
 {
     const auto account = getApp()->getAccounts()->twitch.getCurrent();
     const auto channel = entry.sourceChannel.lock();
-    entry.item.actionsAllowed =
-        account && !account->isAnon() && channel && channel->hasModRights();
+    entry.item.actionsAllowed = account && !account->isAnon() && channel &&
+                                channel->hasModRights();
 }
 
 void AutoModReviewController::ensureContext(const QString &key)
@@ -1009,15 +1024,15 @@ void AutoModReviewController::captureContext(Entry &entry)
     }
 
     const auto snapshot = channel->getMessageSnapshot(CONTEXT_SCAN_LIMIT);
-    for (auto it = snapshot.crbegin();
-         it != snapshot.crend() &&
-         entry.item.context.size() < CONTEXT_MESSAGE_LIMIT;
+    for (auto it = snapshot.crbegin(); it != snapshot.crend() &&
+                                      entry.item.context.size() <
+                                          CONTEXT_MESSAGE_LIMIT;
          ++it)
     {
         const auto &message = *it;
-        if (!message || message->flags.hasAny({MessageFlag::System,
-                                               MessageFlag::ModerationAction,
-                                               MessageFlag::AutoMod}))
+        if (!message || message->flags.hasAny(
+                            {MessageFlag::System, MessageFlag::ModerationAction,
+                             MessageFlag::AutoMod}))
         {
             continue;
         }
@@ -1072,4 +1087,4 @@ void AutoModReviewController::prune()
     }
 }
 
-}  // namespace chatterino::automod
+}

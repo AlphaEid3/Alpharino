@@ -20,7 +20,7 @@ void resizePixmap(QPixmap &target, const QPixmap &source, const QSize &size,
                             Qt::SmoothTransformation);
 }
 
-}  // namespace
+}
 
 namespace chatterino {
 
@@ -36,6 +36,7 @@ QPixmap PixmapButton::pixmap() const
 
 void PixmapButton::setPixmap(const QPixmap &pixmap)
 {
+
     if (pixmap.cacheKey() == this->pixmap_.cacheKey())
     {
         return;
@@ -89,4 +90,4 @@ void PixmapButton::paintContent(QPainter &painter)
     painter.setOpacity(1);
 }
 
-}  // namespace chatterino
+}

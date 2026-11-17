@@ -18,6 +18,7 @@ namespace chatterino {
 
 Logging::Logging(Settings &settings)
 {
+
     std::ignore = settings.loggedChannels.delayedItemsChanged.connect(
         [this, &settings]() {
             this->threadGuard.guard();
@@ -95,4 +96,4 @@ void Logging::closeChannel(const QString &channelName,
     platIt->second.erase(channelName);
 }
 
-}  // namespace chatterino
+}

@@ -170,13 +170,12 @@ std::optional<std::shared_ptr<Paint>> parsePaint(const QJsonObject &paintJson)
     return std::nullopt;
 }
 
-}  // namespace
+}
 
 namespace chatterino {
 
-bool seventv::detail::shouldStartPaintRequest(SeventvPaintLoadStatus status,
-                                              bool retry, bool queued,
-                                              bool stalled)
+bool seventv::detail::shouldStartPaintRequest(
+    SeventvPaintLoadStatus status, bool retry, bool queued, bool stalled)
 {
     switch (status)
     {
@@ -239,8 +238,9 @@ SeventvPaintLoadStatus SeventvPaints::getPaintLoadStatus(
         return SeventvPaintLoadStatus::Ready;
     }
     const auto it = this->paintLoadStates_.find(normalized);
-    return it == this->paintLoadStates_.end() ? SeventvPaintLoadStatus::Unknown
-                                              : it->second.status;
+    return it == this->paintLoadStates_.end()
+               ? SeventvPaintLoadStatus::Unknown
+               : it->second.status;
 }
 
 QString SeventvPaints::normalizePaintID(QString paintID)
@@ -385,16 +385,15 @@ void SeventvPaints::loadPaintsByIDInternal(const QStringList &paintIDs,
             }
 
             auto &state = this->paintLoadStates_[normalized];
-            const bool queued =
-                state.status == SeventvPaintLoadStatus::Loading &&
-                state.requestID == 0;
+            const bool queued = state.status == SeventvPaintLoadStatus::Loading &&
+                                state.requestID == 0;
             const bool stalled =
                 state.status == SeventvPaintLoadStatus::Loading &&
                 state.requestID != 0 &&
                 state.startedAt != std::chrono::steady_clock::time_point{} &&
                 now - state.startedAt >= SEVENTV_PAINT_REQUEST_WATCHDOG;
-            if (!seventv::detail::shouldStartPaintRequest(state.status, retry,
-                                                          queued, stalled))
+            if (!seventv::detail::shouldStartPaintRequest(
+                    state.status, retry, queued, stalled))
             {
                 if (prioritize && queued)
                 {
@@ -513,7 +512,8 @@ void SeventvPaints::pumpPaintRequests()
             this->pendingPaintBatches_.pop_front();
 
             std::erase_if(request.paints, [this](const auto &paint) {
-                const auto state = this->paintLoadStates_.find(paint.paintID);
+                const auto state =
+                    this->paintLoadStates_.find(paint.paintID);
                 return state == this->paintLoadStates_.end() ||
                        state->second.status !=
                            SeventvPaintLoadStatus::Loading ||
@@ -559,10 +559,11 @@ void SeventvPaints::requestPaintBatch(PaintBatchRequest request)
     const auto sharedRequest =
         std::make_shared<PaintBatchRequest>(std::move(request));
 
-    QTimer::singleShot(SEVENTV_PAINT_REQUEST_WATCHDOG, &this->lifetimeGuard_,
-                       [this, requestID = sharedRequest->requestID] {
-                           this->handlePaintRequestWatchdog(requestID);
-                       });
+    QTimer::singleShot(
+        SEVENTV_PAINT_REQUEST_WATCHDOG, &this->lifetimeGuard_,
+        [this, requestID = sharedRequest->requestID] {
+            this->handlePaintRequestWatchdog(requestID);
+        });
 
     NetworkRequest(SEVENTV_GQL_URL, NetworkRequestType::Post)
         .caller(&this->lifetimeGuard_)
@@ -578,8 +579,9 @@ void SeventvPaints::requestPaintBatch(PaintBatchRequest request)
                 QStringList failed;
                 for (const auto &paint : sharedRequest->paints)
                 {
-                    if (this->finishPaintLoad(paint, sharedRequest->requestID,
-                                              SeventvPaintLoadStatus::Failed))
+                    if (this->finishPaintLoad(
+                            paint, sharedRequest->requestID,
+                            SeventvPaintLoadStatus::Failed))
                     {
                         failed.push_back(paint.paintID);
                     }
@@ -610,7 +612,8 @@ void SeventvPaints::requestPaintBatch(PaintBatchRequest request)
             bool paintsChanged = false;
             for (const auto &paint : sharedRequest->paints)
             {
-                const bool ready = this->getPaintByID(paint.paintID) != nullptr;
+                const bool ready =
+                    this->getPaintByID(paint.paintID) != nullptr;
                 paintsChanged = paintsChanged || ready;
                 auto status = SeventvPaintLoadStatus::Failed;
                 if (ready)
@@ -949,4 +952,4 @@ void SeventvPaints::notifyPaintChanged(
         },
         &this->lifetimeGuard_);
 }
-}  // namespace chatterino
+}

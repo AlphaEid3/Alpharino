@@ -12,6 +12,7 @@ namespace chatterino {
 SubtierPredicate::SubtierPredicate(const QString &subtiers, bool negate)
     : MessagePredicate(negate)
 {
+
     for (const auto &subtier : subtiers.split(',', Qt::SkipEmptyParts))
     {
         this->subtiers_ << subtier;
@@ -34,4 +35,4 @@ bool SubtierPredicate::appliesToImpl(const Message &message)
     return false;
 }
 
-}  // namespace chatterino
+}

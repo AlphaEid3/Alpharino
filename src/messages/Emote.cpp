@@ -83,6 +83,7 @@ QJsonObject Emote::toJson() const
 
 EmotePtr cachedOrMakeEmotePtr(Emote &&emote, const EmoteMap &cache)
 {
+
     auto it = cache.find(emote.name);
     if (it != cache.end() && *it->second == emote)
     {
@@ -162,4 +163,4 @@ EmoteMap::const_iterator EmoteMap::findEmote(const QString &emoteNameHint,
     return it;
 }
 
-}  // namespace chatterino
+}

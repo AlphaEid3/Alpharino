@@ -49,7 +49,8 @@ private:
     QString login_;
     bool userLookupFinished_ = false;
     QString error_;
-    twitch_roles::Perspective perspective_ = twitch_roles::Perspective::User;
+    twitch_roles::Perspective perspective_ =
+        twitch_roles::Perspective::User;
     twitch_roles::Role selectedRole_ = twitch_roles::Role::Moderator;
     twitch_roles::Summary summary_;
     QVector<twitch_roles::Entry> entries_;
@@ -74,4 +75,4 @@ private:
     std::function<void(QWidget *)> roleManagementCallback_;
 };
 
-}  // namespace chatterino
+}

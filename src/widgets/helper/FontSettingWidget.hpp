@@ -35,4 +35,4 @@ private:
     SignalListener listener;
 };
 
-}  // namespace chatterino
+}

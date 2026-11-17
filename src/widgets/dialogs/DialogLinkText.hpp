@@ -35,12 +35,12 @@ protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
 
 private:
-    QString linkAt(const QStyleOptionViewItem &option, const QModelIndex &index,
-                   const QPointF &position) const;
+    QString linkAt(const QStyleOptionViewItem &option,
+                   const QModelIndex &index, const QPointF &position) const;
 
     QAbstractItemView *view_{};
     QString pressedLink_;
     QPersistentModelIndex pressedIndex_;
 };
 
-}  // namespace chatterino
+}

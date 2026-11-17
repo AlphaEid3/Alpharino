@@ -53,7 +53,7 @@ QString missingScopes(const QJsonArray &scopesArray)
     return missingList;
 }
 
-}  // namespace
+}
 
 namespace chatterino {
 
@@ -392,6 +392,7 @@ void TwitchAccountManager::reloadUsers()
             case AddUserResponse::UserAlreadyExists: {
                 qCDebug(chatterinoTwitch)
                     << "User" << userData.username << "already exists";
+
             }
             break;
             case AddUserResponse::UserValuesUpdated: {
@@ -476,6 +477,7 @@ bool TwitchAccountManager::removeUser(TwitchAccount *account)
 
     if (account->getUserName() == this->currentUsername)
     {
+
         this->currentUsername = "";
     }
 
@@ -521,4 +523,4 @@ TwitchAccountManager::AddUserResponse TwitchAccountManager::addUser(
     return AddUserResponse::UserAdded;
 }
 
-}  // namespace chatterino
+}

@@ -104,4 +104,4 @@ private:
     pajlada::Signals::SignalHolder settingConnections_;
 };
 
-}  // namespace chatterino
+}

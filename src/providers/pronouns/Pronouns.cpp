@@ -16,7 +16,7 @@ namespace {
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 const auto &LOG = chatterinoPronouns;
 
-}  // namespace
+}
 
 namespace chatterino::pronouns {
 
@@ -25,9 +25,7 @@ Pronouns::Pronouns()
     , fetcher_([this](const QString &username, FetchCallback onDone) {
         this->alejoApi->fetch(username, onDone);
     })
-    , nowProvider_([] {
-        return Clock::now();
-    })
+    , nowProvider_([] { return Clock::now(); })
 {
 }
 
@@ -37,9 +35,7 @@ Pronouns::Pronouns(Fetcher fetcher, NowProvider nowProvider)
 {
     if (!this->nowProvider_)
     {
-        this->nowProvider_ = [] {
-            return Clock::now();
-        };
+        this->nowProvider_ = [] { return Clock::now(); };
     }
 }
 
@@ -87,7 +83,8 @@ void Pronouns::getUserPronoun(
                 auto pending = this->pending_.find(normalizedUsername);
                 if (pending != this->pending_.end())
                 {
-                    pending->second.successCallbacks.push_back(callbackSuccess);
+                    pending->second.successCallbacks.push_back(
+                        callbackSuccess);
                     pending->second.failureCallbacks.push_back(callbackFail);
                     return;
                 }
@@ -95,7 +92,8 @@ void Pronouns::getUserPronoun(
                 PendingRequest request;
                 request.successCallbacks.push_back(callbackSuccess);
                 request.failureCallbacks.push_back(callbackFail);
-                this->pending_.emplace(normalizedUsername, std::move(request));
+                this->pending_.emplace(normalizedUsername,
+                                       std::move(request));
             }
         }
     }
@@ -125,21 +123,25 @@ void Pronouns::getUserPronoun(
                     return;
                 }
 
-                successCallbacks = std::move(pending->second.successCallbacks);
-                failureCallbacks = std::move(pending->second.failureCallbacks);
+                successCallbacks =
+                    std::move(pending->second.successCallbacks);
+                failureCallbacks =
+                    std::move(pending->second.failureCallbacks);
                 this->pending_.erase(pending);
 
                 if (userPronoun.has_value())
                 {
-                    qCDebug(LOG) << "Caching pronoun" << userPronoun->format()
-                                 << "for user" << normalizedUsername;
+                    qCDebug(LOG)
+                        << "Caching pronoun" << userPronoun->format()
+                        << "for user" << normalizedUsername;
                     this->cacheUserPronounLocked(normalizedUsername,
                                                  *userPronoun, now);
                     this->failureBackoffs_.erase(normalizedUsername);
                 }
                 else
                 {
-                    if (this->failureBackoffs_.size() >= MAX_FAILURE_BACKOFFS)
+                    if (this->failureBackoffs_.size() >=
+                        MAX_FAILURE_BACKOFFS)
                     {
                         for (auto it = this->failureBackoffs_.begin();
                              it != this->failureBackoffs_.end();)
@@ -154,7 +156,8 @@ void Pronouns::getUserPronoun(
                             }
                         }
                     }
-                    if (this->failureBackoffs_.size() >= MAX_FAILURE_BACKOFFS)
+                    if (this->failureBackoffs_.size() >=
+                        MAX_FAILURE_BACKOFFS)
                     {
                         this->failureBackoffs_.erase(
                             this->failureBackoffs_.begin());
@@ -239,8 +242,9 @@ void Pronouns::cacheUserPronounLocked(const QString &username,
     }
 
     this->cacheOrder_.push_front(username);
-    this->saved.emplace(username, CacheEntry{pronouns, now + CACHE_TTL,
-                                             this->cacheOrder_.begin()});
+    this->saved.emplace(
+        username,
+        CacheEntry{pronouns, now + CACHE_TTL, this->cacheOrder_.begin()});
 
     while (this->saved.size() > MAX_CACHE_ENTRIES)
     {
@@ -250,4 +254,4 @@ void Pronouns::cacheUserPronounLocked(const QString &username,
     }
 }
 
-}  // namespace chatterino::pronouns
+}

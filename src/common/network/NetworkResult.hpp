@@ -54,4 +54,4 @@ private:
     std::optional<int> status_;
 };
 
-}  // namespace chatterino
+}

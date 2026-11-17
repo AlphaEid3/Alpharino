@@ -13,4 +13,4 @@ bool trimChannelName(const QString &channelName, QString &outChannelName);
 QString makeTwitchClientNonce(qsizetype length = 32);
 bool isExtendedTwitchClientNonce(QStringView nonce);
 
-}  // namespace chatterino
+}

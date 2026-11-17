@@ -14,7 +14,7 @@ constexpr QStringView REGEX_START_BOUNDARY(u"(?:\\b|(?<=\\s)|^)");
 constexpr QStringView REGEX_END_BOUNDARY(u"(?:\\b|(?=\\s)|$)");
 constexpr std::size_t MAX_RETAINED_MATCHES = 128;
 
-}  // namespace
+}
 
 QColor HighlightPhrase::FALLBACK_HIGHLIGHT_COLOR = QColor(127, 63, 73, 127);
 QColor HighlightPhrase::FALLBACK_SELF_MESSAGE_HIGHLIGHT_COLOR =
@@ -28,8 +28,7 @@ QColor HighlightPhrase::FALLBACK_ELEVATED_MESSAGE_HIGHLIGHT_COLOR =
 QColor HighlightPhrase::FALLBACK_THREAD_HIGHLIGHT_COLOR =
     QColor(143, 48, 24, 60);
 QColor HighlightPhrase::FALLBACK_SUB_COLOR = QColor(196, 102, 255, 100);
-QColor HighlightPhrase::FALLBACK_AUTOMOD_HIGHLIGHT_COLOR =
-    QColor(64, 64, 64, 140);
+QColor HighlightPhrase::FALLBACK_AUTOMOD_HIGHLIGHT_COLOR = QColor(64, 64, 64, 140);
 QColor HighlightPhrase::FALLBACK_WATCH_STREAK_COLOR = QColor(0, 130, 255, 70);
 
 QColor HighlightPhrase::FALLBACK_ANNOUNCEMENT_HIGHLIGHT_COLOR =
@@ -118,7 +117,8 @@ HighlightPhrase::HighlightPhrase(const QString &pattern, bool showInMentions,
 {
     if (!this->color_)
     {
-        this->color_ = std::make_shared<QColor>(FALLBACK_HIGHLIGHT_COLOR);
+        this->color_ =
+            std::make_shared<QColor>(FALLBACK_HIGHLIGHT_COLOR);
     }
     if (!this->matchColor_)
     {
@@ -227,4 +227,4 @@ const HighlightChannelScope &HighlightPhrase::getChannelScope() const
     return this->channelScope_;
 }
 
-}  // namespace chatterino
+}

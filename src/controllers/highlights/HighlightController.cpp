@@ -19,15 +19,14 @@
 #include "providers/kick/KickAccount.hpp"
 #include "providers/seventv/SeventvPaints.hpp"
 #include "providers/tiktok/TikTokAccount.hpp"
+#include "providers/youtube/YouTubeAccount.hpp"
 #include "providers/twitch/TwitchAccount.hpp"
 #include "providers/twitch/TwitchBadge.hpp"
-#include "providers/youtube/YouTubeAccount.hpp"
 #include "singletons/Settings.hpp"
 
 #include <QRegularExpression>
 #include <QSet>
 #include <QTimer>
-
 #include <algorithm>
 
 namespace {
@@ -37,13 +36,15 @@ using namespace chatterino;
 constexpr std::size_t MAX_EXACT_HIGHLIGHT_MARKERS_PER_MESSAGE = 256;
 
 bool isMatchInsideDomain(const QRegularExpressionMatch &match,
-                         const QString &message, const QString &domain)
+    const QString &message,
+    const QString &domain)
 {
     auto host = domain.trimmed().toLower();
     host.remove(QRegularExpression(R"(^https?://)"));
-    host =
-        host.section('/', 0, 0).section('?', 0, 0).section('#', 0, 0).section(
-            ':', 0, 0);
+    host = host.section('/', 0, 0)
+               .section('?', 0, 0)
+               .section('#', 0, 0)
+               .section(':', 0, 0);
 
     if (host.isEmpty())
     {
@@ -60,7 +61,8 @@ bool isMatchInsideDomain(const QRegularExpressionMatch &match,
     {
         const auto domainMatch = it.next();
         const auto domainStart = domainMatch.capturedStart();
-        const auto domainEnd = domainStart + domainMatch.capturedLength();
+        const auto domainEnd =
+            domainStart + domainMatch.capturedLength();
 
         if (match.capturedStart() >= domainStart &&
             match.capturedStart() + match.capturedLength() <= domainEnd)
@@ -75,12 +77,13 @@ bool isMatchInsideDomain(const QRegularExpressionMatch &match,
 auto highlightPhraseCheck(
     const HighlightPhrase &highlight, bool hasVisibleExactAppearance,
     std::optional<MessagePlatform> onlyPlatform = std::nullopt,
-    bool blockDomainHighlights = false, QString yourDomain = {})
+    bool blockDomainHighlights = false,
+    QString yourDomain = {})
     -> HighlightCheck
 {
     return HighlightCheck{
         [highlight, hasVisibleExactAppearance, onlyPlatform,
-         blockDomainHighlights, yourDomain](
+        blockDomainHighlights, yourDomain](
             const auto &args, const auto &twitchBadges, const auto &senderName,
             const auto &originalMessage, const auto &flags, const auto self,
             const auto platform, const auto &normalizedChannelName,
@@ -94,6 +97,7 @@ auto highlightPhraseCheck(
                 !highlight.getChannelScope().appliesToNormalized(
                     platform, normalizedChannelName))
             {
+
                 return std::nullopt;
             }
 
@@ -105,13 +109,14 @@ auto highlightPhraseCheck(
             if (blockDomainHighlights && !yourDomain.trimmed().isEmpty())
             {
                 const auto matches = highlight.findMatches(originalMessage);
-
+            
                 const bool hasMatchOutsideDomain = std::any_of(
-                    matches.begin(), matches.end(), [&](const auto &match) {
-                        return !isMatchInsideDomain(match, originalMessage,
-                                                    yourDomain);
+                    matches.begin(), matches.end(),
+                    [&](const auto &match) {
+                        return !isMatchInsideDomain(
+                            match, originalMessage, yourDomain);
                     });
-
+                
                 if (!matches.empty() && !hasMatchOutsideDomain)
                 {
                     return std::nullopt;
@@ -184,8 +189,11 @@ void rebuildSubscriptionHighlights(Settings &settings,
                     ColorProvider::instance().color(ColorType::Subscription);
 
                 return HighlightResult{
-                    highlightAlert, highlightSound, highlightSoundUrl,
-                    highlightColor, false,
+                    highlightAlert,
+                    highlightSound,
+                    highlightSoundUrl,
+                    highlightColor,
+                    false,
                 };
             }});
     }
@@ -303,14 +311,17 @@ void rebuildMessageHighlights(Settings &settings,
             ColorProvider::instance().color(ColorType::SelfHighlight),
             std::make_shared<QColor>(selfMatchColor), selfMatchStyle,
             selfMatchPaintID);
-        const bool filterDomain = platform == MessagePlatform::AnyOrTwitch &&
-                                  settings.blockDomainHighlights;
+        const bool filterDomain =
+            platform == MessagePlatform::AnyOrTwitch &&
+            settings.blockDomainHighlights;
 
         checks.emplace_back(highlightPhraseCheck(
             highlight,
             hasVisibleExactAppearance(highlight.getMatchStyle(),
                                       highlight.getMatchPaintID()),
-            platform, filterDomain, settings.yourDomain.getValue()));
+            platform,
+            filterDomain,
+            settings.yourDomain.getValue()));
         if (paintsEnabled && SeventvPaints::isValidPaintID(selfMatchPaintID))
         {
             explicitPaintIDs.insert(
@@ -461,8 +472,11 @@ void rebuildMessageHighlights(Settings &settings,
                 }
 
                 return HighlightResult{
-                    highlightAlert, highlightSound, highlightSoundUrl,
-                    highlightColor, false,
+                    highlightAlert,
+                    highlightSound,
+                    highlightSoundUrl,
+                    highlightColor,
+                    false,
                 };
             }});
     }
@@ -530,8 +544,10 @@ void rebuildUserHighlights(Settings &settings,
                 }
 
                 return HighlightResult{
-                    highlight.hasAlert(),       highlight.hasSound(),
-                    highlightSoundUrl,          highlight.getColor(),
+                    highlight.hasAlert(),
+                    highlight.hasSound(),
+                    highlightSoundUrl,
+                    highlight.getColor(),
                     highlight.showInMentions(),
                 };
             }});
@@ -549,8 +565,8 @@ void rebuildBadgeHighlights(Settings &settings,
             [highlight](const auto &args, const auto &twitchBadges,
                         const auto &senderName, const auto &originalMessage,
                         const auto &flags, const auto self, const auto,
-                        const auto &,
-                        const auto) -> std::optional<HighlightResult> {
+                        const auto &, const auto)
+                -> std::optional<HighlightResult> {
                 (void)args;
                 (void)senderName;
                 (void)originalMessage;
@@ -568,8 +584,10 @@ void rebuildBadgeHighlights(Settings &settings,
                         }
 
                         return HighlightResult{
-                            highlight.hasAlert(),       highlight.hasSound(),
-                            highlightSoundUrl,          highlight.getColor(),
+                            highlight.hasAlert(),
+                            highlight.hasSound(),
+                            highlightSoundUrl,
+                            highlight.getColor(),
                             highlight.showInMentions(),
                         };
                     }
@@ -580,7 +598,7 @@ void rebuildBadgeHighlights(Settings &settings,
     }
 }
 
-}  // namespace
+}
 
 namespace chatterino {
 
@@ -712,6 +730,7 @@ HighlightController::HighlightController(Settings &settings,
 
 void HighlightController::rebuildChecks(Settings &settings)
 {
+
     auto checks = this->checks_.access();
     checks->clear();
 
@@ -842,4 +861,4 @@ std::pair<bool, HighlightResult> HighlightController::check(
     return {highlighted, result};
 }
 
-}  // namespace chatterino
+}

@@ -318,7 +318,8 @@ bool parseMessageRuns(const QJsonValue &value, YouTubeMessage &message)
     return !message.runs.empty() && !message.text.trimmed().isEmpty();
 }
 
-bool parseOptionalMessageRuns(const QJsonValue &value, YouTubeMessage &message)
+bool parseOptionalMessageRuns(const QJsonValue &value,
+                              YouTubeMessage &message)
 {
     if (value.isUndefined() || value.isNull())
     {
@@ -373,13 +374,14 @@ void parseAuthorBadges(const QJsonValue &value, YouTubeAuthor &author)
         const auto tooltip =
             boundedString(renderer.value(u"tooltip"_s), MAX_NAME_CHARS)
                 .value_or(QString{});
-        const auto label = boundedString(renderer.value(u"accessibility"_s)
-                                             .toObject()
-                                             .value(u"accessibilityData"_s)
-                                             .toObject()
-                                             .value(u"label"_s),
-                                         MAX_NAME_CHARS)
-                               .value_or(QString{});
+        const auto label =
+            boundedString(renderer.value(u"accessibility"_s)
+                              .toObject()
+                              .value(u"accessibilityData"_s)
+                              .toObject()
+                              .value(u"label"_s),
+                          MAX_NAME_CHARS)
+                .value_or(QString{});
         const auto fallback = (tooltip + u' ' + label).toLower();
         const auto membershipBadge =
             bestThumbnail(renderer.value(u"customThumbnail"_s));
@@ -394,7 +396,8 @@ void parseAuthorBadges(const QJsonValue &value, YouTubeAuthor &author)
         {
             author.isMember = true;
             author.membershipBadgeUrl = membershipBadge;
-            author.membershipBadgeTooltip = tooltip.isEmpty() ? label : tooltip;
+            author.membershipBadgeTooltip =
+                tooltip.isEmpty() ? label : tooltip;
         }
     }
 }
@@ -524,17 +527,19 @@ std::optional<YouTubeMessage> parseGiftPurchaseRenderer(
         return std::nullopt;
     }
 
-    const auto header = renderer.value(u"header"_s)
-                            .toObject()
-                            .value(u"liveChatSponsorshipsHeaderRenderer"_s)
-                            .toObject();
+    const auto header =
+        renderer.value(u"header"_s)
+            .toObject()
+            .value(u"liveChatSponsorshipsHeaderRenderer"_s)
+            .toObject();
     if (header.isEmpty())
     {
         return std::nullopt;
     }
 
     auto authorRenderer = header;
-    if (const auto authorID = renderer.value(u"authorExternalChannelId"_s);
+    if (const auto authorID =
+            renderer.value(u"authorExternalChannelId"_s);
         !authorID.isUndefined() && !authorID.isNull())
     {
         authorRenderer.insert(u"authorExternalChannelId"_s, authorID);
@@ -558,8 +563,8 @@ std::optional<YouTubeMessage> parseGiftPurchaseRenderer(
     return message;
 }
 
-std::optional<YouTubeMessage> parseSupportedRenderer(const QJsonObject &item,
-                                                     QStringView liveChatID)
+std::optional<YouTubeMessage> parseSupportedRenderer(
+    const QJsonObject &item, QStringView liveChatID)
 {
     if (const auto renderer = item.value(u"liveChatTextMessageRenderer"_s);
         renderer.isObject())
@@ -634,7 +639,8 @@ struct ActionParser {
         const auto messageChars = message.text.size() +
                                   message.eventText.size() +
                                   message.amountDisplayString.size();
-        if (messageChars > MAX_TOTAL_MESSAGE_CHARS - this->totalMessageChars)
+        if (messageChars >
+            MAX_TOTAL_MESSAGE_CHARS - this->totalMessageChars)
         {
             this->fatalError = u"YouTube returned too much live chat text."_s;
             return;
@@ -685,8 +691,10 @@ struct ActionParser {
         const auto addValue = action.value(u"addChatItemAction"_s);
         if (addValue.isObject())
         {
-            const auto item = addValue.toObject().value(u"item"_s).toObject();
-            if (auto message = parseSupportedRenderer(item, this->liveChatID))
+            const auto item =
+                addValue.toObject().value(u"item"_s).toObject();
+            if (auto message =
+                    parseSupportedRenderer(item, this->liveChatID))
             {
                 this->append(std::move(*message));
             }
@@ -697,8 +705,10 @@ struct ActionParser {
         if (replaceValue.isObject())
         {
             const auto replace = replaceValue.toObject();
-            const auto item = replace.value(u"replacementItem"_s).toObject();
-            if (auto message = parseSupportedRenderer(item, this->liveChatID))
+            const auto item =
+                replace.value(u"replacementItem"_s).toObject();
+            if (auto message =
+                    parseSupportedRenderer(item, this->liveChatID))
             {
                 message->replacesExisting = true;
                 const auto target =
@@ -744,6 +754,7 @@ struct ActionParser {
                 return;
             }
         }
+
     }
 };
 
@@ -846,7 +857,7 @@ QString responseError(const QJsonObject &response)
     return {};
 }
 
-}  // namespace
+}
 
 namespace chatterino {
 
@@ -961,4 +972,4 @@ YouTubeInnertubeParseResult parseYouTubeInnertubeChat(
     return result;
 }
 
-}  // namespace chatterino
+}

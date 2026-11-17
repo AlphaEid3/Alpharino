@@ -87,4 +87,4 @@ private:
         "/moltorino/notifications/youtube"};
 };
 
-}  // namespace chatterino
+}

@@ -35,8 +35,9 @@ QBrush LinearGradientPaint::asBrush(const QColor userColor,
         return {overlayColors(userColor, this->stops_.back().second)};
     }
 
-    auto angle =
-        std::isfinite(this->angle_) ? std::fmod(this->angle_, 360.F) : 0.F;
+    auto angle = std::isfinite(this->angle_)
+                     ? std::fmod(this->angle_, 360.F)
+                     : 0.F;
     if (angle < 0.F)
     {
         angle += 360.F;
@@ -110,4 +111,4 @@ const std::vector<PaintDropShadow> &LinearGradientPaint::getDropShadows() const
     return this->dropShadows_;
 }
 
-}  // namespace chatterino
+}

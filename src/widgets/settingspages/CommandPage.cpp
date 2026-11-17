@@ -79,7 +79,7 @@ void checkCommandDuplicates(EditableModelView *view, QLabel *duplicateWarning)
     }
 }
 
-}  // namespace
+}
 
 namespace chatterino {
 
@@ -191,4 +191,4 @@ bool CommandPage::filterElements(const QString &query)
     return this->view->filterSearchResults(query, fields);
 }
 
-}  // namespace chatterino
+}

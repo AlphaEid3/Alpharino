@@ -26,4 +26,4 @@ struct YouTubeInnertubeParseResult {
 [[nodiscard]] YouTubeInnertubeParseResult parseYouTubeInnertubeChat(
     const QJsonObject &response, QStringView liveChatID);
 
-}  // namespace chatterino
+}

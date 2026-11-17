@@ -28,7 +28,7 @@ namespace chatterino {
 class Image;
 class ImageExpirationPool;
 
-}  // namespace chatterino
+}
 
 namespace chatterino::detail {
 
@@ -82,7 +82,7 @@ void assignFrames(std::weak_ptr<Image> weak, QList<Frame> parsed,
                   std::uint64_t loadGeneration,
                   std::shared_ptr<PickerImageReservation> reservation = {});
 
-}  // namespace chatterino::detail
+}
 
 namespace chatterino {
 
@@ -92,6 +92,7 @@ using ImagePtr = std::shared_ptr<Image>;
 class Image : public std::enable_shared_from_this<Image>
 {
 public:
+
     static constexpr int maxBytesRam = 20 * 1024 * 1024;
 
     ~Image();
@@ -272,4 +273,4 @@ private:
 };
 
 #endif
-}  // namespace chatterino
+}

@@ -20,6 +20,7 @@ public:
     AccountModel(QObject *parent);
 
 protected:
+
     std::shared_ptr<Account> getItemFromRow(
         std::vector<QStandardItem *> &row,
         const std::shared_ptr<Account> &original) override;
@@ -40,4 +41,4 @@ private:
     std::unordered_map<QString, int> categoryCount_;
 };
 
-}  // namespace chatterino
+}

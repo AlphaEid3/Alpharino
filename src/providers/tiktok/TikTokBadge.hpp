@@ -39,4 +39,4 @@ private:
 
 void appendTikTokBadges(MessageBuilder &builder, const TikTokAuthor &author);
 
-}  // namespace chatterino
+}

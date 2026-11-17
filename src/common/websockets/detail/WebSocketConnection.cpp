@@ -64,4 +64,4 @@ void WebSocketConnection::detach()
     }
 }
 
-}  // namespace chatterino::ws::detail
+}

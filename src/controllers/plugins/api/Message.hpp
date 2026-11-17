@@ -258,6 +258,6 @@ sol::object findElementRef(sol::state_view lua,
                            const std::shared_ptr<Message> &message,
                            const MessageElement *creator);
 
-}  // namespace chatterino::lua::api::message
+}
 
 #endif

@@ -26,7 +26,7 @@ void logMessage(QtMsgType type, const QMessageLogContext &context,
     chatterino::FileLogger::instance().log(type, context, msg);
 }
 
-}  // namespace
+}
 
 namespace chatterino {
 
@@ -134,4 +134,4 @@ void FileLogger::log(QtMsgType type, const QMessageLogContext &context,
     }
 }
 
-}  // namespace chatterino
+}

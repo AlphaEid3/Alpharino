@@ -22,12 +22,11 @@
 #include "widgets/Notebook.hpp"
 #include "widgets/splits/Split.hpp"
 #include "widgets/Window.hpp"
+#include <algorithm>
 
 #include <QApplication>
 #include <QLoggingCategory>
 #include <QString>
-
-#include <algorithm>
 
 namespace {
 
@@ -94,7 +93,7 @@ QString formatChattersError(HelixGetChattersError error, const QString &message)
     return errorMessage;
 }
 
-}  // namespace
+}
 
 namespace chatterino::commands {
 
@@ -182,4 +181,4 @@ QString testChatters(const CommandContext &ctx)
     return "";
 }
 
-}  // namespace chatterino::commands
+}

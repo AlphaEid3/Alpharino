@@ -247,7 +247,7 @@ private:
         rulesSetting_;
 };
 
-}  // namespace chatterino
+}
 
 namespace pajlada {
 
@@ -330,4 +330,4 @@ struct Deserialize<chatterino::ChatAutomation> {
                                           bool *error = nullptr);
 };
 
-}  // namespace pajlada
+}

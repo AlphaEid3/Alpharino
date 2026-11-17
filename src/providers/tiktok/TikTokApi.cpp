@@ -64,7 +64,7 @@ bool usableHeader(const QByteArray &value)
                return c < 32 || c == 127;
            });
 }
-}  // namespace
+}
 
 QUrl tikTokChatEndpoint(const TikTokSession &session)
 {
@@ -686,4 +686,4 @@ void TikTokApi::sendMessage(const std::shared_ptr<TikTokAccount> &account,
                 });
         });
 }
-}  // namespace chatterino
+}

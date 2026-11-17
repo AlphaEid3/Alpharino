@@ -81,4 +81,4 @@ private:
     bool connected_ = false;
 };
 
-}  // namespace chatterino
+}

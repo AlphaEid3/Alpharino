@@ -57,7 +57,7 @@ void insertBadgeID(QVarLengthArray<int, 2> &badges, int badgeID)
     }
 }
 
-}  // namespace
+}
 
 std::vector<FfzBadges::Badge> FfzBadges::getUserBadges(const UserId &id)
 {
@@ -157,7 +157,8 @@ void FfzBadges::load()
                     const auto userID = user.toInteger(-1);
                     if (userID > 0)
                     {
-                        this->insertUserBadge(QString::number(userID), badgeID);
+                        this->insertUserBadge(QString::number(userID),
+                                              badgeID);
                     }
                 }
             }
@@ -195,4 +196,4 @@ void FfzBadges::insertUserBadge(const QString &userID, int badgeID)
     }
 }
 
-}  // namespace chatterino
+}

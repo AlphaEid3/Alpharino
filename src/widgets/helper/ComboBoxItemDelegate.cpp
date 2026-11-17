@@ -38,6 +38,7 @@ void ComboBoxItemDelegate::setEditorData(QWidget *editor,
 {
     if (QComboBox *cb = qobject_cast<QComboBox *>(editor))
     {
+
         QString currentText = index.data(Qt::EditRole).toString();
         int cbIndex = cb->findText(currentText);
 
@@ -58,6 +59,7 @@ void ComboBoxItemDelegate::setModelData(QWidget *editor,
 {
     if (QComboBox *cb = qobject_cast<QComboBox *>(editor))
     {
+
         model->setData(index, cb->currentText(), Qt::EditRole);
     }
     else
@@ -65,4 +67,4 @@ void ComboBoxItemDelegate::setModelData(QWidget *editor,
         QStyledItemDelegate::setModelData(editor, model, index);
     }
 }
-}  // namespace chatterino
+}

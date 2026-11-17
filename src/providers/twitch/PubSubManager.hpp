@@ -75,10 +75,8 @@ public:
     void listenToPredictions(const QString &channelID);
     void listenToPolls(const QString &channelID);
     void listenToRaids(const QString &channelID);
-    void listenToUserPredictions(const QString &userID,
-                                 const QString &authToken);
-    void listenToUserChannelPoints(const QString &userID,
-                                   const QString &authToken);
+    void listenToUserPredictions(const QString &userID, const QString &authToken);
+    void listenToUserChannelPoints(const QString &userID, const QString &authToken);
     void listenToChatWarnings(const QString &userID, const QString &authToken);
     void forgetUserAuthenticatedTopics(const QString &userID);
     void forgetOtherUserAuthenticatedTopics(const QString &activeUserID);
@@ -113,4 +111,4 @@ private:
 #endif
 };
 
-}  // namespace chatterino
+}

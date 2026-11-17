@@ -79,6 +79,7 @@ void ClassicTabEmoteStrategy::apply(const std::vector<EmoteItem> &items,
     QStringView normalizedQuery = query;
     if (colonStart)
     {
+
         normalizedQuery = normalizedQuery.mid(1);
     }
 
@@ -115,4 +116,4 @@ void ClassicTabEmoteStrategy::apply(const std::vector<EmoteItem> &items,
     output.assign(emotes.begin(), emotes.end());
 }
 
-}  // namespace chatterino::completion
+}

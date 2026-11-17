@@ -4,14 +4,14 @@
 #include "common/Channel.hpp"
 #include "common/Common.hpp"
 #include "providers/irc/IrcConnection2.hpp"
-#include "util/CancellationToken.hpp"
 #include "util/RatelimitBucket.hpp"
+#include "util/CancellationToken.hpp"
+#include <QSet>
 
 #include <IrcMessage>
 #include <pajlada/signals/signal.hpp>
 #include <pajlada/signals/signalholder.hpp>
 #include <QHash>
-#include <QSet>
 #include <QTimer>
 #include <QVarLengthArray>
 
@@ -91,6 +91,7 @@ public:
 
     virtual void initEventAPIs(BttvLiveUpdates *bttvLiveUpdates,
                                SeventvEventAPI *seventvEventAPI) = 0;
+
 };
 
 class TwitchIrcServer final : public ITwitchIrcServer, public QObject
@@ -275,4 +276,4 @@ private:
     std::chrono::steady_clock::time_point lastErrorTimeAmount_;
 };
 
-}  // namespace chatterino
+}

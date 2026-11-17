@@ -49,6 +49,7 @@ public:
     void play(const QUrl &sound) final;
 
 private:
+
     std::unique_ptr<ma_context> context;
 
     std::unique_ptr<ma_engine> engine;
@@ -77,4 +78,4 @@ private:
     friend class Application;
 };
 
-}  // namespace chatterino
+}

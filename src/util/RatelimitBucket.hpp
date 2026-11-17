@@ -23,6 +23,7 @@ public:
     void removePending(const QString &channel);
 
 private:
+
     int budget_;
 
     const int cooldown_;
@@ -33,4 +34,4 @@ private:
     void handleOne();
 };
 
-}  // namespace chatterino
+}

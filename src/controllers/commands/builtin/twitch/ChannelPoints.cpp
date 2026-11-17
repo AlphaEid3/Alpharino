@@ -12,9 +12,9 @@
 #include "singletons/WindowManager.hpp"
 #include "widgets/dialogs/GifPickerDialog.hpp"
 #include "widgets/Notebook.hpp"
+#include "widgets/Window.hpp"
 #include "widgets/splits/Split.hpp"
 #include "widgets/splits/SplitContainer.hpp"
-#include "widgets/Window.hpp"
 
 #if MOLTORINO_ENABLE_CHANNEL_POINT_REWARDS
 #    include "widgets/dialogs/ChannelPointsDialog.hpp"
@@ -49,8 +49,8 @@ Split *findOpenSplitForChannel(const ChannelPtr &channel)
         return nullptr;
     }
 
-    auto *currentPage =
-        dynamic_cast<SplitContainer *>(window->getNotebook().getSelectedPage());
+    auto *currentPage = dynamic_cast<SplitContainer *>(
+        window->getNotebook().getSelectedPage());
     if (currentPage != nullptr)
     {
         if (auto *selectedSplit = currentPage->getSelectedSplit())
@@ -311,7 +311,8 @@ QString sendGigantifiedEmote(const CommandContext &ctx)
                     }
 
                     TwitchGql::sendGigantifiedChatEmote(
-                        channelId, emoteIt->id, {}, bitsCost, token, [] {},
+                        channelId, emoteIt->id, {}, bitsCost, token,
+                        [] {},
                         [weak](const QString &error) {
                             addGigantifySystemMessage(
                                 weak, friendlyGigantifyError(error));

@@ -34,7 +34,7 @@ EmoteMap parseGlobalEmotes(const QJsonArray &jsonEmotes,
 EmoteMap parseChannelEmotes(const QJsonObject &jsonRoot,
                             const QString &channelDisplayName);
 
-}  // namespace bttv::detail
+}
 
 class BttvEmotes final
 {
@@ -77,4 +77,4 @@ private:
         managedConnections;
 };
 
-}  // namespace chatterino
+}

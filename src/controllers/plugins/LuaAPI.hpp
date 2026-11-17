@@ -56,6 +56,7 @@ struct CompletionList {
  * @lua@class CompletionEvent
  */
 struct CompletionEvent {
+
     /**
      * @lua@field query string The word being completed
      */
@@ -244,6 +245,6 @@ struct SharedPtrUserData : public UserData {
     }
 };
 
-}  // namespace chatterino::lua::api
+}
 
 #endif

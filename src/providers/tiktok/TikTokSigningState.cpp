@@ -342,7 +342,7 @@ void validateDynosaur(const std::array<QByteArray, 25> &fields)
     const auto wire = lowText(fields[19]).toLatin1();
     require(wire == "0" || hexText(wire, 32), "Unknown extended wire format");
 }
-}  // namespace
+}
 
 DecodedEnvelope decodeSignatureEnvelope(const QString &signature)
 {
@@ -529,4 +529,4 @@ SigningState RecoveredSigningState::atTimestamp(quint32 newTime,
     state.msToken = msToken;
     return state;
 }
-}  // namespace chatterino::tiktok
+}

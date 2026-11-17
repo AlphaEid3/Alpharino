@@ -30,6 +30,7 @@ void ChatterSet::updateOnlineChatters(
         if (this->items.exists(chatter))
         {
             tmp.put(chatter, this->items.get(chatter));
+
         }
         else if (lowerCaseUsernames.size() < ChatterSet::CHATTER_LIMIT)
         {
@@ -66,4 +67,4 @@ std::vector<std::pair<QString, QString>> ChatterSet::all() const
     return {this->items.begin(), this->items.end()};
 }
 
-}  // namespace chatterino
+}

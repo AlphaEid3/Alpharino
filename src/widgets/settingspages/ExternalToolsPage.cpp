@@ -10,8 +10,8 @@
 #include "util/Clipboard.hpp"
 #include "util/Helpers.hpp"
 #include "util/ImageUploader.hpp"
-#include "util/StreamLink.hpp"
 #include "util/UrlShortener.hpp"
+#include "util/StreamLink.hpp"
 #include "widgets/settingspages/SettingWidget.hpp"
 
 #include <QFormLayout>
@@ -140,7 +140,7 @@ void importUrlShortenerSettings(QWidget *parent)
     }
 }
 
-}  // namespace
+}
 
 ExternalToolsPage::ExternalToolsPage()
     : view(GeneralPageView::withoutNavigation(this))
@@ -296,8 +296,7 @@ void ExternalToolsPage::initLayout(GeneralPageView &layout)
         layout.addDescription(
             "Works similarly to the Image Uploader. When you paste a URL "
             "starting with https:// into the chat input (e.g. using Ctrl + V), "
-            "the URL Shortener is triggered and automatically shortens the "
-            "URL.");
+            "the URL Shortener is triggered and automatically shortens the URL.");
 
         SettingWidget::checkbox("Enable URL shortener", s.urlShortenerEnabled)
             ->addTo(layout);
@@ -308,19 +307,23 @@ void ExternalToolsPage::initLayout(GeneralPageView &layout)
 
         layout.addLayout(form);
 
-        SettingWidget::lineEdit("Request URL", s.urlShortenerUrl)
+        SettingWidget::lineEdit(
+            "Request URL", s.urlShortenerUrl)
             ->conditionallyEnabledBy(s.urlShortenerEnabled)
             ->addTo(layout, form);
 
-        SettingWidget::lineEdit("Extra Headers", s.urlShortenerHeaders)
+        SettingWidget::lineEdit(
+            "Extra Headers", s.urlShortenerHeaders)
             ->conditionallyEnabledBy(s.urlShortenerEnabled)
             ->addTo(layout, form);
 
-        SettingWidget::lineEdit("Shortened link", s.urlShortenerLink)
+        SettingWidget::lineEdit(
+            "Shortened link", s.urlShortenerLink)
             ->conditionallyEnabledBy(s.urlShortenerEnabled)
             ->addTo(layout, form);
 
-        SettingWidget::lineEdit("Deletion link", s.urlShortenerDeletionLink)
+        SettingWidget::lineEdit(
+            "Deletion link", s.urlShortenerDeletionLink)
             ->conditionallyEnabledBy(s.urlShortenerEnabled)
             ->addTo(layout, form);
 
@@ -356,6 +359,7 @@ void ExternalToolsPage::initLayout(GeneralPageView &layout)
 
 #ifdef CHATTERINO_WITH_SPELLCHECK
     {
+
         layout.addTitle("Spell checker (experimental)");
 
         layout.addDescription(
@@ -404,4 +408,4 @@ void ExternalToolsPage::initLayout(GeneralPageView &layout)
     layout.addStretch();
 }
 
-}  // namespace chatterino
+}

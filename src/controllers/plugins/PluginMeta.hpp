@@ -16,6 +16,7 @@
 namespace chatterino {
 
 struct PluginMeta {
+
     QString name;
 
     QString description;
@@ -44,6 +45,6 @@ struct PluginMeta {
     PluginMeta() = default;
 };
 
-}  // namespace chatterino
+}
 
 #endif

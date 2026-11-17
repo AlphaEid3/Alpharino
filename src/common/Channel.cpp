@@ -37,7 +37,7 @@ struct RecursionGuard {
     uint8_t *count;
 };
 
-}  // namespace
+}
 
 namespace chatterino {
 
@@ -182,8 +182,8 @@ void Channel::addSystemMessage(const QString &contents)
     {
         builder->platform = MessagePlatform::TikTok;
         builder->channelName = this->getName();
-        auto channel =
-            std::make_unique<ChannelNameElement>(u'#' + this->getDisplayName());
+        auto channel = std::make_unique<ChannelNameElement>(
+            u'#' + this->getDisplayName());
         channel->setLink({Link::JumpToChannel,
                           QStringLiteral(":tiktok:") + this->getName()});
         builder->elements.insert(builder->elements.begin(), std::move(channel));
@@ -325,7 +325,8 @@ void Channel::fillInMissingMessages(const std::vector<MessagePtr> &messages)
         }
         merged.insert(merged.end(), nextMissing, missing.end());
 
-        const auto retained = std::min(merged.size(), this->messages_.limit());
+        const auto retained =
+            std::min(merged.size(), this->messages_.limit());
         const auto retainedBegin = merged.end() - retained;
         if (retained == snapshot.size() &&
             std::equal(retainedBegin, merged.end(), snapshot.begin()))
@@ -394,7 +395,7 @@ bool Channel::replaceMessage(size_t hint, const MessagePtr &message,
     if (index >= 0)
     {
         this->messageReplaced.invoke(static_cast<size_t>(index), message,
-                                     replacement);
+                                    replacement);
         return true;
     }
     return false;

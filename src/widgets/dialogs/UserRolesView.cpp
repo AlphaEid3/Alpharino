@@ -56,8 +56,8 @@ QString compactRoleName(twitch_roles::Role role)
 
 QString roleTabText(twitch_roles::Role role, qint64 count)
 {
-    return QStringLiteral("%1 %2").arg(compactRoleName(role),
-                                       QLocale().toString(count));
+    return QStringLiteral("%1 %2")
+        .arg(compactRoleName(role), QLocale().toString(count));
 }
 
 QString roleSince(const QDate &date)
@@ -95,7 +95,7 @@ QUrl twitchUserUrl(const QString &login)
     return url;
 }
 
-}  // namespace
+}
 
 class UserRolesModel final : public QAbstractListModel
 {
@@ -196,7 +196,8 @@ public:
 
     void setColors(const QColor &background, const QColor &alternate,
                    const QColor &hover, const QColor &selected,
-                   const QColor &text, const QColor &muted, const QColor &badge)
+                   const QColor &text, const QColor &muted,
+                   const QColor &badge)
     {
         this->background_ = background;
         this->alternate_ = alternate;
@@ -229,9 +230,9 @@ public:
         const auto left = option.rect.left() + 9;
         const auto right = option.rect.right() - 9;
         const auto lineHeight = metrics.height();
-        const auto firstBaseline = option.rect.top() +
-                                   (option.rect.height() - lineHeight * 2) / 2 +
-                                   metrics.ascent();
+        const auto firstBaseline =
+            option.rect.top() + (option.rect.height() - lineHeight * 2) / 2 +
+            metrics.ascent();
         const auto secondBaseline = firstBaseline + lineHeight;
 
         QString badge;
@@ -243,8 +244,9 @@ public:
         {
             badge = QStringLiteral("Affiliate");
         }
-        const auto badgeWidth =
-            badge.isEmpty() ? 0 : metrics.horizontalAdvance(badge) + 12;
+        const auto badgeWidth = badge.isEmpty()
+                                    ? 0
+                                    : metrics.horizontalAdvance(badge) + 12;
 
         auto titleFont = option.font;
         titleFont.setBold(true);
@@ -252,9 +254,10 @@ public:
         painter->setPen(this->text_);
         const QFontMetrics titleMetrics(titleFont);
         const auto titleWidth = std::max(0, right - left - badgeWidth - 8);
-        painter->drawText(left, firstBaseline,
-                          titleMetrics.elidedText(index.data().toString(),
-                                                  Qt::ElideRight, titleWidth));
+        painter->drawText(
+            left, firstBaseline,
+            titleMetrics.elidedText(index.data().toString(), Qt::ElideRight,
+                                    titleWidth));
 
         if (!badge.isEmpty())
         {
@@ -295,7 +298,7 @@ private:
     QColor badge_;
 };
 
-}  // namespace
+}
 
 UserRolesView::UserRolesView(QWidget *parent)
     : QWidget(parent)
@@ -310,10 +313,12 @@ UserRolesView::UserRolesView(QWidget *parent)
     viewRow->setContentsMargins(0, 0, 0, 0);
     viewRow->setSpacing(5);
     this->perspectiveBox_ = new QComboBox(this);
-    this->perspectiveBox_->addItem(
-        "Their roles", static_cast<int>(twitch_roles::Perspective::User));
-    this->perspectiveBox_->addItem(
-        "Their channel", static_cast<int>(twitch_roles::Perspective::Channel));
+    this->perspectiveBox_->addItem("Their roles",
+                                  static_cast<int>(
+                                      twitch_roles::Perspective::User));
+    this->perspectiveBox_->addItem("Their channel",
+                                  static_cast<int>(
+                                      twitch_roles::Perspective::Channel));
     this->perspectiveBox_->setToolTip(
         "Switch between roles this user holds and roles in their channel");
     this->perspectiveBox_->setAccessibleName("Role view");
@@ -397,15 +402,16 @@ UserRolesView::UserRolesView(QWidget *parent)
                              this->roleTabs_->tabData(index).toInt());
                          this->selectRole(role);
                      });
-    QObject::connect(this->manageButton_, &QPushButton::clicked, this, [this] {
-        if (this->roleManagementCallback_)
-        {
-            this->roleManagementCallback_(this->manageButton_);
-        }
-    });
-    QObject::connect(this->webButton_, &QPushButton::clicked, this, [this] {
-        this->openOnWeb();
-    });
+    QObject::connect(this->manageButton_, &QPushButton::clicked, this,
+                     [this] {
+                         if (this->roleManagementCallback_)
+                         {
+                             this->roleManagementCallback_(
+                                 this->manageButton_);
+                         }
+                     });
+    QObject::connect(this->webButton_, &QPushButton::clicked, this,
+                     [this] { this->openOnWeb(); });
     QObject::connect(this->retryButton_, &QPushButton::clicked, this, [this] {
         this->error_.clear();
         if (!this->summaryLoaded_)
@@ -416,9 +422,7 @@ UserRolesView::UserRolesView(QWidget *parent)
         this->requestPage(this->retryCursor_);
     });
     QObject::connect(this->loadMoreButton_, &QPushButton::clicked, this,
-                     [this] {
-                         this->loadMore();
-                     });
+                     [this] { this->loadMore(); });
     QObject::connect(this->list_, &QListView::activated, this,
                      [this](const QModelIndex &index) {
                          this->openEntry(index.row());
@@ -430,8 +434,7 @@ UserRolesView::UserRolesView(QWidget *parent)
     QObject::connect(this->list_->verticalScrollBar(),
                      &QScrollBar::valueChanged, this, [this](int value) {
                          auto *scrollbar = this->list_->verticalScrollBar();
-                         if (!this->loadingPage_ &&
-                             !this->nextCursor_.isEmpty() &&
+                         if (!this->loadingPage_ && !this->nextCursor_.isEmpty() &&
                              scrollbar->maximum() - value <= 80)
                          {
                              this->loadMore();
@@ -523,13 +526,13 @@ void UserRolesView::refreshStyle(float scale)
     if (auto *delegate =
             static_cast<UserRoleDelegate *>(this->list_->itemDelegate()))
     {
-        delegate->setColors(theme->messages.backgrounds.regular,
-                            theme->messages.backgrounds.alternate,
-                            theme->messages.backgrounds.regular.lighter(115),
-                            theme->messages.selection,
-                            theme->messages.textColors.regular,
-                            theme->messages.textColors.regular.darker(145),
-                            theme->tabs.selected.text);
+        delegate->setColors(
+            theme->messages.backgrounds.regular,
+            theme->messages.backgrounds.alternate,
+            theme->messages.backgrounds.regular.lighter(115),
+            theme->messages.selection, theme->messages.textColors.regular,
+            theme->messages.textColors.regular.darker(145),
+            theme->tabs.selected.text);
     }
     this->list_->doItemsLayout();
     this->list_->viewport()->update();
@@ -666,7 +669,8 @@ void UserRolesView::loadMore()
 
 void UserRolesView::requestPage(const QString &cursor)
 {
-    if (this->userID_.isEmpty() || this->loadingPage_ || !this->summaryLoaded_)
+    if (this->userID_.isEmpty() || this->loadingPage_ ||
+        !this->summaryLoaded_)
     {
         return;
     }
@@ -686,7 +690,8 @@ void UserRolesView::requestPage(const QString &cursor)
             {
                 return;
             }
-            if (twitch_roles::detail::repeatsCursor(cursor, page.nextCursor))
+            if (twitch_roles::detail::repeatsCursor(cursor,
+                                                    page.nextCursor))
             {
                 self->loadingPage_ = false;
                 self->error_ = "Roles.tv returned an invalid page.";
@@ -714,9 +719,9 @@ void UserRolesView::requestPage(const QString &cursor)
             }
             const auto topIndex = self->list_->indexAt(QPoint(0, 0));
             const auto selectedIndex = self->list_->currentIndex();
-            const auto topUserID =
-                topIndex.isValid() ? self->entries_.at(topIndex.row()).userID
-                                   : QString{};
+            const auto topUserID = topIndex.isValid()
+                                       ? self->entries_.at(topIndex.row()).userID
+                                       : QString{};
             const auto selectedUserID =
                 selectedIndex.isValid()
                     ? self->entries_.at(selectedIndex.row()).userID
@@ -744,7 +749,8 @@ void UserRolesView::requestPage(const QString &cursor)
             if (const auto selectedRow = rowForUser(selectedUserID);
                 selectedRow >= 0)
             {
-                self->list_->setCurrentIndex(self->model_->index(selectedRow));
+                self->list_->setCurrentIndex(
+                    self->model_->index(selectedRow));
             }
             if (const auto topRow = rowForUser(topUserID); topRow >= 0)
             {
@@ -783,9 +789,9 @@ void UserRolesView::updateControls()
     this->roleTabs_->setEnabled(this->summaryLoaded_);
     this->webButton_->setEnabled(!this->login_.isEmpty());
     this->retryButton_->setVisible(!this->error_.isEmpty());
-    this->loadMoreButton_->setVisible(this->error_.isEmpty() &&
-                                      !this->loadingPage_ &&
-                                      !this->nextCursor_.isEmpty());
+    this->loadMoreButton_->setVisible(
+        this->error_.isEmpty() && !this->loadingPage_ &&
+        !this->nextCursor_.isEmpty());
 }
 
 void UserRolesView::updateStatus()
@@ -793,9 +799,10 @@ void UserRolesView::updateStatus()
     this->statusLabel_->setToolTip({});
     if (this->userID_.isEmpty())
     {
-        this->statusLabel_->setText(this->userLookupFinished_
-                                        ? "Roles are unavailable for this user."
-                                        : "Loading user details...");
+        this->statusLabel_->setText(
+            this->userLookupFinished_
+                ? "Roles are unavailable for this user."
+                : "Loading user details...");
         return;
     }
     if (this->loadingSummary_)
@@ -848,16 +855,16 @@ void UserRolesView::updateStatus()
     if (this->entries_.size() >= MAX_ROLE_ENTRIES &&
         this->total_ > this->entries_.size())
     {
-        this->statusLabel_->setText(
-            QStringLiteral("Showing the first %1 roles")
-                .arg(QLocale().toString(MAX_ROLE_ENTRIES)));
+        this->statusLabel_->setText(QStringLiteral("Showing the first %1 roles")
+                                       .arg(QLocale().toString(MAX_ROLE_ENTRIES)));
         this->statusLabel_->setToolTip(
             QStringLiteral("Open on web to view the remaining roles."));
         return;
     }
 
-    const auto singular = (this->nextCursor_.isEmpty() ? this->entries_.size()
-                                                       : this->total_) == 1;
+    const auto singular =
+        (this->nextCursor_.isEmpty() ? this->entries_.size() : this->total_) ==
+        1;
     const auto noun = this->perspective_ == twitch_roles::Perspective::User
                           ? (singular ? "channel" : "channels")
                           : (singular ? "user" : "users");
@@ -869,8 +876,9 @@ void UserRolesView::updateStatus()
                      QLocale().toString(this->total_), noun));
         return;
     }
-    this->statusLabel_->setText(QStringLiteral("%1 %2").arg(
-        QLocale().toString(this->entries_.size()), noun));
+    this->statusLabel_->setText(
+        QStringLiteral("%1 %2")
+            .arg(QLocale().toString(this->entries_.size()), noun));
 }
 
 void UserRolesView::openOnWeb() const
@@ -899,19 +907,17 @@ void UserRolesView::showEntryMenu(const QPoint &position)
     const auto &entry = this->entries_.at(index.row());
     auto *menu = new QMenu(this);
     menu->addAction(this->perspective_ == twitch_roles::Perspective::User
-                        ? "Open channel on Twitch"
-                        : "Open user on Twitch",
-                    this, [login = entry.login] {
-                        openExternalUrl(twitchUserUrl(login));
-                    });
+                       ? "Open channel on Twitch"
+                       : "Open user on Twitch",
+                   this, [login = entry.login] {
+                       openExternalUrl(twitchUserUrl(login));
+                   });
     menu->addAction(this->perspective_ == twitch_roles::Perspective::User
-                        ? "Copy channel name"
-                        : "Copy username",
-                    this, [login = entry.login] {
-                        crossPlatformCopy(login);
-                    });
+                       ? "Copy channel name"
+                       : "Copy username",
+                   this, [login = entry.login] { crossPlatformCopy(login); });
     QObject::connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);
     menu->popup(this->list_->viewport()->mapToGlobal(position));
 }
 
-}  // namespace chatterino
+}

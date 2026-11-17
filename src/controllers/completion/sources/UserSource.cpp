@@ -101,4 +101,4 @@ const std::vector<UserItem> &UserSource::output() const
     return this->output_;
 }
 
-}  // namespace chatterino::completion
+}

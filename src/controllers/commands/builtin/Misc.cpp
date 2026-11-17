@@ -21,15 +21,15 @@
 #include "providers/kick/KickChatServer.hpp"
 #include "providers/moltorino/MoltorinoAuth.hpp"
 #include "providers/moltorino/MoltorinoFeatureFlags.hpp"
-#include "providers/translation/Translator.hpp"
+#include "providers/twitch/ModerationActionLogs.hpp"
 #include "providers/twitch/api/Helix.hpp"
 #include "providers/twitch/api/TwitchGql.hpp"
-#include "providers/twitch/ModerationActionLogs.hpp"
 #include "providers/twitch/TwitchAccount.hpp"
 #include "providers/twitch/TwitchChannel.hpp"
 #include "providers/twitch/TwitchCommon.hpp"
 #include "providers/twitch/TwitchIrcServer.hpp"
 #include "providers/twitch/TwitchNameHistory.hpp"
+#include "providers/translation/Translator.hpp"
 #include "providers/youtube/YouTubeAccount.hpp"
 #include "singletons/Settings.hpp"
 #include "singletons/WindowManager.hpp"
@@ -532,7 +532,8 @@ void addTranslationSystemMessage(const ChannelPtr &channel,
 
 QString runTranslatePreviewCommand(const CommandContext &ctx,
                                    const QString &targetLanguage,
-                                   const QString &message, const QString &usage)
+                                   const QString &message,
+                                   const QString &usage)
 {
     if (ctx.channel == nullptr)
     {
@@ -547,8 +548,8 @@ QString runTranslatePreviewCommand(const CommandContext &ctx,
 
     requestTextTranslation(
         message, targetLanguage, nullptr,
-        [channel = ctx.channel,
-         targetLanguage](const TranslationResult &result) {
+        [channel = ctx.channel, targetLanguage](
+            const TranslationResult &result) {
             addTranslationSystemMessage(channel, result, targetLanguage);
         },
         [channel = ctx.channel](const QString &) {
@@ -613,7 +614,8 @@ void runNameHistoryLookup(const ChannelPtr &channel, const QString &userId,
         return;
     }
 
-    if (const auto cached = getCachedTwitchNameHistory(userId, expectedLogin))
+    if (const auto cached =
+            getCachedTwitchNameHistory(userId, expectedLogin))
     {
         addNameHistorySystemMessage(channel, *cached);
         return;
@@ -651,7 +653,7 @@ void runFollowMutation(const ChannelPtr &channel,
             selectedTwitchUserMatches(requestUserId, requestLogin) &&
             (twitchChannel->roomId() == targetId ||
              twitchChannel->getName().compare(targetLogin,
-                                              Qt::CaseInsensitive) == 0))
+                                               Qt::CaseInsensitive) == 0))
         {
             std::optional<QDateTime> followedAt;
             if (!unfollow)
@@ -665,8 +667,7 @@ void runFollowMutation(const ChannelPtr &channel,
             unfollow ? QString("You unfollowed %1.").arg(targetName)
                      : QString("You followed %1.").arg(targetName));
     };
-    auto failureCallback = [channel, targetName,
-                            unfollow](const QString &error) {
+    auto failureCallback = [channel, targetName, unfollow](const QString &error) {
         channel->addSystemMessage(
             QString("Failed to %1 %2: %3")
                 .arg(followAction(unfollow), targetName,
@@ -675,8 +676,7 @@ void runFollowMutation(const ChannelPtr &channel,
 
     if (unfollow)
     {
-        TwitchGql::unfollowUser(targetId, auth.token,
-                                std::move(successCallback),
+        TwitchGql::unfollowUser(targetId, auth.token, std::move(successCallback),
                                 std::move(failureCallback));
     }
     else
@@ -731,15 +731,16 @@ QString runFollowCommand(const CommandContext &ctx, bool unfollow)
 
     if (!targetId.isEmpty())
     {
-        runFollowMutation(ctx.channel, auth, targetId, QString(),
+        runFollowMutation(ctx.channel, auth, targetId,
+                          QString(),
                           QString("id:%1").arg(targetId), unfollow);
         return "";
     }
 
     TwitchGql::getUserByLogin(
         targetLogin, auth.token,
-        [channel = ctx.channel, auth, targetLogin,
-         unfollow](std::optional<GqlUser> user) {
+        [channel = ctx.channel, auth, targetLogin, unfollow](
+            std::optional<GqlUser> user) {
             if (!user)
             {
                 channel->addSystemMessage(
@@ -888,8 +889,9 @@ QString logs(const CommandContext &ctx)
     url.setQuery(query);
 
     const auto link = url.toString();
-    ctx.channel->addSystemMessage(QStringLiteral("Logs from %1 in %2: %3")
-                                      .arg(userName, channelName, link));
+    ctx.channel->addSystemMessage(
+        QStringLiteral("Logs from %1 in %2: %3")
+            .arg(userName, channelName, link));
 
     return "";
 }
@@ -1107,8 +1109,8 @@ QString translateTo(const CommandContext &ctx)
         return "";
     }
 
-    const auto targetLanguage =
-        translationLanguageCodeFromInput(ctx.words.value(1));
+    const auto targetLanguage = translationLanguageCodeFromInput(
+        ctx.words.value(1));
     if (targetLanguage.isEmpty())
     {
         ctx.channel->addSystemMessage(
@@ -1129,8 +1131,8 @@ QString sayTranslate(const CommandContext &ctx)
         return "";
     }
 
-    const auto targetLanguage =
-        translationLanguageCodeFromInput(ctx.words.value(1));
+    const auto targetLanguage = translationLanguageCodeFromInput(
+        ctx.words.value(1));
     if (targetLanguage.isEmpty())
     {
         ctx.channel->addSystemMessage(

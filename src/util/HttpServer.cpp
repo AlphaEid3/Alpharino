@@ -169,7 +169,7 @@ std::pair<unsigned, QByteArray> defaultHandler(const HttpServer::Request &)
     return {404, {}};
 }
 
-}  // namespace
+}
 
 namespace chatterino {
 
@@ -241,4 +241,4 @@ void HttpServer::close()
     }
 }
 
-}  // namespace chatterino
+}

@@ -75,7 +75,7 @@ bool logInWithCredentials(QWidget *parent, const QString &userID,
     return true;
 }
 
-}  // namespace
+}
 
 BasicLoginWidget::BasicLoginWidget()
 {
@@ -268,4 +268,4 @@ LoginDialog::LoginDialog(QWidget *parent)
     this->ui_.tabWidget.addTab(&this->ui_.tiktok, "TikTok");
 }
 
-}  // namespace chatterino
+}

@@ -1232,7 +1232,8 @@ MessagePtr makeAutoModReviewMessage(TwitchChannel *channel,
                                                     : item.reasonCategory;
         if (item.reasonLevel > 0)
         {
-            reason += u" \u00b7 Level "_s % QString::number(item.reasonLevel);
+            reason +=
+                u" \u00b7 Level "_s % QString::number(item.reasonLevel);
         }
         if (item.blockedTerm && !item.matchedFragments.isEmpty() &&
             !(getSettings()->streamerModeHideBlockedTermText &&

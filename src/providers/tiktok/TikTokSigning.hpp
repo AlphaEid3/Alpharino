@@ -76,4 +76,4 @@ struct SigningResult {
 [[nodiscard]] SigningResult signExactQuery(
     const QString &query, const QString &body, const SigningState &state,
     const std::optional<DeterministicKeys> &fixtureKeys = std::nullopt);
-}  // namespace chatterino::tiktok
+}

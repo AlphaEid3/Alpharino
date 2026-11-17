@@ -37,4 +37,4 @@ private:
     QtMessageHandler originalHandler = nullptr;
 };
 
-}  // namespace chatterino
+}

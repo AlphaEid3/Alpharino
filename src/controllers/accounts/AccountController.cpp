@@ -8,8 +8,8 @@
 #include "controllers/accounts/AccountModel.hpp"
 #include "providers/kick/KickAccount.hpp"
 #include "providers/tiktok/TikTokAccount.hpp"
-#include "providers/twitch/TwitchAccount.hpp"
 #include "providers/youtube/YouTubeAccount.hpp"
+#include "providers/twitch/TwitchAccount.hpp"
 #include "util/SharedPtrElementLess.hpp"
 
 namespace chatterino {
@@ -17,6 +17,7 @@ namespace chatterino {
 AccountController::AccountController()
     : accounts_(SharedPtrElementLess<Account>{})
 {
+
     std::ignore =
         this->twitch.accounts.itemInserted.connect([this](const auto &args) {
             this->accounts_.insert(args.item);
@@ -151,4 +152,4 @@ AccountModel *AccountController::createModel(QObject *parent)
     return model;
 }
 
-}  // namespace chatterino
+}

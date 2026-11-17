@@ -127,7 +127,7 @@ void loadCached(std::shared_ptr<NetworkData> &&data)
     data->emitFinally();
 }
 
-}  // namespace
+}
 
 namespace chatterino {
 
@@ -199,7 +199,8 @@ void NetworkData::emitSuccess(NetworkResult &&result)
                         {
                             qCWarning(chatterinoHTTP)
                                 << "Slow HTTP success handler for"
-                                << url.toString() << timer.elapsed()
+                                << url.toString()
+                                << timer.elapsed()
                                 << "ms (threshold:" << SLOW_HTTP_THRESHOLD
                                 << "ms)";
                         }
@@ -301,4 +302,4 @@ void load(std::shared_ptr<NetworkData> &&data)
     }
 }
 
-}  // namespace chatterino
+}

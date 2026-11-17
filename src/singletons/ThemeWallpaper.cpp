@@ -350,4 +350,4 @@ QString findThemeWallpaper(const QString &id, const QString &themesDirectory)
     return {};
 }
 
-}  // namespace chatterino
+}

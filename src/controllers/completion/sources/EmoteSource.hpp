@@ -18,11 +18,12 @@
 namespace chatterino {
 class Emojis;
 struct EmojiData;
-}  // namespace chatterino
+}
 
 namespace chatterino::completion {
 
 struct EmoteItem {
+
     EmotePtr emote{};
     EmojiData *emoji{};
     const Emojis *emojiProvider{};
@@ -72,4 +73,4 @@ private:
     std::vector<EmoteItem> output_{};
 };
 
-}  // namespace chatterino::completion
+}

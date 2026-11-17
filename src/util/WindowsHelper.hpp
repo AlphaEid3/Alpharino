@@ -27,10 +27,10 @@ void repairStartupRegistration();
 namespace detail {
 QString windowsStartupCommand(const QString &exePath);
 void repairStartupRegistration(QSettings &settings, const QString &exePath);
-}  // namespace detail
+}
 
 QString getAssociatedExecutable(AssociationQueryType queryType, LPCWSTR query);
 
-}  // namespace chatterino
+}
 
 #endif

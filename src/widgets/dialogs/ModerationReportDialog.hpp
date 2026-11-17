@@ -7,8 +7,8 @@
 #include <QDialog>
 #include <QVector>
 
-#include <memory>
 #include <optional>
+#include <memory>
 #include <vector>
 
 class QCheckBox;
@@ -103,7 +103,8 @@ private:
     void openShareDialog();
     void shareReport(const ModerationReportOutputOptions &options);
     void addSharedReportMessage(
-        const QString &url, const ModerationReportOutputOptions &options) const;
+        const QString &url,
+        const ModerationReportOutputOptions &options) const;
 
     [[nodiscard]] bool rowMatchesFilters(const Row &row) const;
     [[nodiscard]] bool actionEnabled(GqlModerationActionKind kind) const;
@@ -140,4 +141,4 @@ private:
     QPushButton *shareButton_{};
 };
 
-}  // namespace chatterino
+}

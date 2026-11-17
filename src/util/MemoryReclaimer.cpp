@@ -24,11 +24,9 @@ namespace chatterino {
 
 namespace detail {
 
-MemoryReliefCoordinator::MemoryReliefCoordinator(Duration coalesceDelay,
-                                                 Duration minimumInterval,
-                                                 Now now,
-                                                 ScheduleTimer scheduleTimer,
-                                                 Execute execute, Relief relief)
+MemoryReliefCoordinator::MemoryReliefCoordinator(
+    Duration coalesceDelay, Duration minimumInterval, Now now,
+    ScheduleTimer scheduleTimer, Execute execute, Relief relief)
     : coalesceDelay_(coalesceDelay)
     , minimumInterval_(minimumInterval)
     , now_(std::move(now))
@@ -57,8 +55,8 @@ void MemoryReliefCoordinator::request()
         auto runAt = now + this->coalesceDelay_;
         if (this->lastCompleted_)
         {
-            runAt =
-                std::max(runAt, *this->lastCompleted_ + this->minimumInterval_);
+            runAt = std::max(runAt,
+                             *this->lastCompleted_ + this->minimumInterval_);
         }
         delay = std::chrono::duration_cast<Duration>(runAt - now);
         this->scheduled_ = true;
@@ -123,7 +121,7 @@ void MemoryReliefCoordinator::scheduleAfter(Duration delay)
     });
 }
 
-}  // namespace detail
+}
 
 namespace {
 
@@ -173,7 +171,7 @@ detail::MemoryReliefCoordinator &memoryReliefCoordinator()
 
 #endif
 
-}  // namespace
+}
 
 void requestMemoryPressureRelief()
 {
@@ -200,4 +198,4 @@ void requestTransientMemoryPressureRelief()
 #endif
 }
 
-}  // namespace chatterino
+}

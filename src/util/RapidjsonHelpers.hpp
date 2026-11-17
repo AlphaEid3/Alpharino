@@ -100,5 +100,5 @@ bool getSafeObject(rapidjson::Value &obj, const char *key,
 
 QString stringify(const rapidjson::Value &value);
 
-}  // namespace rj
-}  // namespace chatterino
+}
+}

@@ -288,6 +288,6 @@ void PluginsPage::rebuildContent()
     }
 }
 
-}  // namespace chatterino
+}
 
 #endif

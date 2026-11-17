@@ -32,6 +32,7 @@ public:
 class ChatterinoBadges : public IChatterinoBadges
 {
 public:
+
     ChatterinoBadges();
 
     std::optional<EmotePtr> getBadge(const UserId &id) override;
@@ -50,4 +51,4 @@ private:
     std::vector<EmotePtr> emotes;
 };
 
-}  // namespace chatterino
+}

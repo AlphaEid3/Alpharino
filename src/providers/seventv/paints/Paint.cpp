@@ -27,8 +27,8 @@ qreal textBaseline(const QFont &font, const QRectF &rect)
 }  // namespace
 
 QPixmap Paint::getPixmap(const QString &text, const QFont &font,
-                         QColor userColor, QSizeF size, float scale, float dpr,
-                         QMarginsF contentMargins,
+                         QColor userColor, QSizeF size, float scale,
+                         float dpr, QMarginsF contentMargins,
                          bool separateTrailingColon) const
 {
     contentMargins = {
@@ -37,9 +37,9 @@ QPixmap Paint::getPixmap(const QString &text, const QFont &font,
         std::max<qreal>(0, contentMargins.right()),
         std::max<qreal>(0, contentMargins.bottom()),
     };
-    auto contentSize =
-        QSizeF(size.width() - contentMargins.left() - contentMargins.right(),
-               size.height() - contentMargins.top() - contentMargins.bottom());
+    auto contentSize = QSizeF(
+        size.width() - contentMargins.left() - contentMargins.right(),
+        size.height() - contentMargins.top() - contentMargins.bottom());
     if (contentSize.width() <= 0 || contentSize.height() <= 0)
     {
         contentMargins = {};
@@ -50,9 +50,10 @@ QPixmap Paint::getPixmap(const QString &text, const QFont &font,
     pixmap.setDevicePixelRatio(dpr);
     pixmap.fill(Qt::transparent);
 
-    const bool hasContentMargins =
-        contentMargins.left() > 0 || contentMargins.top() > 0 ||
-        contentMargins.right() > 0 || contentMargins.bottom() > 0;
+    const bool hasContentMargins = contentMargins.left() > 0 ||
+                                   contentMargins.top() > 0 ||
+                                   contentMargins.right() > 0 ||
+                                   contentMargins.bottom() > 0;
     QPixmap contentPixmap;
     auto *contentTarget = &pixmap;
     if (hasContentMargins)

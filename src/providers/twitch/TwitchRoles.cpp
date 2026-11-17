@@ -115,7 +115,8 @@ QString boundedString(const QJsonValue &value, int maximumLength)
 }
 
 std::optional<qint64> nonNegativeInteger(const QJsonValue &value,
-                                         qint64 maximum = MAX_REASONABLE_TOTAL)
+                                         qint64 maximum =
+                                             MAX_REASONABLE_TOTAL)
 {
     if (!value.isDouble())
     {
@@ -194,9 +195,9 @@ void cacheSummary(const QString &key, Summary summary)
     auto &cache = rolesCache();
     const QMutexLocker lock(&cache.mutex);
     cache.summaries.insert(
-        key, new CachedSummary{
-                 std::move(summary),
-                 QDateTime::currentMSecsSinceEpoch() + SUMMARY_CACHE_TTL_MS});
+        key, new CachedSummary{std::move(summary),
+                               QDateTime::currentMSecsSinceEpoch() +
+                                   SUMMARY_CACHE_TTL_MS});
 }
 
 void cachePage(const QString &key, Page page)
@@ -243,25 +244,27 @@ void loadParsed(const QUrl &url, qsizetype maximumBytes, Parser parser,
                     onError](const NetworkResult &result) mutable {
             QString error;
             auto parsed = parser(result.getData(), &error);
-            runInGuiThread(
-                [parsed = std::move(parsed), error = std::move(error),
-                 onSuccess = std::move(onSuccess), onError]() mutable {
-                    if (!parsed)
-                    {
-                        onError(error.isEmpty() ? invalidDataError() : error);
-                        return;
-                    }
-                    onSuccess(std::move(*parsed));
-                });
+            runInGuiThread([parsed = std::move(parsed),
+                            error = std::move(error),
+                            onSuccess = std::move(onSuccess),
+                            onError]() mutable {
+                if (!parsed)
+                {
+                    onError(error.isEmpty() ? invalidDataError() : error);
+                    return;
+                }
+                onSuccess(std::move(*parsed));
+            });
         })
         .onError([onNotFound = std::move(onNotFound),
-                  onError =
-                      std::move(onError)](const NetworkResult &result) mutable {
+                  onError = std::move(onError)](
+                     const NetworkResult &result) mutable {
             if (result.status() == 404)
             {
-                runInGuiThread([onNotFound = std::move(onNotFound)]() mutable {
-                    onNotFound();
-                });
+                runInGuiThread(
+                    [onNotFound = std::move(onNotFound)]() mutable {
+                        onNotFound();
+                    });
                 return;
             }
             runInGuiThread([onError = std::move(onError)] {
@@ -271,7 +274,7 @@ void loadParsed(const QUrl &url, qsizetype maximumBytes, Parser parser,
         .execute();
 }
 
-}  // namespace
+}
 
 qint64 Summary::count(Role role) const
 {
@@ -386,11 +389,12 @@ QUrl pageUrl(Perspective perspective, Role role, const QString &userID,
         return {};
     }
     QUrl url(API_BASE);
-    url.setPath(
-        QStringLiteral("/api/stats/%1/%2/id/%3")
-            .arg(perspectivePath(perspective), rolePath(role), normalized));
+    url.setPath(QStringLiteral("/api/stats/%1/%2/id/%3")
+                    .arg(perspectivePath(perspective), rolePath(role),
+                         normalized));
     QUrlQuery query;
-    query.addQueryItem(QStringLiteral("per_page"), QString::number(PAGE_SIZE));
+    query.addQueryItem(QStringLiteral("per_page"),
+                       QString::number(PAGE_SIZE));
     if (!cursor.isEmpty())
     {
         query.addQueryItem(QStringLiteral("after"), cursor);
@@ -462,10 +466,10 @@ std::optional<Summary> parseSummary(const QByteArray &data, QString *error)
     }
     const auto user = object.toObject();
     const auto rolesValue = user.value(QStringLiteral("roles"));
-    const auto userID =
-        boundedString(user.value(QStringLiteral("id")), MAX_ID_LENGTH);
-    const auto login =
-        boundedString(user.value(QStringLiteral("login")), MAX_LOGIN_LENGTH);
+    const auto userID = boundedString(user.value(QStringLiteral("id")),
+                                      MAX_ID_LENGTH);
+    const auto login = boundedString(user.value(QStringLiteral("login")),
+                                     MAX_LOGIN_LENGTH);
     if (userID.isEmpty() || login.isEmpty() ||
         (!rolesValue.isObject() && !rolesValue.isNull() &&
          !rolesValue.isUndefined()))
@@ -521,8 +525,7 @@ std::optional<Page> parsePage(const QByteArray &data, QString *error)
         return std::nullopt;
     }
     const auto object = document.object();
-    const auto total =
-        nonNegativeInteger(object.value(QStringLiteral("total")));
+    const auto total = nonNegativeInteger(object.value(QStringLiteral("total")));
     const auto cursorValue = object.value(QStringLiteral("cursor"));
     if (!total || (!cursorValue.isNull() && !cursorValue.isString()))
     {
@@ -582,8 +585,8 @@ std::optional<Page> parsePage(const QByteArray &data, QString *error)
         Entry entry;
         entry.userID = boundedString(entryObject.value(QStringLiteral("id")),
                                      MAX_ID_LENGTH);
-        entry.login = boundedString(entryObject.value(QStringLiteral("login")),
-                                    MAX_LOGIN_LENGTH);
+        entry.login = boundedString(
+            entryObject.value(QStringLiteral("login")), MAX_LOGIN_LENGTH);
         if (entry.userID.isEmpty() || entry.login.isEmpty())
         {
             if (error)
@@ -597,15 +600,17 @@ std::optional<Page> parsePage(const QByteArray &data, QString *error)
             continue;
         }
         knownIDs.insert(entry.userID);
-        entry.displayName =
-            boundedString(entryObject.value(QStringLiteral("displayName")),
-                          MAX_DISPLAY_NAME_LENGTH);
+        entry.displayName = boundedString(
+            entryObject.value(QStringLiteral("displayName")),
+            MAX_DISPLAY_NAME_LENGTH);
         if (entry.displayName.isEmpty())
         {
             entry.displayName = entry.login;
         }
         entry.grantedDate = QDate::fromString(
-            entryObject.value(QStringLiteral("grantedAt")).toString().first(10),
+            entryObject.value(QStringLiteral("grantedAt"))
+                .toString()
+                .first(10),
             Qt::ISODate);
         entry.partner = entryObject.value(QStringLiteral("isPartner")).toBool();
         entry.affiliate =
@@ -623,5 +628,5 @@ std::optional<Page> parsePage(const QByteArray &data, QString *error)
     return page;
 }
 
-}  // namespace detail
-}  // namespace chatterino::twitch_roles
+}
+}

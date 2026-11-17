@@ -50,7 +50,7 @@ struct DecodedFrame {
     bool finished = false;
 };
 
-}  // namespace
+}
 
 struct StreamingGif::State {
     std::unique_ptr<StreamingImageDecoder> decoder;
@@ -260,4 +260,4 @@ int64_t StreamingGif::compressedBytes() const
     return this->compressedBytes_;
 }
 
-}  // namespace chatterino::detail
+}

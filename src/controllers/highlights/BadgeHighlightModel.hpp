@@ -28,6 +28,7 @@ public:
     };
 
 protected:
+
     HighlightBadge getItemFromRow(std::vector<QStandardItem *> &row,
                                   const HighlightBadge &original) override;
 
@@ -35,4 +36,4 @@ protected:
                         std::vector<QStandardItem *> &row) override;
 };
 
-}  // namespace chatterino
+}

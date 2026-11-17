@@ -19,6 +19,7 @@ static std::unique_ptr<filters::Filter> buildFilter(const QString &filterText)
 
         if (filter->returnType() != Type::Bool)
         {
+
             return nullptr;
         }
 
@@ -73,4 +74,4 @@ bool FilterRecord::operator==(const FilterRecord &other) const
            std::tie(other.name_, other.filter_, other.id_);
 }
 
-}  // namespace chatterino
+}

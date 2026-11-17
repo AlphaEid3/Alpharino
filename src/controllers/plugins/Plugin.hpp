@@ -162,5 +162,5 @@ private:
 
 using PluginPtr = std::unique_ptr<Plugin>;
 using AnyPlugin = std::variant<PluginPtr, UnloadedPlugin>;
-}  // namespace chatterino
+}
 #endif

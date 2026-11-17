@@ -84,5 +84,5 @@ std::optional<Page> parseSearchPage(const QByteArray &data, qsizetype offset,
 std::optional<Message> parseJsonMessage(const QByteArray &data,
                                         QString *error = nullptr);
 
-}  // namespace detail
-}  // namespace chatterino::twitch_user_logs
+}
+}

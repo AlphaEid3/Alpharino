@@ -544,11 +544,13 @@ void ResizingTextEdit::insertFromMimeData(const QMimeData *source)
 
     QString pastedText = source->text().trimmed();
 
-    static const QRegularExpression urlRegex(R"(https?://[^\s]+)");
+    static const QRegularExpression urlRegex(
+        R"(https?://[^\s]+)");
 
     auto match = urlRegex.match(pastedText);
 
-    if (getSettings()->urlShortenerEnabled && match.hasMatch() &&
+    if (getSettings()->urlShortenerEnabled &&
+        match.hasMatch() &&
         match.captured(0) == pastedText)
     {
         QTextCursor cursor = this->textCursor();

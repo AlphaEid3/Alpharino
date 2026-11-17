@@ -1,9 +1,9 @@
 #pragma once
 
+#include <QLineEdit>
 #include <QComboBox>
 #include <QFormLayout>
 #include <QLabel>
-#include <QLineEdit>
 #include <QPointer>
 #include <QWidget>
 
@@ -32,4 +32,4 @@ private:
     void refreshState();
 };
 
-}  // namespace chatterino
+}

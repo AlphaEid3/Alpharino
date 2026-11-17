@@ -19,6 +19,7 @@ HighlightBlacklistModel::HighlightBlacklistModel(QObject *parent)
 HighlightBlacklistUser HighlightBlacklistModel::getItemFromRow(
     std::vector<QStandardItem *> &row, const HighlightBlacklistUser &original)
 {
+
     return HighlightBlacklistUser{
         row[Column::Pattern]->data(Qt::DisplayRole).toString(),
         row[Column::UseRegex]->data(Qt::CheckStateRole).toBool()};
@@ -31,4 +32,4 @@ void HighlightBlacklistModel::getRowFromItem(const HighlightBlacklistUser &item,
     setBoolItem(row[Column::UseRegex], item.isRegex());
 }
 
-}  // namespace chatterino
+}

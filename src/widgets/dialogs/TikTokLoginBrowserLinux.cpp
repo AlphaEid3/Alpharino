@@ -274,15 +274,15 @@ void setVisible(void *handle, bool visible)
         gtk_widget_hide(self->window);
 }
 
-}  // namespace
-}  // namespace chatterino
+}
+}
 
 extern "C" __attribute__((visibility("default")))
 const chatterino::TikTokGtkApi *
     moltorinoTikTokGtkApi()
 {
     using namespace chatterino;
-    static const TikTokGtkApi api{1,        create,  destroy,   navigate,
-                                  evaluate, cookies, setVisible};
+    static const TikTokGtkApi api{1, create, destroy, navigate,
+                                evaluate, cookies, setVisible};
     return &api;
 }

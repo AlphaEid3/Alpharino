@@ -17,7 +17,7 @@ namespace chatterino {
 namespace kick {
 inline constexpr QLatin1StringView AUTH_PROXY{"https://c7-auth.nerixyz.de"};
 inline constexpr QLatin1StringView AUTH_CLIENT_ID{"01KEBZBHCX3DKEJ0KRQBDNT05B"};
-}  // namespace kick
+}
 
 struct KickAccountData {
     QString username;
@@ -112,4 +112,4 @@ private:
     QString seventvUserID_;
 };
 
-}  // namespace chatterino
+}

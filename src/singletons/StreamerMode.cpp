@@ -21,8 +21,8 @@
 
 #ifdef Q_OS_WIN
 
-#    include <VersionHelpers.h>
 #    include <Windows.h>
+#    include <VersionHelpers.h>
 #    include <WtsApi32.h>
 
 #endif
@@ -156,12 +156,12 @@ bool isBroadcasterSoftwareActive()
     if (WTSEnumerateProcesses(WTS_CURRENT_SERVER_HANDLE, 0, 1, &pProcessInfo,
                               &dwProcCount))
     {
+
         for (DWORD i = 0; i < dwProcCount; i++)
         {
-            const auto processName = QStringView(pProcessInfo[i].pProcessName)
-                                         .trimmed()
-                                         .toString()
-                                         .toLower();
+            const auto processName =
+                QStringView(pProcessInfo[i].pProcessName).trimmed().toString()
+                    .toLower();
 
             if (broadcastingBinaries().contains(processName))
             {
@@ -285,6 +285,7 @@ StreamerModePrivate::~StreamerModePrivate()
     this->settingConnections_.clear();
     if (!this->thread_.isRunning() && !this->thread_.isFinished())
     {
+
         delete this->timer_;
         return;
     }

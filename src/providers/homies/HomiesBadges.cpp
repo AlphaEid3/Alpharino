@@ -1,9 +1,9 @@
 #include "providers/homies/HomiesBadges.hpp"
 
 #include "common/Literals.hpp"
+#include "common/QLogging.hpp"
 #include "common/network/NetworkRequest.hpp"
 #include "common/network/NetworkResult.hpp"
-#include "common/QLogging.hpp"
 #include "messages/Emote.hpp"
 #include "messages/Image.hpp"
 
@@ -45,8 +45,7 @@ QString scaledBadgeImageUrl(QString url, int size)
     return url;
 }
 
-QJsonArray extractBadgesArray(const NetworkResult &result,
-                              const QString &sourceName)
+QJsonArray extractBadgesArray(const NetworkResult &result, const QString &sourceName)
 {
     const auto object = result.parseJson();
     if (!object.isEmpty() && object.contains("badges") &&
@@ -122,12 +121,11 @@ EmotePtr createBadgeEmote(const QString &sourceTag, const QString &badgeName,
 
     auto emote = Emote{
         .name = EmoteName{sourceTag % u":" % badgeName},
-        .images =
-            ImageSet{
-                makeImage(imageUrls[0], 1, {18, 18}),
-                makeImage(imageUrls[1], 0.5, {36, 36}),
-                makeImage(imageUrls[2], 0.25, {72, 72}),
-            },
+        .images = ImageSet{
+            makeImage(imageUrls[0], 1, {18, 18}),
+            makeImage(imageUrls[1], 0.5, {36, 36}),
+            makeImage(imageUrls[2], 0.25, {72, 72}),
+        },
         .tooltip = Tooltip{tooltip},
         .homePage = Url{},
         .id = EmoteId{imageUrls[0]},
@@ -150,21 +148,19 @@ void storeBadgeCentricBadges(const QJsonArray &badges, BadgeMap &badgeMap,
     qsizetype userCountEstimate = 0;
     for (const auto &badgeValue : badges)
     {
-        userCountEstimate +=
-            badgeValue.toObject().value("users").toArray().size();
+        userCountEstimate += badgeValue.toObject().value("users").toArray().size();
     }
 
     badgeMap.clear();
     emotes.clear();
-    badgeMap.reserve(static_cast<size_t>(
-        std::max<qsizetype>(badges.size(), userCountEstimate)));
+    badgeMap.reserve(static_cast<size_t>(std::max<qsizetype>(badges.size(), userCountEstimate)));
     emotes.reserve(badges.size());
 
     for (const auto &badgeValue : badges)
     {
         const auto badgeJson = badgeValue.toObject();
-        auto badge = makeBadgeDefinition(badgeJson.value("tooltip").toString(),
-                                         badgeJson);
+        auto badge = makeBadgeDefinition(
+            badgeJson.value("tooltip").toString(), badgeJson);
         if (!badge)
         {
             continue;
@@ -185,7 +181,7 @@ void storeBadgeCentricBadges(const QJsonArray &badges, BadgeMap &badgeMap,
     }
 }
 
-}  // namespace
+}
 
 namespace homies::detail {
 
@@ -197,7 +193,8 @@ bool canDeriveScaledImageUrls(QStringView image1, QStringView image2,
            image3 == scaledBadgeImageUrl(image1.toString(), 72);
 }
 
-std::array<QString, 3> resolveImageUrls(const HomiesBadgeDefinition &definition)
+std::array<QString, 3> resolveImageUrls(
+    const HomiesBadgeDefinition &definition)
 {
     auto image1 = QString::fromUtf8(definition.image1);
     if (definition.deriveScaledImages)
@@ -234,8 +231,8 @@ std::optional<std::uint64_t> parseTwitchUserId(QStringView userId)
 }
 
 std::optional<QUuid> parseStandardBadgeImageId(QStringView image1,
-                                               QStringView image2,
-                                               QStringView image3)
+                                                QStringView image2,
+                                                QStringView image3)
 {
     const QStringView prefix{HOMIES_PRIMARY_IMAGE_PREFIX};
     const QStringView suffix{HOMIES_PRIMARY_IMAGE_SUFFIX};
@@ -260,11 +257,11 @@ std::array<QString, 3> makeStandardBadgeImageUrls(const QUuid &imageId)
 {
     const auto base = QStringView{HOMIES_PRIMARY_IMAGE_PREFIX}.toString() %
                       imageId.toString(QUuid::WithoutBraces);
-    return {base % QStringView{HOMIES_PRIMARY_IMAGE_SUFFIX}, base % u"/36.webp",
-            base % u"/72.webp"};
+    return {base % QStringView{HOMIES_PRIMARY_IMAGE_SUFFIX},
+            base % u"/36.webp", base % u"/72.webp"};
 }
 
-}  // namespace homies::detail
+}
 
 HomiesBadges::HomiesBadges()
     : lifetimeState_(std::make_shared<LifetimeState>(this))
@@ -303,7 +300,8 @@ void HomiesBadges::storeUserCentricBadges(
     {
         const auto badgeJson = badgeValue.toObject();
 
-        const auto rawUserId = badgeJson.value("userId").toString().trimmed();
+        const auto rawUserId =
+            badgeJson.value("userId").toString().trimmed();
         const auto numericUserId =
             homies::detail::parseTwitchUserId(QStringView{rawUserId});
         if (!numericUserId)
@@ -424,16 +422,16 @@ void HomiesBadges::storeUserCentricBadges(
 
 bool HomiesBadges::hasPrimaryBadge(std::uint64_t userId) const
 {
-    const auto it = std::ranges::lower_bound(this->primaryBadges_, userId, {},
-                                             &PrimaryBadgeEntry::userId);
+    const auto it = std::ranges::lower_bound(
+        this->primaryBadges_, userId, {}, &PrimaryBadgeEntry::userId);
     return it != this->primaryBadges_.end() && it->userId == userId;
 }
 
 EmotePtr HomiesBadges::lookupPrimaryBadge(std::uint64_t userId,
                                           bool materialize) const
 {
-    const auto entry = std::ranges::lower_bound(this->primaryBadges_, userId,
-                                                {}, &PrimaryBadgeEntry::userId);
+    const auto entry = std::ranges::lower_bound(
+        this->primaryBadges_, userId, {}, &PrimaryBadgeEntry::userId);
     if (entry == this->primaryBadges_.end() || entry->userId != userId)
     {
         return nullptr;
@@ -455,7 +453,8 @@ EmotePtr HomiesBadges::lookupPrimaryBadge(std::uint64_t userId,
     EmotePtr emote;
     if (entry->fallbackBadge != NO_FALLBACK_BADGE)
     {
-        const auto fallbackIndex = static_cast<size_t>(entry->fallbackBadge);
+        const auto fallbackIndex =
+            static_cast<size_t>(entry->fallbackBadge);
         if (fallbackIndex < this->primaryFallbackBadges_.size())
         {
             emote = createBadgeEmote(
@@ -501,7 +500,8 @@ void HomiesBadges::loadHomiesBadges()
             std::vector<PrimaryBadgeEntry> entries;
             QByteArray tooltips;
             BadgeStorage fallbackBadges;
-            storeUserCentricBadges(badges, entries, tooltips, fallbackBadges);
+            storeUserCentricBadges(badges, entries, tooltips,
+                                   fallbackBadges);
             const auto loadedCount = entries.size();
 
             std::scoped_lock lifetimeLock(lifetimeState->mutex);
@@ -524,7 +524,8 @@ void HomiesBadges::loadHomiesBadges()
                 owner->hasLoadedBadges_.store(true);
             }
 
-            qCDebug(chatterinoApp) << "[Homies] Loaded" << loadedCount
+            qCDebug(chatterinoApp) << "[Homies] Loaded"
+                                   << loadedCount
                                    << "badges from chatterinohomies.com";
         })
         .onError([](const NetworkResult &result) {
@@ -567,7 +568,8 @@ void HomiesBadges::loadHomiesBadges()
                 owner->hasLoadedBadges_.store(true);
             }
 
-            qCDebug(chatterinoApp) << "[Homies] Loaded" << loadedCount
+            qCDebug(chatterinoApp) << "[Homies] Loaded"
+                                   << loadedCount
                                    << "badges from itzalex.github.io/badges";
         })
         .onError([](const NetworkResult &result) {
@@ -610,7 +612,8 @@ void HomiesBadges::loadHomiesBadges()
                 owner->hasLoadedBadges_.store(true);
             }
 
-            qCDebug(chatterinoApp) << "[Homies] Loaded" << loadedCount
+            qCDebug(chatterinoApp) << "[Homies] Loaded"
+                                   << loadedCount
                                    << "badges from itzalex.github.io/badges2";
         })
         .onError([](const NetworkResult &result) {
@@ -638,10 +641,10 @@ std::array<EmotePtr, 3> HomiesBadges::getBadges(const QString &userId) const
         std::shared_lock lock(this->mutex_);
         std::array<EmotePtr, 3> cached{
             this->lookupPrimaryBadge(*numericUserId, false),
-            this->lookupBadge(this->badgeMap2_, this->badges2_, *numericUserId,
-                              false),
-            this->lookupBadge(this->badgeMap3_, this->badges3_, *numericUserId,
-                              false),
+            this->lookupBadge(this->badgeMap2_, this->badges2_,
+                              *numericUserId, false),
+            this->lookupBadge(this->badgeMap3_, this->badges3_,
+                              *numericUserId, false),
         };
 
         const auto hasUnmaterializedBadge =
@@ -666,7 +669,8 @@ std::array<EmotePtr, 3> HomiesBadges::getBadges(const QString &userId) const
 
 EmotePtr HomiesBadges::lookupBadge(const BadgeMap &badgeMap,
                                    const BadgeStorage &badges,
-                                   std::uint64_t userId, bool materialize) const
+                                   std::uint64_t userId,
+                                   bool materialize) const
 {
     const auto it = badgeMap.find(userId);
     if (it != badgeMap.end() && it->second >= 0 &&
@@ -691,4 +695,4 @@ EmotePtr HomiesBadges::lookupBadge(const BadgeMap &badgeMap,
     return nullptr;
 }
 
-}  // namespace chatterino
+}

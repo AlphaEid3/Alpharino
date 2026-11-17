@@ -124,8 +124,10 @@ void WebSocket::createUserType(sol::table &c2, Plugin *plugin)
             [](WebSocket &ws, sol::main_function fn) {
                 ws.onOpen = std::move(fn);
             }),
-        "close", &WebSocket::close, "send_text", &WebSocket::sendText,
-        "send_binary", &WebSocket::sendBinary);
+        "close", &WebSocket::close,
+        "send_text", &WebSocket::sendText,
+        "send_binary", &WebSocket::sendBinary
+    );
 }
 
 void WebSocket::close()
@@ -154,6 +156,7 @@ void WebSocketListenerProxy::onClose(std::unique_ptr<WebSocketListener> self)
         auto strong = this->target.lock();
         if (strong)
         {
+
             auto cb = std::move(strong->onClose);
             strong->onText.reset();
             strong->onBinary.reset();
@@ -204,6 +207,6 @@ void WebSocketListenerProxy::onOpen()
     });
 }
 
-}  // namespace chatterino::lua::api
+}
 
 #endif

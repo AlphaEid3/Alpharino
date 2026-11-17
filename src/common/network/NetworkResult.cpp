@@ -102,6 +102,7 @@ const QUrl &NetworkResult::url() const
 
 QString NetworkResult::formatError() const
 {
+
     if (this->status_ && (this->error_ == QNetworkReply::NoError ||
                           this->error_ > QNetworkReply::UnknownNetworkError))
     {
@@ -125,4 +126,4 @@ QString NetworkResult::formatError() const
     return name;
 }
 
-}  // namespace chatterino
+}

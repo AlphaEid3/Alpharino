@@ -7,12 +7,13 @@
 #include "messages/Image.hpp"
 #include "providers/badgehq/BadgeHQBadges.hpp"
 #include "providers/bluzyrino/BluzyrinoBadges.hpp"
+#include "providers/jilchat/JilChatBadges.hpp"
+#include "providers/wydios/WydiosBadges.hpp"
 #include "providers/bttv/BttvBadges.hpp"
 #include "providers/chatterino/ChatterinoBadges.hpp"
 #include "providers/ffz/FfzBadges.hpp"
 #include "providers/ffzap/FfzApBadges.hpp"
 #include "providers/homies/HomiesBadges.hpp"
-#include "providers/jilchat/JilChatBadges.hpp"
 #include "providers/moltorino/MoltorinoAuth.hpp"
 #include "providers/seventv/SeventvBadges.hpp"
 #include "providers/seventv/SeventvPaints.hpp"
@@ -21,7 +22,6 @@
 #include "providers/twitch/TwitchBadge.hpp"
 #include "providers/twitch/TwitchBadges.hpp"
 #include "providers/twitch/TwitchChannel.hpp"
-#include "providers/wydios/WydiosBadges.hpp"
 #include "singletons/Fonts.hpp"
 #include "singletons/Settings.hpp"
 #include "singletons/Theme.hpp"
@@ -78,8 +78,8 @@
 #include <cmath>
 #include <functional>
 #include <limits>
-#include <unordered_set>
 #include <utility>
+#include <unordered_set>
 
 namespace chatterino {
 
@@ -222,11 +222,12 @@ std::optional<QVector<TwitchEventBadge>> parseTwitchEventBadges(
             object.value(QStringLiteral("name")).toString().trimmed();
         const auto imageUrl =
             object.value(QStringLiteral("imageUrl")).toString().trimmed();
-        auto detailsUrl = object.value(QStringLiteral("streamdatabaseUrl"))
-                              .toString()
-                              .trimmed();
-        const auto startAt =
-            parseIsoDate(object.value(QStringLiteral("startAt")).toString());
+        auto detailsUrl =
+            object.value(QStringLiteral("streamdatabaseUrl"))
+                .toString()
+                .trimmed();
+        const auto startAt = parseIsoDate(
+            object.value(QStringLiteral("startAt")).toString());
         const auto endAt =
             parseIsoDate(object.value(QStringLiteral("endAt")).toString());
         id = id.toLower();
@@ -249,8 +250,7 @@ std::optional<QVector<TwitchEventBadge>> parseTwitchEventBadges(
         {
             free = freeValue.toBool();
         }
-        badges.push_back(
-            {id, name, imageUrl, detailsUrl, startAt, endAt, free});
+        badges.push_back({id, name, imageUrl, detailsUrl, startAt, endAt, free});
     }
     return badges;
 }
@@ -263,14 +263,15 @@ bool isTwitchEventBadgeActive(const TwitchEventBadge &badge,
 
 QString twitchEventBadgeDescription(const TwitchEventBadge &badge)
 {
-    const auto date =
-        badge.endAt.toLocalTime().toString(QStringLiteral("MMM d, yyyy"));
+    const auto date = badge.endAt.toLocalTime().toString(
+        QStringLiteral("MMM d, yyyy"));
     if (badge.free.value_or(false))
     {
         return QStringLiteral("Free for a limited time. Available until %1.")
             .arg(date);
     }
-    return QStringLiteral("Available for a limited time, until %1.").arg(date);
+    return QStringLiteral("Available for a limited time, until %1.")
+        .arg(date);
 }
 
 QByteArray tokenHash(const QString &token)
@@ -479,7 +480,7 @@ QRect orderEyeRect(const QRect &row, qreal scale)
     return QRect(row.right() - width, row.top(), width, row.height());
 }
 
-}  // namespace
+}
 
 bool vanity::detail::canSaveIndependentVanityChanges(bool hasAccount,
                                                      bool layoutLoaded,
@@ -804,8 +805,9 @@ protected:
         painter.setRenderHint(QPainter::Antialiasing);
         painter.setPen(QPen(getTheme()->splits.header.border, 1));
         painter.setBrush(this->color_);
-        painter.drawRoundedRect(
-            QRectF(this->rect()).adjusted(0.5, 0.5, -0.5, -0.5), 2, 2);
+        painter.drawRoundedRect(QRectF(this->rect()).adjusted(0.5, 0.5, -0.5,
+                                                              -0.5),
+                                2, 2);
     }
 
 private:
@@ -1879,9 +1881,9 @@ VanityDialog::VanityDialog(std::shared_ptr<TwitchChannel> channel,
     if (auto *provider = getApp()->getFfzApBadges())
     {
         this->managedConnections_.managedConnect(provider->badgesUpdated,
-                                                 [this] {
-                                                     this->refreshPreview();
-                                                 });
+                                                  [this] {
+                                                      this->refreshPreview();
+                                                  });
     }
     if (auto *provider = getApp()->getBluzyrinoBadges())
     {
@@ -2009,7 +2011,8 @@ void VanityDialog::buildUi()
     this->headerIdentityLabel_ = new QLabel(this->headerWidget_);
     this->headerIdentityLabel_->setObjectName(
         QStringLiteral("VanityHeaderIdentity"));
-    this->headerIdentityLabel_->setAttribute(Qt::WA_TransparentForMouseEvents);
+    this->headerIdentityLabel_->setAttribute(
+        Qt::WA_TransparentForMouseEvents);
     header->addWidget(this->headerIdentityLabel_, 1);
 
     this->pinButton_ = this->createPinButton();
@@ -2639,7 +2642,8 @@ void VanityDialog::refreshStyle()
     }
 
     const auto scale = this->scale();
-    this->setFont(getApp()->getFonts()->getFont(FontStyle::UiMedium, scale));
+    this->setFont(
+        getApp()->getFonts()->getFont(FontStyle::UiMedium, scale));
     this->preview_->setUiScale(scale);
     this->closeButton_->setOverrideScale(scale);
     this->pinButton_->setOverrideScale(scale);
@@ -2811,7 +2815,8 @@ void VanityDialog::refreshStyle()
             .arg(background.name(QColor::HexArgb), text.name(QColor::HexArgb),
                  muted.name(QColor::HexArgb), border.name(QColor::HexArgb),
                  section.name(QColor::HexArgb), accent.name(QColor::HexArgb),
-                 accentText.name(QColor::HexArgb), input.name(QColor::HexArgb))
+                 accentText.name(QColor::HexArgb),
+                 input.name(QColor::HexArgb))
             .arg(tabVerticalPadding)
             .arg(tabHorizontalPadding));
 
@@ -3120,37 +3125,37 @@ void VanityDialog::loadTwitchEventBadges()
     }
     this->twitchEventBadgesRequested_ = true;
 
-    const auto applyResult = [self = QPointer<VanityDialog>(this)](
-                                 const QVector<TwitchEventBadge> &badges,
-                                 bool succeeded) {
-        if (!self)
-        {
-            return;
-        }
-        if (!succeeded)
-        {
-            self->twitchEventBadgesRequested_ = false;
-            self->scheduleTwitchEventBadgeRetry();
-        }
-        if (self->twitchEventBadges_ == badges)
-        {
-            return;
-        }
-        self->twitchEventBadges_ = badges;
-        const auto *preview =
-            self->findTwitchEventBadge(self->previewTwitchEventBadge_);
-        if (!self->previewTwitchEventBadge_.isEmpty() &&
-            (preview == nullptr ||
-             !isTwitchEventBadgeActive(*preview,
-                                       QDateTime::currentDateTimeUtc())))
-        {
-            self->previewTwitchEventBadge_.clear();
-        }
-        self->globalBadgeChoicesBuilt_ = false;
-        self->channelBadgeChoicesBuilt_ = false;
-        self->populateCurrentTab();
-        self->refreshPreview();
-    };
+    const auto applyResult =
+        [self = QPointer<VanityDialog>(this)](
+            const QVector<TwitchEventBadge> &badges, bool succeeded) {
+            if (!self)
+            {
+                return;
+            }
+            if (!succeeded)
+            {
+                self->twitchEventBadgesRequested_ = false;
+                self->scheduleTwitchEventBadgeRetry();
+            }
+            if (self->twitchEventBadges_ == badges)
+            {
+                return;
+            }
+            self->twitchEventBadges_ = badges;
+            const auto *preview = self->findTwitchEventBadge(
+                self->previewTwitchEventBadge_);
+            if (!self->previewTwitchEventBadge_.isEmpty() &&
+                (preview == nullptr ||
+                 !isTwitchEventBadgeActive(
+                     *preview, QDateTime::currentDateTimeUtc())))
+            {
+                self->previewTwitchEventBadge_.clear();
+            }
+            self->globalBadgeChoicesBuilt_ = false;
+            self->channelBadgeChoicesBuilt_ = false;
+            self->populateCurrentTab();
+            self->refreshPreview();
+        };
 
     auto &cache = twitchEventBadgeCache();
     const auto now = QDateTime::currentDateTimeUtc();
@@ -3189,7 +3194,8 @@ void VanityDialog::loadTwitchEventBadges()
         .maximumResponseSize(1024 * 1024)
         .onSuccess([](const NetworkResult &result) {
             auto &cache = twitchEventBadgeCache();
-            const auto parsed = parseTwitchEventBadges(result.parseJson());
+            const auto parsed =
+                parseTwitchEventBadges(result.parseJson());
             const bool succeeded = parsed.has_value();
             if (succeeded)
             {
@@ -3275,16 +3281,16 @@ void VanityDialog::clearTwitchEventBadgePreview()
 
 void VanityDialog::refreshTwitchBadgeHint(bool channelBadges)
 {
-    auto *hint =
-        channelBadges ? this->channelBadgeHint_ : this->globalBadgeHint_;
+    auto *hint = channelBadges ? this->channelBadgeHint_
+                              : this->globalBadgeHint_;
     if (hint == nullptr || !this->twitchLoaded_)
     {
         return;
     }
 
-    const bool previewIsHere =
-        !this->previewTwitchEventBadge_.isEmpty() &&
-        this->previewTwitchEventForChannel_ == channelBadges;
+    const bool previewIsHere = !this->previewTwitchEventBadge_.isEmpty() &&
+                               this->previewTwitchEventForChannel_ ==
+                                   channelBadges;
     if (previewIsHere)
     {
         if (const auto *badge =
@@ -3294,7 +3300,8 @@ void VanityDialog::refreshTwitchBadgeHint(bool channelBadges)
                             .arg(badge->name.toHtmlEscaped());
             if (!badge->detailsUrl.isEmpty())
             {
-                text += QStringLiteral(" · <a href=\"%1\">How to get it</a>")
+                text += QStringLiteral(
+                            " · <a href=\"%1\">How to get it</a>")
                             .arg(badge->detailsUrl.toHtmlEscaped());
             }
             hint->setText(text);
@@ -3483,8 +3490,8 @@ void VanityDialog::loadLayoutState()
                     {
                         this->selectedMoltorinoBadge_.clear();
                         this->workingLayout_.moltorinoBadge.clear();
-                        this->workingLayout_.moltorinoBadgeSelectionExplicit =
-                            false;
+                        this->workingLayout_
+                            .moltorinoBadgeSelectionExplicit = false;
                         this->syncEffectiveMoltorinoSelection();
                         this->updateLayoutDirtyState();
                     }
@@ -3506,8 +3513,8 @@ void VanityDialog::loadLayoutState()
                     {
                         this->selectedMoltorinoBadge_.clear();
                         this->workingLayout_.moltorinoBadge.clear();
-                        this->workingLayout_.moltorinoBadgeSelectionExplicit =
-                            false;
+                        this->workingLayout_
+                            .moltorinoBadgeSelectionExplicit = false;
                         this->syncEffectiveMoltorinoSelection();
                         this->updateLayoutDirtyState();
                     }
@@ -3732,20 +3739,17 @@ query MoltorinoVanityInventory {
                 this->stopForAccountChange();
                 return;
             }
-            if (token != normalizedToken(
-                             this->pendingSevenTVToken_.isEmpty()
-                                 ? this->storedSevenTVTokenForCurrentAccount()
-                                 : this->pendingSevenTVToken_))
+            if (token != normalizedToken(this->pendingSevenTVToken_.isEmpty()
+                         ? this->storedSevenTVTokenForCurrentAccount()
+                         : this->pendingSevenTVToken_))
             {
                 this->refreshConnectionText();
                 return;
             }
             const bool preserveBadgeDraft = forceRefresh &&
-                                            this->sevenTVLoaded_ &&
-                                            this->sevenTVBadgeTouched_;
+                this->sevenTVLoaded_ && this->sevenTVBadgeTouched_;
             const bool preservePaintDraft = forceRefresh &&
-                                            this->sevenTVLoaded_ &&
-                                            this->sevenTVPaintTouched_;
+                this->sevenTVLoaded_ && this->sevenTVPaintTouched_;
             const auto draftBadge = this->selectedSevenTVBadge_;
             const auto draftPaint = this->selectedSevenTVPaint_;
             const auto root = result.parseJson();
@@ -3955,16 +3959,17 @@ query MoltorinoVanityInventory {
             {
                 vanityCache.erase(vanityCache.begin());
             }
-            vanityCache.insert(this->accountUserId_,
-                               SevenTVVanityCacheEntry{
-                                   .tokenHash = fingerprint,
-                                   .userId = this->sevenTVUserId_,
-                                   .login = this->sevenTVLogin_,
-                                   .activeBadgeId = this->originalSevenTVBadge_,
-                                   .activePaintId = this->originalSevenTVPaint_,
-                                   .badges = this->sevenTVBadges_,
-                                   .paints = this->sevenTVPaints_,
-                               });
+            vanityCache.insert(
+                this->accountUserId_,
+                SevenTVVanityCacheEntry{
+                    .tokenHash = fingerprint,
+                    .userId = this->sevenTVUserId_,
+                    .login = this->sevenTVLogin_,
+                    .activeBadgeId = this->originalSevenTVBadge_,
+                    .activePaintId = this->originalSevenTVPaint_,
+                    .badges = this->sevenTVBadges_,
+                    .paints = this->sevenTVPaints_,
+                });
             this->refreshConnectionText();
             this->populateCurrentTab();
             if (connecting)
@@ -3981,10 +3986,9 @@ query MoltorinoVanityInventory {
                 this->stopForAccountChange();
                 return;
             }
-            if (token != normalizedToken(
-                             this->pendingSevenTVToken_.isEmpty()
-                                 ? this->storedSevenTVTokenForCurrentAccount()
-                                 : this->pendingSevenTVToken_))
+            if (token != normalizedToken(this->pendingSevenTVToken_.isEmpty()
+                         ? this->storedSevenTVTokenForCurrentAccount()
+                         : this->pendingSevenTVToken_))
             {
                 this->refreshConnectionText();
                 return;
@@ -4076,30 +4080,31 @@ void VanityDialog::connectSevenTV()
     layout->addWidget(tokenInput);
 
     auto *buttons = new QDialogButtonBox(QDialogButtonBox::Cancel, dialog);
-    auto *connectButton = buttons->addButton(QStringLiteral("Connect"),
-                                             QDialogButtonBox::AcceptRole);
+    auto *connectButton =
+        buttons->addButton(QStringLiteral("Connect"),
+                           QDialogButtonBox::AcceptRole);
     connectButton->setEnabled(false);
     layout->addWidget(buttons);
 
-    static const auto LOGIN_COMMAND =
-        QStringLiteral("(()=>{copy(localStorage.getItem('7tv-token'));"
-                       "return '7TV token copied.'})()");
+    static const auto LOGIN_COMMAND = QStringLiteral(
+        "(()=>{copy(localStorage.getItem('7tv-token'));"
+        "return '7TV token copied.'})()");
 
     QObject::connect(openSevenTV, &QPushButton::clicked, dialog.data(), [] {
         QDesktopServices::openUrl(QUrl(QStringLiteral("https://7tv.app")));
     });
-    QObject::connect(
-        copyHelper, &QPushButton::clicked, dialog.data(), [helperStatus] {
-            QGuiApplication::clipboard()->setText(LOGIN_COMMAND);
-            helperStatus->setText(
-                QStringLiteral("Command copied. Run it on 7TV, then "
-                               "paste the copied token below."));
-        });
-    QObject::connect(
-        tokenInput, &QLineEdit::textChanged, dialog.data(),
-        [connectButton](const QString &text) {
-            connectButton->setEnabled(!normalizedToken(text).isEmpty());
-        });
+    QObject::connect(copyHelper, &QPushButton::clicked, dialog.data(),
+                     [helperStatus] {
+                         QGuiApplication::clipboard()->setText(LOGIN_COMMAND);
+                         helperStatus->setText(QStringLiteral(
+                             "Command copied. Run it on 7TV, then "
+                             "paste the copied token below."));
+                     });
+    QObject::connect(tokenInput, &QLineEdit::textChanged, dialog.data(),
+                     [connectButton](const QString &text) {
+                         connectButton->setEnabled(
+                             !normalizedToken(text).isEmpty());
+                     });
     QObject::connect(connectButton, &QPushButton::clicked, dialog.data(),
                      &QDialog::accept);
     QObject::connect(buttons, &QDialogButtonBox::rejected, dialog.data(),
@@ -4289,7 +4294,8 @@ void VanityDialog::populateGlobalBadgeChoices()
         if (!this->previewTwitchEventBadge_.isEmpty() &&
             !this->previewTwitchEventForChannel_)
         {
-            this->globalBadgeGrid_->setSelected(this->previewTwitchEventBadge_);
+            this->globalBadgeGrid_->setSelected(
+                this->previewTwitchEventBadge_);
         }
         else if (this->selectedChannelBadge_.isEmpty())
         {
@@ -4323,7 +4329,7 @@ void VanityDialog::populateGlobalBadgeChoices()
         const bool duplicate = owned.contains(id);
         owned.insert(id);
         if (duplicate || TwitchBadge::vanitySlotKeyForSet(badge.setId) !=
-                             QStringLiteral("tv"))
+            QStringLiteral("tv"))
         {
             continue;
         }
@@ -4342,20 +4348,17 @@ void VanityDialog::populateGlobalBadgeChoices()
         {
             continue;
         }
-        choices.push_back({badge.id,
-                           badge.name,
-                           badge.imageUrl,
-                           {},
-                           twitchEventBadgeDescription(badge),
-                           false});
+        choices.push_back({badge.id, badge.name, badge.imageUrl, {},
+                           twitchEventBadgeDescription(badge), false});
     }
-    const auto displayedSelection = !this->previewTwitchEventBadge_.isEmpty() &&
-                                            !this->previewTwitchEventForChannel_
-                                        ? this->previewTwitchEventBadge_
-                                        : this->selectedGlobalBadge_;
-    this->globalBadgeGrid_->setChoices(std::move(choices), displayedSelection,
-                                       this->accountDisplayName_,
-                                       this->selectedColor_);
+    const auto displayedSelection =
+        !this->previewTwitchEventBadge_.isEmpty() &&
+                !this->previewTwitchEventForChannel_
+            ? this->previewTwitchEventBadge_
+            : this->selectedGlobalBadge_;
+    this->globalBadgeGrid_->setChoices(
+        std::move(choices), displayedSelection, this->accountDisplayName_,
+        this->selectedColor_);
     if (this->previewTwitchEventBadge_.isEmpty() &&
         !this->selectedChannelBadge_.isEmpty())
     {
@@ -4425,12 +4428,8 @@ void VanityDialog::populateChannelBadgeChoices()
         {
             continue;
         }
-        choices.push_back({badge.id,
-                           badge.name,
-                           badge.imageUrl,
-                           {},
-                           twitchEventBadgeDescription(badge),
-                           false});
+        choices.push_back({badge.id, badge.name, badge.imageUrl, {},
+                           twitchEventBadgeDescription(badge), false});
     }
     this->channelBadgeGrid_->setChoices(
         std::move(choices),
@@ -4500,22 +4499,17 @@ void VanityDialog::populateMoltorinoBadgeChoices()
     }
     QVector<VanityChoice> choices;
     choices.reserve(int(catalog.size()) + 1);
-    choices.push_back({{},
-                       QStringLiteral("No badge"),
-                       {},
-                       {},
-                       QStringLiteral("Do not show a Moltorino badge."),
-                       true});
+    choices.push_back({{}, QStringLiteral("No badge"), {}, {},
+                       QStringLiteral("Do not show a Moltorino badge."), true});
     auto orderedCatalog = catalog;
-    std::stable_partition(orderedCatalog.begin(), orderedCatalog.end(),
-                          [&](const auto &badge) {
-                              return ownedIds.contains(badge.categoryId);
-                          });
+    std::stable_partition(
+        orderedCatalog.begin(), orderedCatalog.end(),
+        [&](const auto &badge) { return ownedIds.contains(badge.categoryId); });
     for (const auto &badge : orderedCatalog)
     {
         const auto owned = ownedIds.contains(badge.categoryId);
-        if (!vanity::detail::shouldShowMoltorinoBadge(badge.listedInVanity,
-                                                      owned))
+        if (!vanity::detail::shouldShowMoltorinoBadge(
+                badge.listedInVanity, owned))
         {
             continue;
         }
@@ -4533,8 +4527,9 @@ void VanityDialog::populateMoltorinoBadgeChoices()
     }
     this->moltorinoBadgeGrid_->setChoices(
         std::move(choices),
-        this->previewMoltorinoBadge_.isEmpty() ? this->selectedMoltorinoBadge_
-                                               : this->previewMoltorinoBadge_,
+        this->previewMoltorinoBadge_.isEmpty()
+            ? this->selectedMoltorinoBadge_
+            : this->previewMoltorinoBadge_,
         this->accountDisplayName_, this->selectedColor_);
     if (catalog.empty())
     {
@@ -4544,14 +4539,16 @@ void VanityDialog::populateMoltorinoBadgeChoices()
     }
     else if (assigned.empty())
     {
-        this->moltorinoBadgeHint_->setText(QStringLiteral(
-            "Preview any badge here. Unlock one before you can equip it."));
+        this->moltorinoBadgeHint_->setText(
+            QStringLiteral(
+                "Preview any badge here. Unlock one before you can equip it."));
         this->moltorinoBadgeHint_->show();
     }
     else
     {
         this->moltorinoBadgeHint_->setText(
-            QStringLiteral("Choose one of your badges, or preview the rest."));
+            QStringLiteral(
+                "Choose one of your badges, or preview the rest."));
         this->moltorinoBadgeHint_->show();
     }
     this->moltorinoBadgeChoicesBuilt_ = true;
@@ -4573,7 +4570,8 @@ std::vector<MoltorinoSupporterBadge> VanityDialog::availableMoltorinoBadges()
     return provider->getAssignedBadges(this->accountUserId_);
 }
 
-std::vector<MoltorinoSupporterBadge> VanityDialog::moltorinoBadgeCatalog() const
+std::vector<MoltorinoSupporterBadge> VanityDialog::moltorinoBadgeCatalog()
+    const
 {
     auto *provider = getApp()->getMoltorinoSupporterBadges();
     return provider == nullptr ? std::vector<MoltorinoSupporterBadge>{}
@@ -4600,7 +4598,8 @@ void VanityDialog::syncEffectiveMoltorinoSelection()
 {
     if (this->workingLayout_.moltorinoBadgeSelectionExplicit)
     {
-        this->selectedMoltorinoBadge_ = this->workingLayout_.moltorinoBadge;
+        this->selectedMoltorinoBadge_ =
+            this->workingLayout_.moltorinoBadge;
         return;
     }
 
@@ -4815,12 +4814,13 @@ void VanityDialog::refreshPreview()
     if (this->previewTwitchEventBadge_.isEmpty() &&
         effectiveSelectedBadge != nullptr)
     {
-        const auto key =
-            QStringLiteral("t:") + effectiveSelectedBadge->setId.toLower();
+        const auto key = QStringLiteral("t:") +
+                         effectiveSelectedBadge->setId.toLower();
         if (!addedTwitchKeys.contains(key))
         {
             addUrl(key,
-                   QStringLiteral("Twitch: ") + effectiveSelectedBadge->title,
+                   QStringLiteral("Twitch: ") +
+                       effectiveSelectedBadge->title,
                    effectiveSelectedBadge->image2.isEmpty()
                        ? effectiveSelectedBadge->image1
                        : effectiveSelectedBadge->image2);
@@ -4828,7 +4828,8 @@ void VanityDialog::refreshPreview()
         }
     }
     else if (const auto *preview =
-                 this->findTwitchEventBadge(this->previewTwitchEventBadge_))
+                 this->findTwitchEventBadge(
+                     this->previewTwitchEventBadge_))
     {
         const auto key = QStringLiteral("t:") + preview->id;
         if (!addedTwitchKeys.contains(key))
@@ -4912,8 +4913,9 @@ void VanityDialog::refreshPreview()
         const auto selectedId = previewingLockedBadge
                                     ? this->previewMoltorinoBadge_
                                     : this->selectedMoltorinoBadge_;
-        auto selected = std::ranges::find(moltorinoBadges, selectedId,
-                                          &MoltorinoSupporterBadge::categoryId);
+        auto selected = std::ranges::find(
+            moltorinoBadges, selectedId,
+            &MoltorinoSupporterBadge::categoryId);
         if (selected != moltorinoBadges.end())
         {
             addBadge(QStringLiteral("m"), QStringLiteral("Moltorino"),
@@ -4989,8 +4991,9 @@ void VanityDialog::refreshPreview()
                                 ranks.value(right.slot, 1000);
                      });
 
-    const auto paintId =
-        this->sevenTVLoaded_ ? this->selectedSevenTVPaintId() : QString{};
+    const auto paintId = this->sevenTVLoaded_
+                             ? this->selectedSevenTVPaintId()
+                             : QString{};
     if (!paintId.isEmpty())
     {
         getApp()->getSeventvPaints()->loadPaintByID(paintId);
@@ -5073,8 +5076,8 @@ void VanityDialog::refreshConnectionText()
 void VanityDialog::save()
 {
     if (this->saveInFlight_ || this->layoutRequestInFlight_ ||
-        this->sevenTVRequestInFlight_ || !this->layoutLoaded_ ||
-        this->accountUserId_.isEmpty())
+        this->sevenTVRequestInFlight_ ||
+        !this->layoutLoaded_ || this->accountUserId_.isEmpty())
     {
         return;
     }
@@ -5504,14 +5507,14 @@ void VanityDialog::saveLayout(bool forceOnlineSync)
     // I know there's no authentication here yet
     // please be a good person and don't exploit it
     NetworkRequest(VANITY_LAYOUT_ENDPOINT, NetworkRequestType::Put)
-        .json(QJsonObject{
-            {"userId", this->accountUserId_},
-            {"revision", this->layoutRevision_},
-            {"layoutSchemaVersion", 1},
-            {"order", order},
-            {"hidden", hidden},
-            {"selectedBadge", layout.moltorinoBadge},
-            {"badgeSelectionExplicit", layout.moltorinoBadgeSelectionExplicit}})
+        .json(QJsonObject{{"userId", this->accountUserId_},
+                          {"revision", this->layoutRevision_},
+                          {"layoutSchemaVersion", 1},
+                          {"order", order},
+                          {"hidden", hidden},
+                          {"selectedBadge", layout.moltorinoBadge},
+                          {"badgeSelectionExplicit",
+                           layout.moltorinoBadgeSelectionExplicit}})
         .timeout(10000)
         .maximumResponseSize(1024 * 1024)
         .caller(this)
@@ -5783,8 +5786,8 @@ const TwitchEventBadge *VanityDialog::findTwitchEventBadge(
     const QString &key) const
 {
     const auto id = key.startsWith(QStringLiteral("t:")) ? key.mid(2) : key;
-    const auto it =
-        std::ranges::find_if(this->twitchEventBadges_, [&](const auto &badge) {
+    const auto it = std::ranges::find_if(
+        this->twitchEventBadges_, [&](const auto &badge) {
             return badge.id.compare(id, Qt::CaseInsensitive) == 0;
         });
     return it == this->twitchEventBadges_.end() ? nullptr : &*it;
@@ -5995,4 +5998,4 @@ void VanityDialog::scheduleResponsiveLayoutRefresh()
     });
 }
 
-}  // namespace chatterino
+}

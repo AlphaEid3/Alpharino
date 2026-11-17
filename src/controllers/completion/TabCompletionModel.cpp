@@ -109,6 +109,7 @@ void TabCompletionModel::updateSourceFromQuery(const QString &query,
     auto deducedKind = this->deduceSourceKind(query, isFirstWord);
     if (!deducedKind)
     {
+
         this->source_ = nullptr;
         return;
     }
@@ -148,6 +149,7 @@ std::optional<TabCompletionModel::SourceKind>
     {
         if (getSettings()->userCompletionOnlyWithAt)
         {
+
             return SourceKind::EmoteCommand;
         }
 
@@ -195,7 +197,8 @@ std::unique_ptr<completion::Source> TabCompletionModel::buildSource(
         case SourceKind::EmoteUserCommand: {
             std::vector<std::unique_ptr<completion::Source>> sources;
             sources.push_back(this->buildEmoteSource());
-            sources.push_back(this->buildUserSource(false));
+            sources.push_back(
+                this->buildUserSource(false));
             sources.push_back(this->buildCommandSource());
 
             return std::make_unique<completion::UnifiedSource>(
@@ -236,4 +239,4 @@ std::unique_ptr<completion::Source> TabCompletionModel::buildCommandSource(
         nullptr, &this->channel_);
 }
 
-}  // namespace chatterino
+}

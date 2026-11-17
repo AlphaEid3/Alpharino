@@ -100,4 +100,4 @@ void CommandStrategy::apply(const std::vector<CommandItem> &items,
     }
 };
 
-}  // namespace chatterino::completion
+}

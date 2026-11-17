@@ -26,20 +26,23 @@ class HighlightPhrase
 public:
     bool operator==(const HighlightPhrase &other) const;
 
-    HighlightPhrase(
-        const QString &pattern, bool showInMentions, bool hasAlert,
-        bool hasSound, bool isRegex, bool isCaseSensitive,
-        const QString &soundUrl, QColor color, QColor matchColor = {},
-        HighlightMatchStyle matchStyle = HighlightMatchStyle::Outline,
-        QString matchPaintID = {}, HighlightChannelScope channelScope = {});
+    HighlightPhrase(const QString &pattern, bool showInMentions, bool hasAlert,
+                    bool hasSound, bool isRegex, bool isCaseSensitive,
+                    const QString &soundUrl, QColor color,
+                    QColor matchColor = {},
+                    HighlightMatchStyle matchStyle =
+                        HighlightMatchStyle::Outline,
+                    QString matchPaintID = {},
+                    HighlightChannelScope channelScope = {});
 
-    HighlightPhrase(
-        const QString &pattern, bool showInMentions, bool hasAlert,
-        bool hasSound, bool isRegex, bool isCaseSensitive,
-        const QString &soundUrl, std::shared_ptr<QColor> color,
-        std::shared_ptr<QColor> matchColor = nullptr,
-        HighlightMatchStyle matchStyle = HighlightMatchStyle::Outline,
-        QString matchPaintID = {}, HighlightChannelScope channelScope = {});
+    HighlightPhrase(const QString &pattern, bool showInMentions, bool hasAlert,
+                    bool hasSound, bool isRegex, bool isCaseSensitive,
+                    const QString &soundUrl, std::shared_ptr<QColor> color,
+                    std::shared_ptr<QColor> matchColor = nullptr,
+                    HighlightMatchStyle matchStyle =
+                        HighlightMatchStyle::Outline,
+                    QString matchPaintID = {},
+                    HighlightChannelScope channelScope = {});
 
     const QString &getPattern() const;
     bool showInMentions() const;
@@ -94,7 +97,7 @@ private:
     QRegularExpression regex_;
 };
 
-}  // namespace chatterino
+}
 
 namespace pajlada {
 
@@ -104,7 +107,7 @@ chatterino::HighlightPhrase constructError()
     return chatterino::HighlightPhrase(QString(), false, false, false, false,
                                        false, QString(), QColor());
 }
-}  // namespace
+}
 
 template <>
 struct Serialize<chatterino::HighlightPhrase> {
@@ -124,14 +127,16 @@ struct Serialize<chatterino::HighlightPhrase> {
                             value.getColor()->name(QColor::HexArgb), a);
         chatterino::rj::set(ret, "matchColor",
                             value.getMatchColor()->name(QColor::HexArgb), a);
-        chatterino::rj::set(
-            ret, "matchStyle",
-            chatterino::highlightMatchStyleName(value.getMatchStyle()), a);
-        chatterino::rj::set(ret, "matchPaintId", value.getMatchPaintID(), a);
-        chatterino::rj::set(ret, "channelScope",
-                            chatterino::highlightChannelScopeModeKey(
-                                value.getChannelScope().mode()),
+        chatterino::rj::set(ret, "matchStyle",
+                            chatterino::highlightMatchStyleName(
+                                value.getMatchStyle()),
                             a);
+        chatterino::rj::set(ret, "matchPaintId", value.getMatchPaintID(), a);
+        chatterino::rj::set(
+            ret, "channelScope",
+            chatterino::highlightChannelScopeModeKey(
+                value.getChannelScope().mode()),
+            a);
         std::vector<QString> channelTargets;
         channelTargets.reserve(value.getChannelScope().targets().size());
         for (const auto &target : value.getChannelScope().targets())
@@ -182,16 +187,18 @@ struct Deserialize<chatterino::HighlightPhrase> {
         chatterino::rj::getSafe(value, "matchColor", encodedMatchColor);
         chatterino::rj::getSafe(value, "matchStyle", matchStyle);
         chatterino::rj::getSafe(value, "matchPaintId", matchPaintID);
-        const bool hasChannelScope =
-            chatterino::rj::getSafe(value, "channelScope", channelScope);
-        chatterino::rj::getSafe(value, "channelTargets", encodedChannelTargets);
+        const bool hasChannelScope = chatterino::rj::getSafe(
+            value, "channelScope", channelScope);
+        chatterino::rj::getSafe(value, "channelTargets",
+                                encodedChannelTargets);
 
-        auto scopeMode =
-            chatterino::highlightChannelScopeModeFromKey(channelScope);
+        auto scopeMode = chatterino::highlightChannelScopeModeFromKey(
+            channelScope);
         std::vector<chatterino::HighlightChannelTarget> channelTargets;
         for (const auto &encoded : encodedChannelTargets)
         {
-            if (auto target = chatterino::decodeHighlightChannelTarget(encoded))
+            if (auto target =
+                    chatterino::decodeHighlightChannelTarget(encoded))
             {
                 channelTargets.emplace_back(std::move(*target));
             }
@@ -202,10 +209,10 @@ struct Deserialize<chatterino::HighlightPhrase> {
             bool legacyGlobal = true;
             std::vector<QString> legacyIncluded;
             std::vector<QString> legacyExcluded;
-            const bool hasLegacyGlobal =
-                chatterino::rj::getSafe(value, "global", legacyGlobal);
-            const bool hasLegacyIncluded =
-                chatterino::rj::getSafe(value, "channels", legacyIncluded);
+            const bool hasLegacyGlobal = chatterino::rj::getSafe(
+                value, "global", legacyGlobal);
+            const bool hasLegacyIncluded = chatterino::rj::getSafe(
+                value, "channels", legacyIncluded);
             const bool hasLegacyExcluded = chatterino::rj::getSafe(
                 value, "ExcludedChannels", legacyExcluded);
             if (hasLegacyGlobal || hasLegacyIncluded || hasLegacyExcluded)
@@ -240,11 +247,9 @@ struct Deserialize<chatterino::HighlightPhrase> {
                         chatterino::HighlightChannelScopeMode::ExcludeSelected;
                     for (const auto &channel : legacyExcluded)
                     {
-                        if (auto target =
-                                chatterino::makeHighlightChannelTarget(
-                                    chatterino::HighlightChannelTargetPlatform::
-                                        Any,
-                                    channel))
+                        if (auto target = chatterino::makeHighlightChannelTarget(
+                                chatterino::HighlightChannelTargetPlatform::Any,
+                                channel))
                         {
                             channelTargets.emplace_back(std::move(*target));
                         }
@@ -269,9 +274,9 @@ struct Deserialize<chatterino::HighlightPhrase> {
             _pattern, _showInMentions, _hasAlert, _hasSound, _isRegex,
             _isCaseSensitive, _soundUrl, _color, _matchColor,
             chatterino::highlightMatchStyleFromName(matchStyle), matchPaintID,
-            chatterino::HighlightChannelScope{scopeMode,
-                                              std::move(channelTargets)});
+            chatterino::HighlightChannelScope{
+                scopeMode, std::move(channelTargets)});
     }
 };
 
-}  // namespace pajlada
+}

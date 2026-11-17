@@ -138,6 +138,7 @@ PluginMeta::PluginMeta(const QJsonObject &obj)
             auto parsed = PluginPermission(t.toObject());
             if (parsed.isValid())
             {
+
                 this->permissions.push_back(parsed);
             }
             else
@@ -180,6 +181,6 @@ PluginMeta::PluginMeta(const QJsonObject &obj)
     }
 }
 
-}  // namespace chatterino
+}
 
 #endif

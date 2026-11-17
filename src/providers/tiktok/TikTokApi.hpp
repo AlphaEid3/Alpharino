@@ -70,4 +70,4 @@ QMap<QString, QString> tikTokChatParameters(const TikTokSession &session,
 QByteArray tikTokChatBody(const QString &roomID, const QString &content);
 TikTokSendResult classifyTikTokSendResponse(const TikTokApiResponse &response);
 
-}  // namespace chatterino
+}

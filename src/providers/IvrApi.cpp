@@ -90,10 +90,10 @@ void IvrApi::getModVip(
         .execute();
 }
 
-void IvrApi::getFounders(
-    QString channelName,
-    ResultCallback<std::vector<HelixModerator>> successCallback,
-    IvrFailureCallback failureCallback)
+void IvrApi::getFounders(QString channelName,
+                         ResultCallback<std::vector<HelixModerator>>
+                             successCallback,
+                         IvrFailureCallback failureCallback)
 {
     assert(!channelName.isEmpty());
 
@@ -185,4 +185,4 @@ IvrApi *getIvr()
     return instance;
 }
 
-}  // namespace chatterino
+}

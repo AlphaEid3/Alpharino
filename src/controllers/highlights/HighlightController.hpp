@@ -43,6 +43,7 @@ public:
         bool forceMatchRanges = false) const;
 
 private:
+
     void rebuildChecks(Settings &settings);
 
     UniqueAccess<std::vector<HighlightCheck>> checks_;
@@ -52,4 +53,4 @@ private:
     pajlada::Signals::SignalHolder signalHolder_;
 };
 
-}  // namespace chatterino
+}

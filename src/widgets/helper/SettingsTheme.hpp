@@ -33,4 +33,4 @@ inline const SettingsTheme &settingsTheme()
     return value;
 }
 
-}  // namespace chatterino
+}

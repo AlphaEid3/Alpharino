@@ -94,6 +94,7 @@ public:
     bool isDisabled() const;
 
 private:
+
     bool layoutImpl(const MessageLayoutContext &ctx,
                     bool shouldInvalidateBuffer, bool retainContainer);
     void actuallyLayout(const MessageLayoutContext &ctx);
@@ -132,4 +133,4 @@ private:
 
 using MessageLayoutPtr = std::shared_ptr<MessageLayout>;
 
-}  // namespace chatterino
+}

@@ -65,6 +65,7 @@ std::unique_ptr<SingleLineTextElement> singleLineTextElementFromTable(
 
 std::unique_ptr<MentionElement> mentionElementFromTable(const sol::table &tbl)
 {
+
     return std::make_unique<MentionElement>(
         requiredGet<QString>(tbl, "display_name"),
         requiredGet<QString>(tbl, "login_name"),
@@ -75,6 +76,7 @@ std::unique_ptr<MentionElement> mentionElementFromTable(const sol::table &tbl)
 std::unique_ptr<TimestampElement> timestampElementFromTable(
     const sol::table &tbl)
 {
+
     auto time = tbl.get<std::optional<qint64>>("time");
     if (time)
     {
@@ -86,6 +88,7 @@ std::unique_ptr<TimestampElement> timestampElementFromTable(
 
 std::unique_ptr<TwitchModerationElement> twitchModerationElementFromTable()
 {
+
     return std::make_unique<TwitchModerationElement>();
 }
 
@@ -98,6 +101,7 @@ std::unique_ptr<LinebreakElement> linebreakElementFromTable(
 
 std::unique_ptr<ReplyCurveElement> replyCurveElementFromTable()
 {
+
     return std::make_unique<ReplyCurveElement>();
 }
 
@@ -277,7 +281,7 @@ decltype(auto) memberAccessor()
         });
 }
 
-}  // namespace
+}
 
 namespace chatterino::lua::api::message {
 
@@ -331,6 +335,7 @@ struct ElementRef {
     template <typename T>
     sol::optional<T &> as() const
     {
+
         auto *el = dynamic_cast<T *>(&this->ref());
         if (!el)
         {
@@ -342,6 +347,7 @@ struct ElementRef {
     template <typename T>
     sol::optional<const T &> asConst() const
     {
+
         const auto *el = dynamic_cast<const T *>(&this->cref());
         if (!el)
         {
@@ -573,7 +579,7 @@ struct MessageElements {
         return this->msg->elements.empty();
     }
 
-    void push_back(ElementIterator::value_type) const
+    void push_back(ElementIterator::value_type ) const
     {
         throw std::runtime_error("Insertion is not supported");
     }
@@ -596,8 +602,8 @@ struct MessageElements {
 void createUserType(sol::table &c2)
 {
     c2.new_usertype<ElementRef>(
-        "MessageElement", sol::no_constructor, "type",
-        sol::property([](const ElementRef &el) {
+        "MessageElement", sol::no_constructor,
+        "type", sol::property([](const ElementRef &el) {
             return el.cref().type();
         }),
         "to_json",
@@ -718,6 +724,7 @@ void createUserType(sol::table &c2)
                 return msg->flags.value();
             },
             [](Message *msg, MessageFlag f) {
+
                 msg->flags = f;
             }),
         "parse_time",
@@ -730,14 +737,15 @@ void createUserType(sol::table &c2)
                 checkWritable(msg);
                 msg->parseTime = datetimeFromOffset(ms).time();
             }),
-        "id", memberAccessor<&Message::id>(), "search_text",
-        memberAccessor<&Message::searchText>(), "message_text",
-        memberAccessor<&Message::messageText>(), "login_name",
-        memberAccessor<&Message::loginName>(), "display_name",
-        memberAccessor<&Message::displayName>(), "localized_name",
-        memberAccessor<&Message::localizedName>(), "user_id",
-        memberAccessor<&Message::userID>(), "channel_name",
-        memberAccessor<&Message::channelName>(), "username_color",
+        "id", memberAccessor<&Message::id>(),
+        "search_text", memberAccessor<&Message::searchText>(),
+        "message_text", memberAccessor<&Message::messageText>(),
+        "login_name", memberAccessor<&Message::loginName>(),
+        "display_name", memberAccessor<&Message::displayName>(),
+        "localized_name", memberAccessor<&Message::localizedName>(),
+        "user_id", memberAccessor<&Message::userID>(),
+        "channel_name", memberAccessor<&Message::channelName>(),
+        "username_color",
         sol::property(
             [](Message *msg) {
                 return msg->usernameColor.name(QColor::HexArgb);
@@ -821,7 +829,7 @@ sol::object findElementRef(sol::state_view lua,
     }
     return sol::make_object(lua, sol::nil);
 }
-}  // namespace chatterino::lua::api::message
+}
 
 namespace {
 std::shared_ptr<Message> messageFromTable(const sol::table &tbl)
@@ -886,6 +894,6 @@ std::shared_ptr<Message> messageFromTable(const sol::table &tbl)
 
     return msg;
 }
-}  // namespace
+}
 
 #endif

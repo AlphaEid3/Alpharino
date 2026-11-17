@@ -30,6 +30,7 @@ public:
     void reset();
 
 private:
+
     bool advanceIPv4();
 
     bool advanceIPv6();
@@ -43,4 +44,4 @@ private:
     std::vector<Entry> entries;
 };
 
-}  // namespace chatterino::ws::detail
+}

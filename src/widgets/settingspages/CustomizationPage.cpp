@@ -527,7 +527,7 @@ QImage renderPreviewShadow(const QWidget &widget, const QPainterPath &clip,
     return blurThemeShadow(std::move(image), qRound(blurRadius * dpr));
 }
 
-}  // namespace
+}
 
 class WallpaperFocusWidget final : public QWidget
 {
@@ -1055,7 +1055,8 @@ protected:
                                  bool selected, bool roundStart,
                                  bool roundEnd) {
             auto backgroundRect = rect;
-            backgroundRect.setTop(backgroundRect.top() + (selected ? 0 : 1));
+            backgroundRect.setTop(backgroundRect.top() +
+                                  (selected ? 0 : 1));
             auto shapedRect = backgroundRect;
             if (this->profile_.tabShape == ThemeTabShape::Individual)
             {
@@ -1632,15 +1633,15 @@ protected:
         }
 
         painter.setFont(interfaceFont);
-        painter.setPen(color({u"colors"_s, u"splits"_s, u"header"_s,
-                              polished ? u"text"_s : u"focusedText"_s},
-                             interfaceText));
+        painter.setPen(color(
+            {u"colors"_s, u"splits"_s, u"header"_s,
+             polished ? u"text"_s : u"focusedText"_s}, interfaceText));
         painter.drawText(channelHeader.adjusted(8, 0, -8, 0),
                          Qt::AlignVCenter | Qt::AlignHCenter,
                          u"yusuf7n (live)"_s);
         painter.setPen(color(
-            {u"colors"_s, u"messages"_s, u"textColors"_s, u"chatPlaceholder"_s},
-            mutedText));
+            {u"colors"_s, u"messages"_s, u"textColors"_s,
+             u"chatPlaceholder"_s}, mutedText));
         painter.drawText(input.adjusted(8, 0, -8, 0), Qt::AlignVCenter,
                          u"Send message as moltobenne_..."_s);
 
@@ -2340,7 +2341,8 @@ QWidget *CustomizationPage::buildChatTab()
     overlayColorLayout->addWidget(this->wallpaperOverlayColorInput_, 1);
     form->addRow(u"Overlay color:"_s, overlayColor);
     this->colorControls_.append(
-        {this->wallpaperOverlayColorButton_, this->wallpaperOverlayColorInput_,
+        {this->wallpaperOverlayColorButton_,
+         this->wallpaperOverlayColorInput_,
          &ThemeCustomizationProfile::wallpaperOverlayColor});
     form->addRow(u"Overlay opacity:"_s,
                  makeSlider(0, 100, &this->wallpaperOverlayOpacity_, u"%"_s));
@@ -2524,8 +2526,8 @@ QWidget *CustomizationPage::buildInterfaceTab()
     borderColorLayout->addWidget(this->chatBorderColorInput_, 1);
     frameForm->addRow(u"Border color:"_s, borderColor);
     this->colorControls_.append({this->chatBorderColorButton_,
-                                 this->chatBorderColorInput_,
-                                 &ThemeCustomizationProfile::chatBorderColor});
+                                this->chatBorderColorInput_,
+                                &ThemeCustomizationProfile::chatBorderColor});
     frameForm->addRow(u"Border width:"_s,
                       makeSlider(1, 4, &this->chatBorderWidth_, u" px"_s));
     frameForm->addRow(u"Border strength:"_s,
@@ -2686,7 +2688,8 @@ QWidget *CustomizationPage::buildTypographyTab()
     shadowColorLayout->addWidget(this->messageShadowColorInput_, 1);
     shadowForm->addRow(u"Color:"_s, shadowColor);
     this->colorControls_.append(
-        {this->messageShadowColorButton_, this->messageShadowColorInput_,
+        {this->messageShadowColorButton_,
+         this->messageShadowColorInput_,
          &ThemeCustomizationProfile::messageShadowColor});
     this->messageShadowPosition_ = new ShadowPositionWidget;
 
@@ -4527,4 +4530,4 @@ void CustomizationPage::setStatus(const QString &text, bool error, bool busy)
     }
 }
 
-}  // namespace chatterino
+}

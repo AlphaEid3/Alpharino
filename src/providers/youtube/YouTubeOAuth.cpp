@@ -1,8 +1,8 @@
 #include "providers/youtube/YouTubeOAuth.hpp"
 
 #include "providers/youtube/YouTubeApi.hpp"
-#include "providers/youtube/YouTubeCredentials.hpp"
 #include "providers/youtube/YouTubeCredentialStore.hpp"
+#include "providers/youtube/YouTubeCredentials.hpp"
 #include "util/HttpServer.hpp"
 
 #include <QCoreApplication>
@@ -254,9 +254,9 @@ private:
                     return;
                 }
 
-                self->issuedTokenToRevoke_ = result->refreshToken.isEmpty()
-                                                 ? result->accessToken
-                                                 : result->refreshToken;
+                self->issuedTokenToRevoke_ =
+                    result->refreshToken.isEmpty() ? result->accessToken
+                                                   : result->refreshToken;
                 if (result->refreshToken.isEmpty())
                 {
                     self->fail(
@@ -281,9 +281,9 @@ private:
     {
         const auto accessToken = tokens.accessToken;
         YouTubeApi::getOwnChannelAuthenticated(
-            accessToken,
-            [self = QPointer(this), tokens = std::move(tokens)](
-                Expected<YouTubeOwnChannel, YouTubeApiError> result) mutable {
+            accessToken, [self = QPointer(this), tokens = std::move(tokens)](
+                             Expected<YouTubeOwnChannel, YouTubeApiError>
+                                 result) mutable {
                 if (!self)
                 {
                     return;
@@ -400,7 +400,7 @@ private:
     bool finished_ = false;
 };
 
-}  // namespace
+}
 
 namespace chatterino {
 
@@ -419,4 +419,4 @@ YouTubeOAuth::CancelCallback YouTubeOAuth::start(
     };
 }
 
-}  // namespace chatterino
+}

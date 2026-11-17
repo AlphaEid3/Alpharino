@@ -155,4 +155,4 @@ private:
     pajlada::Signals::ScopedConnection rulesConnection_;
 };
 
-}  // namespace chatterino
+}

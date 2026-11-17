@@ -134,6 +134,7 @@ void PubSubClient::handleResponse(const PubSubMessage &message)
 
     if (message.nonce.isEmpty())
     {
+
         return;
     }
 
@@ -183,8 +184,7 @@ void PubSubClient::handleMessageResponse(const PubSubMessageMessage &message)
             case PubSubCommunityPointsChannelV1Message::Type::
                 AutomaticRewardRedeemed:
             case PubSubCommunityPointsChannelV1Message::Type::RewardRedeemed: {
-                auto redemption =
-                    innerMessage.data.value("redemption").toObject();
+                auto redemption = innerMessage.data.value("redemption").toObject();
                 this->manager_.pointReward.redeemed.invoke(redemption);
             }
             break;
@@ -215,6 +215,7 @@ void PubSubClient::handleMessageResponse(const PubSubMessageMessage &message)
             case PubSubPinnedChatUpdatesV1Message::Type::Pin:
             case PubSubPinnedChatUpdatesV1Message::Type::Update:
             case PubSubPinnedChatUpdatesV1Message::Type::Unpin: {
+
                 QJsonObject payload;
                 payload["type"] = innerMessage.typeString;
                 payload["topic"] = message.topic;
@@ -227,8 +228,8 @@ void PubSubClient::handleMessageResponse(const PubSubMessageMessage &message)
 
             case PubSubPinnedChatUpdatesV1Message::Type::INVALID:
             default: {
-                qCDebug(chatterinoPubSub) << "Invalid pinned chat event type:"
-                                          << innerMessage.typeString;
+                qCDebug(chatterinoPubSub)
+                    << "Invalid pinned chat event type:" << innerMessage.typeString;
             }
             break;
         }
@@ -264,8 +265,9 @@ void PubSubClient::handleMessageResponse(const PubSubMessageMessage &message)
 
             case PubSubPredictionChannelV1Message::Type::INVALID:
             default: {
-                qCDebug(chatterinoPubSub) << "Invalid prediction event type:"
-                                          << innerMessage.typeString;
+                qCDebug(chatterinoPubSub)
+                    << "Invalid prediction event type:"
+                    << innerMessage.typeString;
             }
             break;
         }
@@ -368,7 +370,8 @@ void PubSubClient::handleMessageResponse(const PubSubMessageMessage &message)
     }
     else if (message.topic.startsWith("predictions-user-v1."))
     {
-        auto oInnerMessage = message.toInner<PubSubPredictionUserV1Message>();
+        auto oInnerMessage =
+            message.toInner<PubSubPredictionUserV1Message>();
         if (!oInnerMessage)
         {
             qCDebug(chatterinoPubSub)
@@ -404,7 +407,8 @@ void PubSubClient::handleMessageResponse(const PubSubMessageMessage &message)
     {
         if (message.messageObject.empty())
         {
-            qCDebug(chatterinoPubSub) << "Malformed chatrooms-user-v1 message";
+            qCDebug(chatterinoPubSub)
+                << "Malformed chatrooms-user-v1 message";
             return;
         }
 
@@ -429,4 +433,4 @@ void PubSubClient::handleMessageResponse(const PubSubMessageMessage &message)
     }
 }
 
-}  // namespace chatterino
+}

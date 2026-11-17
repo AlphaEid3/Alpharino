@@ -57,7 +57,7 @@ constexpr FlagsEnum<BaseWindow::Flags> POPUP_FLAGS_CLOSE_AUTOMATICALLY{
     BaseWindow::FramelessDraggable,
 };
 
-}  // namespace
+}
 
 DraggablePopup::DraggablePopup(bool closeAutomatically, QWidget *parent)
     : BaseWindow(
@@ -88,6 +88,7 @@ DraggablePopup::DraggablePopup(bool closeAutomatically, QWidget *parent)
         [this, hack = std::weak_ptr<bool>(this->lifetimeHack_)] {
             if (!hack.lock())
             {
+
                 return;
             }
 
@@ -339,6 +340,7 @@ void DraggablePopup::mouseReleaseEvent(QMouseEvent *event)
 
 void DraggablePopup::mouseMoveEvent(QMouseEvent *event)
 {
+
     auto movePos = event->pos() - this->startPosDrag_;
     if (this->isMoving_ || movePos.manhattanLength() > 10.0)
     {
@@ -387,4 +389,4 @@ bool DraggablePopup::ensurePinned()
     return false;
 }
 
-}  // namespace chatterino
+}

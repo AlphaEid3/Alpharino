@@ -128,7 +128,7 @@ QString encodeObject(const QJsonObject &object)
                                              QByteArray::OmitTrailingEquals));
 }
 
-}  // namespace
+}
 
 std::optional<QString> advanceModeratedChannelsCursor(
     const QString &cursor, const QString &currentChannelId,
@@ -187,4 +187,4 @@ std::optional<QString> advanceModeratedChannelsCursor(
     return advanced;
 }
 
-}  // namespace chatterino::MoltorinoAuth::detail
+}

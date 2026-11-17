@@ -25,7 +25,7 @@ QString explainIllType(const IllTyped &ill)
         .arg(ill.expr->filterString());
 }
 
-}  // namespace
+}
 
 namespace chatterino::filters {
 
@@ -119,6 +119,7 @@ ExpressionPtr FilterParser::parseUnary()
 
 ExpressionPtr FilterParser::parseParentheses()
 {
+
     assert(this->tokenizer_.nextTokenType() == TokenType::LP);
 
     this->tokenizer_.next();
@@ -149,10 +150,12 @@ ExpressionPtr FilterParser::parseCondition()
     if (this->tokenizer_.hasNext() &&
         this->tokenizer_.nextTokenType() == TokenType::LP)
     {
+
         value = this->parseParentheses();
     }
     else
     {
+
         value = this->parseValue();
     }
 
@@ -176,6 +179,7 @@ ExpressionPtr FilterParser::parseCondition()
         }
         else if (this->tokenizer_.nextTokenType() == TokenType::RP)
         {
+
             break;
         }
         else if (!this->tokenizer_.nextTokenIsOp())
@@ -197,6 +201,7 @@ ExpressionPtr FilterParser::parseCondition()
 
 ExpressionPtr FilterParser::parseValue()
 {
+
     if (this->tokenizer_.hasNext())
     {
         auto type = this->tokenizer_.nextTokenType();
@@ -254,6 +259,7 @@ ExpressionPtr FilterParser::parseValue()
 
 ExpressionPtr FilterParser::parseList()
 {
+
     assert(this->tokenizer_.nextTokenType() == TokenType::LIST_START);
     this->tokenizer_.next();
 
@@ -312,4 +318,4 @@ const QString FilterParser::debugString() const
     return this->builtExpression_->debug(MESSAGE_TYPING_CONTEXT);
 }
 
-}  // namespace chatterino::filters
+}

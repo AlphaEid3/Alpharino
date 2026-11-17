@@ -42,7 +42,7 @@ void restoreCredential(const QString &key, const QString &value)
         QStringSetting::set(credentialPath(key), value);
     }
 }
-}  // namespace
+}
 
 AccountCredentials::AccountCredentials(Backend backend)
     : backend_(std::move(backend))
@@ -279,4 +279,4 @@ AccountCredentials &accountCredentials()
     static AccountCredentials store;
     return store;
 }
-}  // namespace chatterino
+}

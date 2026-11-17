@@ -1,8 +1,8 @@
 #pragma once
 
 #include "providers/moltorino/MoltorinoSupporterBadges.hpp"
-#include "providers/twitch/api/TwitchGql.hpp"
 #include "providers/twitch/TwitchBadge.hpp"
+#include "providers/twitch/api/TwitchGql.hpp"
 #include "widgets/DraggablePopup.hpp"
 
 #include <pajlada/signals/signalholder.hpp>
@@ -42,7 +42,7 @@ std::vector<TwitchBadge> withSelectedTwitchVanityBadge(
     std::vector<TwitchBadge> badges, const QString &selectedSetId,
     const QString &selectedVersion);
 
-}  // namespace vanity::detail
+}
 
 class Button;
 class SvgButton;
@@ -289,4 +289,4 @@ private:
     static QPointer<VanityDialog> activeDialog_;
 };
 
-}  // namespace chatterino
+}

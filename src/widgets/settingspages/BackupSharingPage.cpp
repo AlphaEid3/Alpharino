@@ -134,7 +134,7 @@ void restartAfterStaging(QWidget *parent, const QString &action)
             .arg(action));
 }
 
-}  // namespace
+}
 
 namespace chatterino {
 
@@ -998,4 +998,4 @@ void BackupSharingPage::onShow()
     this->refreshRecoveryFiles();
 }
 
-}  // namespace chatterino
+}

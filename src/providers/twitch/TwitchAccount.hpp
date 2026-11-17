@@ -120,4 +120,4 @@ private:
     void tryLoadBlocks();
 };
 
-}  // namespace chatterino
+}

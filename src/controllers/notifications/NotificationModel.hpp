@@ -21,6 +21,7 @@ class NotificationModel : public SignalVectorModel<QString>
     Platform platform_;
 
 protected:
+
     QString getItemFromRow(std::vector<QStandardItem *> &row,
                            const QString &original) override;
 
@@ -30,4 +31,4 @@ protected:
     friend class NotificationController;
 };
 
-}  // namespace chatterino
+}

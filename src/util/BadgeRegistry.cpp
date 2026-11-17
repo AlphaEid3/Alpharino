@@ -21,7 +21,7 @@ void clearIfEquals(auto &map, auto &&key, const auto &expectedID)
     }
 }
 
-}  // namespace
+}
 
 namespace chatterino {
 
@@ -159,4 +159,4 @@ QString BadgeRegistry::registerBadge(const QJsonObject &badgeJson,
     return badgeID;
 }
 
-}  // namespace chatterino
+}

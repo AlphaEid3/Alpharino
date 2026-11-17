@@ -76,6 +76,7 @@ QString sendAnnouncementColor(const CommandContext &ctx,
             switch (error)
             {
                 case Error::UserMissingScope: {
+
                     errorMessage +=
                         "Missing required scope. Re-login with your "
                         "account and try again.";
@@ -99,7 +100,7 @@ QString sendAnnouncementColor(const CommandContext &ctx,
     return "";
 }
 
-}  // namespace
+}
 
 namespace chatterino::commands {
 
@@ -128,4 +129,4 @@ QString sendAnnouncementPurple(const CommandContext &ctx)
     return sendAnnouncementColor(ctx, HelixAnnouncementColor::Purple);
 }
 
-}  // namespace chatterino::commands
+}

@@ -48,4 +48,4 @@ private:
     YouTubeChannel *channel_ = nullptr;
 };
 
-}  // namespace chatterino
+}

@@ -34,4 +34,4 @@ private:
     QLabel *status_ = nullptr;
     QProgressBar *progress_ = nullptr;
 };
-}  // namespace chatterino
+}

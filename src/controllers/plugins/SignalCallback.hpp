@@ -28,6 +28,7 @@ struct SignalCallback {
 
         if (!this->pluginRef.isAlive())
         {
+
             this->pfn.abandon();
         }
         this->pluginRef = other.pluginRef;
@@ -74,6 +75,6 @@ private:
     sol::main_protected_function pfn;
 };
 
-}  // namespace chatterino::lua
+}
 
 #endif

@@ -5,6 +5,7 @@
 #pragma once
 
 #include "providers/liveupdates/BasicPubSubClient.hpp"
+
 #include "providers/seventv/eventapi/Dispatch.hpp"
 #include "providers/seventv/eventapi/Subscription.hpp"
 
@@ -13,7 +14,7 @@
 namespace chatterino {
 class SeventvEventAPI;
 class EmoteMap;
-}  // namespace chatterino
+}
 
 namespace chatterino::seventv::eventapi {
 
@@ -28,8 +29,8 @@ public:
     Client(SeventvEventAPI &manager,
            std::chrono::milliseconds heartbeatInterval);
 
-    void onOpen();
-    void onMessage(const QByteArray &msg);
+    void onOpen() ;
+    void onMessage(const QByteArray &msg) ;
 
     std::chrono::milliseconds heartbeatInterval() const;
     void checkHeartbeat();
@@ -60,4 +61,4 @@ private:
     std::optional<LastPersonalEmoteAssignment> lastPersonalEmoteAssignment_;
 };
 
-}  // namespace chatterino::seventv::eventapi
+}

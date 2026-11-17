@@ -70,4 +70,4 @@ private:
     bool initialized_ = false;
 };
 
-}  // namespace chatterino
+}

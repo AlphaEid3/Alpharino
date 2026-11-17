@@ -242,4 +242,4 @@ private:
 
 [[nodiscard]] YouTubeMessage parseYouTubeMessage(const QJsonObject &object);
 
-}  // namespace chatterino
+}

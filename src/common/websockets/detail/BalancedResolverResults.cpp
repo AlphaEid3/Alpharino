@@ -22,6 +22,7 @@ std::optional<BalancedResolverResults::Entry>
 {
     if (this->nextIsIPv6)
     {
+
         if (this->advanceIPv6() || this->advanceIPv4())
         {
             return this->currentEntry();
@@ -29,6 +30,7 @@ std::optional<BalancedResolverResults::Entry>
     }
     else
     {
+
         if (this->advanceIPv4() || this->advanceIPv6())
         {
             return this->currentEntry();
@@ -83,4 +85,4 @@ bool BalancedResolverResults::advanceIPv6()
     return false;
 }
 
-}  // namespace chatterino::ws::detail
+}

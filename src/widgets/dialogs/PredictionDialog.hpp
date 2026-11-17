@@ -4,20 +4,22 @@
 #include "providers/twitch/TwitchChannel.hpp"
 #include "widgets/DraggablePopup.hpp"
 
-#include <pajlada/signals/scoped-connection.hpp>
 #include <QDateTime>
-#include <QHash>
 #include <QLabel>
-#include <QPointer>
 #include <QStringList>
-#include <QVariantAnimation>
-#include <QVBoxLayout>
 #include <QVector>
+#include <QVBoxLayout>
 
-#include <cstdint>
-#include <memory>
+#include <pajlada/signals/scoped-connection.hpp>
+
 #include <optional>
+#include <memory>
+#include <cstdint>
 #include <vector>
+
+#include <QPointer>
+#include <QVariantAnimation>
+#include <QHash>
 
 class QScrollArea;
 class QComboBox;
@@ -36,9 +38,10 @@ class PredictionDialog : public DraggablePopup
 public:
     PredictionDialog(TwitchChannel *channel, QWidget *parent = nullptr);
 
-    static void showDialog(TwitchChannel *channel, QWidget *parent,
-                           const std::optional<TwitchChannel::PredictionEvent>
-                               &prediction = std::nullopt);
+    static void showDialog(
+        TwitchChannel *channel, QWidget *parent,
+        const std::optional<TwitchChannel::PredictionEvent> &prediction =
+            std::nullopt);
 
     void setPrediction(
         const std::optional<TwitchChannel::PredictionEvent> &prediction);
@@ -115,4 +118,4 @@ private:
     static std::vector<QPointer<PredictionDialog>> activeDialogs_;
 };
 
-}  // namespace chatterino
+}

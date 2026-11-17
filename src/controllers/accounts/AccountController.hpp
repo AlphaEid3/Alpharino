@@ -7,8 +7,8 @@
 #include "common/SignalVector.hpp"
 #include "providers/kick/KickAccountManager.hpp"
 #include "providers/tiktok/TikTokAccountManager.hpp"
-#include "providers/twitch/TwitchAccountManager.hpp"
 #include "providers/youtube/YouTubeAccountManager.hpp"
+#include "providers/twitch/TwitchAccountManager.hpp"
 
 #include <QObject>
 
@@ -38,4 +38,4 @@ private:
     SignalVector<std::shared_ptr<Account>> accounts_;
 };
 
-}  // namespace chatterino
+}

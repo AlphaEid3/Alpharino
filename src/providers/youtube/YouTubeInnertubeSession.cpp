@@ -80,7 +80,7 @@ std::optional<std::chrono::milliseconds> retryAfter(QNetworkReply *reply)
     return std::chrono::seconds{std::clamp<qint64>(seconds, 1, 15 * 60)};
 }
 
-}  // namespace
+}
 
 namespace chatterino {
 
@@ -129,9 +129,9 @@ YouTubeInnertubeSession::YouTubeInnertubeSession(
     , stateCallback_(std::move(state))
     , runtime_(std::make_unique<Runtime>())
 {
-    this->runtime_->deduper = deduper
-                                  ? std::move(deduper)
-                                  : std::make_shared<YouTubeMessageDeduper>();
+    this->runtime_->deduper =
+        deduper ? std::move(deduper)
+                : std::make_shared<YouTubeMessageDeduper>();
     this->runtime_->timer.setSingleShot(true);
     QObject::connect(&this->runtime_->timer, &QTimer::timeout, this, [this] {
         if (this->runtime_->bootstrapPending)
@@ -221,8 +221,8 @@ void YouTubeInnertubeSession::bootstrap(bool fresh)
     const auto generation = this->runtime_->callbackGeneration;
     YouTubeEmotes::loadPageForVideo(
         this->videoID_,
-        [self = QPointer(this),
-         generation](ExpectedStr<YouTubeEmotes::PagePtr> result) {
+        [self = QPointer(this), generation](
+            ExpectedStr<YouTubeEmotes::PagePtr> result) {
             if (!self || !self->started_ || self->stopping_ ||
                 self->runtime_->terminal ||
                 self->runtime_->callbackGeneration != generation)
@@ -275,7 +275,8 @@ void YouTubeInnertubeSession::retryBootstrap(const QString &detail)
         return;
     }
 
-    static constexpr std::array<std::chrono::seconds, MAX_BOOTSTRAP_FAILURES>
+    static constexpr std::array<std::chrono::seconds,
+                                MAX_BOOTSTRAP_FAILURES>
         BOOTSTRAP_BACKOFF{
             std::chrono::seconds(1),
             std::chrono::seconds(3),
@@ -284,8 +285,9 @@ void YouTubeInnertubeSession::retryBootstrap(const QString &detail)
     const auto index = std::min<std::size_t>(
         this->runtime_->bootstrapFailures - 1, BOOTSTRAP_BACKOFF.size() - 1);
     this->runtime_->bootstrapPending = true;
-    this->schedulePoll(std::chrono::duration_cast<std::chrono::milliseconds>(
-        BOOTSTRAP_BACKOFF[index]));
+    this->schedulePoll(
+        std::chrono::duration_cast<std::chrono::milliseconds>(
+            BOOTSTRAP_BACKOFF[index]));
 }
 
 void YouTubeInnertubeSession::requestContinuation()
@@ -315,9 +317,10 @@ void YouTubeInnertubeSession::requestContinuation()
     auto context = page.innertubeContext;
     if (!this->runtime_->clickTrackingParams.isEmpty())
     {
-        context.insert(u"clickTracking"_s,
-                       QJsonObject{{u"clickTrackingParams"_s,
-                                    this->runtime_->clickTrackingParams}});
+        context.insert(
+            u"clickTracking"_s,
+            QJsonObject{{u"clickTrackingParams"_s,
+                         this->runtime_->clickTrackingParams}});
     }
     const QJsonObject body{
         {u"context"_s, context},
@@ -338,12 +341,14 @@ void YouTubeInnertubeSession::requestContinuation()
     request.setRawHeader("Origin", "https://www.youtube.com");
     request.setRawHeader("Referer", "https://www.youtube.com/");
     request.setRawHeader("User-Agent", YOUTUBE_USER_AGENT);
-    request.setRawHeader("X-YouTube-Client-Name", page.clientName.toUtf8());
+    request.setRawHeader("X-YouTube-Client-Name",
+                         page.clientName.toUtf8());
     request.setRawHeader("X-YouTube-Client-Version",
                          page.clientVersion.toUtf8());
     if (!page.visitorData.isEmpty())
     {
-        request.setRawHeader("X-Goog-Visitor-Id", page.visitorData.toUtf8());
+        request.setRawHeader("X-Goog-Visitor-Id",
+                             page.visitorData.toUtf8());
     }
     request.setTransferTimeout(REQUEST_TIMEOUT_MS);
     request.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
@@ -435,25 +440,29 @@ void YouTubeInnertubeSession::requestFinished(QNetworkReply *reply)
                          MIN_RATE_LIMIT_DELAY)));
         return;
     }
-    if (networkError != QNetworkReply::NoError || status < 200 || status >= 300)
+    if (networkError != QNetworkReply::NoError || status < 200 ||
+        status >= 300)
     {
-        const bool refreshClient =
-            status == 400 || status == 401 || status == 403;
-        this->retry(responseError(body, fallback), refreshClient, serverDelay);
+        const bool refreshClient = status == 400 || status == 401 ||
+                                   status == 403;
+        this->retry(responseError(body, fallback), refreshClient,
+                    serverDelay);
         return;
     }
 
     QJsonParseError parseError;
     const auto document = QJsonDocument::fromJson(body, &parseError);
-    if (parseError.error != QJsonParseError::NoError || !document.isObject())
+    if (parseError.error != QJsonParseError::NoError ||
+        !document.isObject())
     {
-        this->retry(u"YouTube returned malformed live chat data: "_s +
-                        parseError.errorString(),
-                    true);
+        this->retry(
+            u"YouTube returned malformed live chat data: "_s +
+                parseError.errorString(),
+            true);
         return;
     }
-    auto parsed =
-        parseYouTubeInnertubeChat(document.object(), this->liveChatID_);
+    auto parsed = parseYouTubeInnertubeChat(document.object(),
+                                            this->liveChatID_);
     if (!parsed.valid)
     {
         this->retry(parsed.error, true);
@@ -481,7 +490,8 @@ void YouTubeInnertubeSession::requestFinished(QNetworkReply *reply)
     const bool receivedMessages = !messages.empty();
     if (receivedMessages)
     {
-        this->dispatchMessages(std::move(messages), this->runtime_->firstBatch);
+        this->dispatchMessages(std::move(messages),
+                               this->runtime_->firstBatch);
     }
     this->runtime_->firstBatch = false;
     if (parsed.ended || parsed.nextContinuation.isEmpty())
@@ -496,9 +506,10 @@ void YouTubeInnertubeSession::requestFinished(QNetworkReply *reply)
             std::move(parsed.clickTrackingParams);
     }
     const auto now = std::chrono::steady_clock::now();
-    const bool recentlyActive = this->runtime_->lastLiveBatchAt &&
-                                now - *this->runtime_->lastLiveBatchAt <=
-                                    youtube::RECENT_ACTIVITY_POLL_WINDOW;
+    const bool recentlyActive =
+        this->runtime_->lastLiveBatchAt &&
+        now - *this->runtime_->lastLiveBatchAt <=
+            youtube::RECENT_ACTIVITY_POLL_WINDOW;
 
     const auto delay = youtube::continuationPollDelay(
         receivedMessages, recentlyActive, parsed.serverTimeout);
@@ -530,7 +541,8 @@ void YouTubeInnertubeSession::retry(
     this->runtime_->connected = false;
     this->dispatchState(State::Reconnecting, detail);
 
-    if (rebootstrap && this->runtime_->rebootstrapCount < MAX_REBOOTSTRAPS)
+    if (rebootstrap &&
+        this->runtime_->rebootstrapCount < MAX_REBOOTSTRAPS)
     {
         ++this->runtime_->rebootstrapCount;
         this->runtime_->page.reset();
@@ -705,7 +717,8 @@ void YouTubeInnertubeSession::deliverPendingMessages()
         if (!this->stopping_ && this->runtime_->deferredTerminalState)
         {
             const auto state = *this->runtime_->deferredTerminalState;
-            auto detail = std::move(this->runtime_->deferredTerminalDetail);
+            auto detail =
+                std::move(this->runtime_->deferredTerminalDetail);
             this->runtime_->deferredTerminalState.reset();
             this->dispatchState(state, std::move(detail));
         }
@@ -726,19 +739,21 @@ void YouTubeInnertubeSession::deliverPendingMessages()
         }
         else
         {
-            targetMessages =
-                youtube::messageDeliveryStep(this->pendingLiveMessageCount(),
-                                             this->remainingDeliveryWindow())
-                    .batchSize;
+            targetMessages = youtube::messageDeliveryStep(
+                                 this->pendingLiveMessageCount(),
+                                 this->remainingDeliveryWindow())
+                                 .batchSize;
         }
     }
     auto end = begin;
     qsizetype textChars = 0;
-    while (end < pending.messages.size() && end - begin < targetMessages)
+    while (end < pending.messages.size() &&
+           end - begin < targetMessages)
     {
         const auto cost = youtube::messageDeliveryTextCost(
             pending.messages[end], MAX_GUI_DELIVERY_TEXT_CHARS);
-        if (end != begin && cost > MAX_GUI_DELIVERY_TEXT_CHARS - textChars)
+        if (end != begin &&
+            cost > MAX_GUI_DELIVERY_TEXT_CHARS - textChars)
         {
             break;
         }
@@ -810,8 +825,8 @@ std::size_t YouTubeInnertubeSession::pendingLiveMessageCount() const
     return count;
 }
 
-std::chrono::milliseconds YouTubeInnertubeSession::remainingDeliveryWindow()
-    const
+std::chrono::milliseconds
+YouTubeInnertubeSession::remainingDeliveryWindow() const
 {
     if (!this->runtime_->deliveryDeadline)
     {
@@ -826,7 +841,8 @@ void YouTubeInnertubeSession::dispatchState(State state, QString detail)
     const auto generation = this->runtime_->callbackGeneration;
     QTimer::singleShot(
         0, this,
-        [self = QPointer(this), generation, state, detail = std::move(detail)] {
+        [self = QPointer(this), generation, state,
+         detail = std::move(detail)] {
             if (self && self->runtime_->callbackGeneration == generation)
             {
                 self->stateCallback_(state, detail);
@@ -834,4 +850,4 @@ void YouTubeInnertubeSession::dispatchState(State state, QString detail)
         });
 }
 
-}  // namespace chatterino
+}

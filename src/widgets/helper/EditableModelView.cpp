@@ -71,6 +71,7 @@ EditableModelView::EditableModelView(QAbstractTableModel *model, bool movable)
 
     if (movable)
     {
+
         QPushButton *moveUp = new QPushButton("Move up");
         buttons->addWidget(moveUp);
         QObject::connect(moveUp, &QPushButton::clicked, this, [this] {
@@ -219,4 +220,4 @@ void EditableModelView::moveRow(int dir)
     this->tableView_->selectRow(row + dir);
 }
 
-}  // namespace chatterino
+}

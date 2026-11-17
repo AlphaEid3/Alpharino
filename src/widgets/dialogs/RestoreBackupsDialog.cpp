@@ -31,10 +31,11 @@ namespace {
 
 void closeApp()
 {
+
     _Exit(1);
 }
 
-}  // namespace
+}
 
 namespace chatterino {
 
@@ -159,7 +160,7 @@ RestoreBackupsDialog::RestoreBackupsDialog(backup::FileData fileData,
 #endif
 }
 
-void RestoreBackupsDialog::closeEvent(QCloseEvent *)
+void RestoreBackupsDialog::closeEvent(QCloseEvent * )
 {
     if (!this->hasChosenAnything)
     {
@@ -170,6 +171,7 @@ void RestoreBackupsDialog::closeEvent(QCloseEvent *)
 void RestoreBackupsDialog::keyPressEvent(QKeyEvent *event)
 {
     event->ignore();
+
 }
 
 void RestoreBackupsDialog::refreshBackups()
@@ -217,4 +219,4 @@ void RestoreBackupsDialog::refreshBackups()
     this->showButton.setEnabled(anyBackups);
 }
 
-}  // namespace chatterino
+}

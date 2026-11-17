@@ -13,6 +13,7 @@ class Window;
 class NewTabItem : public AbstractSwitcherItem
 {
 public:
+
     NewTabItem(Window *window_, const QString &channelName);
 
     void action() override;
@@ -27,4 +28,4 @@ private:
     Window *window{};
 };
 
-}  // namespace chatterino
+}

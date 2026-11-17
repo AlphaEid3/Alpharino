@@ -15,13 +15,16 @@ using MessageFlags = FlagsEnum<MessageFlag>;
 class MessageFlagsPredicate : public MessagePredicate
 {
 public:
+
     MessageFlagsPredicate(const QString &flags, bool negate);
 
 protected:
+
     bool appliesToImpl(const Message &message) override;
 
 private:
+
     MessageFlags flags_;
 };
 
-}  // namespace chatterino
+}

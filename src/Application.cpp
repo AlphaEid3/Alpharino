@@ -24,6 +24,7 @@
 #include "providers/ffz/FfzEmotes.hpp"
 #include "providers/ffzap/FfzApBadges.hpp"
 #include "providers/jilchat/JilChatBadges.hpp"
+#include "providers/wydios/WydiosBadges.hpp"
 #include "providers/kick/KickChatServer.hpp"
 #include "providers/links/LinkResolver.hpp"
 #include "providers/potat/PotatCommands.hpp"
@@ -33,16 +34,13 @@
 #include "providers/tiktok/TikTokChatServer.hpp"
 #include "providers/twitch/eventsub/Controller.hpp"
 #include "providers/twitch/TwitchBadges.hpp"
-#include "providers/wydios/WydiosBadges.hpp"
 #include "providers/youtube/YouTubeChatServer.hpp"
 #include "singletons/ImageUploader.hpp"
-#include "singletons/NativeMessaging.hpp"
 #include "singletons/UrlShortener.hpp"
+#include "singletons/NativeMessaging.hpp"
 #ifdef CHATTERINO_HAVE_PLUGINS
 #    include "controllers/plugins/PluginController.hpp"
 #endif
-#include "common/network/NetworkRequest.hpp"
-#include "common/network/NetworkResult.hpp"
 #include "controllers/emotes/EmoteController.hpp"
 #include "controllers/sound/MiniaudioBackend.hpp"
 #include "controllers/sound/NullBackend.hpp"
@@ -54,14 +52,9 @@
 #include "providers/bttv/BttvLiveUpdates.hpp"
 #include "providers/chatterino/ChatterinoBadges.hpp"
 #include "providers/ffz/FfzBadges.hpp"
-#include "providers/homies/HomiesBadges.hpp"
-#include "providers/moltorino/MoltorinoAuth.hpp"
-#include "providers/moltorino/MoltorinoDailyMessage.hpp"
-#include "providers/moltorino/MoltorinoPresence.hpp"
-#include "providers/moltorino/MoltorinoSupporterBadges.hpp"
-#include "providers/moltorino/MoltorinoUpdater.hpp"
-#include "providers/repetitions/RepeatedMessageDetector.hpp"
 #include "providers/seventv/SeventvBadges.hpp"
+#include "providers/homies/HomiesBadges.hpp"
+#include "providers/repetitions/RepeatedMessageDetector.hpp"
 #include "providers/seventv/SeventvEventAPI.hpp"
 #include "providers/seventv/SeventvPaints.hpp"
 #include "providers/seventv/SeventvPersonalEmotes.hpp"
@@ -74,6 +67,11 @@
 #include "singletons/CrashHandler.hpp"
 #include "singletons/Fonts.hpp"
 #include "singletons/helper/LoggingChannel.hpp"
+#include "providers/moltorino/MoltorinoAuth.hpp"
+#include "providers/moltorino/MoltorinoDailyMessage.hpp"
+#include "providers/moltorino/MoltorinoPresence.hpp"
+#include "providers/moltorino/MoltorinoSupporterBadges.hpp"
+#include "providers/moltorino/MoltorinoUpdater.hpp"
 #include "singletons/Logging.hpp"
 #include "singletons/Paths.hpp"
 #include "singletons/Settings.hpp"
@@ -88,6 +86,9 @@
 #include "widgets/Notebook.hpp"
 #include "widgets/splits/Split.hpp"
 #include "widgets/Window.hpp"
+
+#include "common/network/NetworkRequest.hpp"
+#include "common/network/NetworkResult.hpp"
 
 #include <miniaudio.h>
 #include <QApplication>
@@ -161,7 +162,7 @@ const QString TWITCH_PUBSUB_URL = "wss://pubsub-edge.twitch.tv";
 
 IApplication *INSTANCE = nullptr;
 
-}  // namespace
+}
 
 namespace chatterino {
 
@@ -246,6 +247,7 @@ Application::Application(Settings &_settings, const Paths &paths,
 
 Application::~Application()
 {
+
     INSTANCE = nullptr;
 }
 
@@ -344,7 +346,8 @@ void Application::initialize(Settings &settings, const Modes &modes,
             }
             else
             {
-                auto expiry = QDateTime::fromString(expiryStr, Qt::ISODate);
+                auto expiry =
+                    QDateTime::fromString(expiryStr, Qt::ISODate);
 
                 needsRefresh =
                     !expiry.isValid() ||
@@ -376,10 +379,10 @@ void Application::initialize(Settings &settings, const Modes &modes,
                         if (!token.isEmpty())
                         {
                             auto &settings = *getSettings();
-                            if (settings.botBadgeClientID.getValue()
-                                        .trimmed() != clientId ||
-                                settings.botBadgeClientSecret.getValue()
-                                        .trimmed() != clientSecret ||
+                            if (settings.botBadgeClientID.getValue().trimmed() !=
+                                    clientId ||
+                                settings.botBadgeClientSecret.getValue().trimmed() !=
+                                    clientSecret ||
                                 settings.botBadgeAppAccessToken.getValue() !=
                                     previousToken)
                             {
@@ -541,6 +544,7 @@ FfzBadges *Application::getFfzBadges()
 
 BttvBadges *Application::getBttvBadges()
 {
+
     assert(this->bttvBadges);
 
     return this->bttvBadges.get();
@@ -548,6 +552,7 @@ BttvBadges *Application::getBttvBadges()
 
 SeventvBadges *Application::getSeventvBadges()
 {
+
     assert(this->seventvBadges);
 
     return this->seventvBadges.get();
@@ -555,6 +560,7 @@ SeventvBadges *Application::getSeventvBadges()
 
 HomiesBadges *Application::getHomiesBadges()
 {
+
     assert(this->homiesBadges);
 
     return this->homiesBadges.get();
@@ -748,6 +754,7 @@ SeventvEventAPI *Application::getSeventvEventAPI()
 
 pronouns::Pronouns *Application::getPronouns()
 {
+
     assert(this->pronouns);
 
     return this->pronouns.get();
@@ -973,4 +980,4 @@ void requestApplicationQuit()
     QApplication::exit();
 }
 
-}  // namespace chatterino
+}

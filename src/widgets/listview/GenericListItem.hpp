@@ -14,6 +14,7 @@ namespace chatterino {
 class GenericListItem
 {
 public:
+
     static GenericListItem *fromVariant(const QVariant &variant);
 
     virtual ~GenericListItem() = default;
@@ -32,6 +33,6 @@ protected:
     static const QSize ICON_SIZE;
 };
 
-}  // namespace chatterino
+}
 
 Q_DECLARE_METATYPE(chatterino::GenericListItem *);

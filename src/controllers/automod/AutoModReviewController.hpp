@@ -201,7 +201,8 @@ private:
     void handleDecisionFailure(const QString &key, std::uint64_t generation,
                                ReviewAction action,
                                HelixAutoModMessageError error);
-    void handleSecondaryFailure(const QString &key, std::uint64_t generation,
+    void handleSecondaryFailure(const QString &key,
+                                std::uint64_t generation,
                                 ReviewAction action, HelixBanUserError error,
                                 const QString &message);
 
@@ -227,5 +228,5 @@ private:
     pajlada::Signals::SignalHolder signalHolder_;
 };
 
-}  // namespace automod
-}  // namespace chatterino
+}
+}

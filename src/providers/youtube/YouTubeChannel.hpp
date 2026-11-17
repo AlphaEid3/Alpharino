@@ -89,9 +89,11 @@ private:
         bool isModerator = false;
     };
 
-    using UnauthorizedRetry = std::function<bool(const YouTubeApiError &error)>;
-    using AuthenticatedAction = std::function<void(
-        const QString &accessToken, UnauthorizedRetry retryUnauthorized)>;
+    using UnauthorizedRetry =
+        std::function<bool(const YouTubeApiError &error)>;
+    using AuthenticatedAction =
+        std::function<void(const QString &accessToken,
+                           UnauthorizedRetry retryUnauthorized)>;
     using AuthenticationFailure = std::function<void(const QString &error)>;
 
     void addLoginMessage();
@@ -103,7 +105,8 @@ private:
     bool containsKnownCustomEmote(QStringView text) const;
     void receiveAcknowledgedMessage(YouTubeMessage message,
                                     QStringView localMessageID);
-    void failPendingMessage(QStringView localMessageID, const QString &error);
+    void failPendingMessage(QStringView localMessageID,
+                            const QString &error);
     void failAllPendingMessages(const QString &error);
     QString displayNameForUser(const QString &channelID) const;
     void disableMessagesForBan(const QString &channelID);
@@ -152,4 +155,4 @@ private:
     std::chrono::steady_clock::time_point lastSend_{};
 };
 
-}  // namespace chatterino
+}

@@ -72,7 +72,7 @@ QStringList parseHeaders(const QJsonObject &headersObj)
     return headerLines;
 }
 
-}  // namespace
+}
 
 QJsonObject exportSettings(const Settings &s)
 {
@@ -116,7 +116,8 @@ QJsonObject exportSettings(const Settings &s)
 bool importSettings(const QJsonObject &settingsObj, Settings &s)
 {
     if (!settingsObj.contains("RequestURL") ||
-        !settingsObj["RequestURL"].isString() || !settingsObj.contains("URL") ||
+        !settingsObj["RequestURL"].isString() ||
+        !settingsObj.contains("URL") ||
         !settingsObj["URL"].isString())
     {
         return false;
@@ -179,4 +180,4 @@ ExpectedStr<QJsonObject> validateImportJson(const QString &clipboardText)
     return settingsObj;
 }
 
-}  // namespace chatterino::urlshortener::detail
+}

@@ -154,4 +154,4 @@ EmotePtr SeventvBadges::createBadge(const QString &id,
     return std::make_shared<const Emote>(std::move(emote));
 }
 
-}  // namespace chatterino
+}

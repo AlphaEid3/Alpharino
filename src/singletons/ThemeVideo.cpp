@@ -58,7 +58,7 @@ QImage blurVideoFrame(QImage image, int radius)
     return image;
 }
 
-}  // namespace
+}
 
 std::shared_ptr<ThemeVideo> ThemeVideo::acquire(const QString &source,
                                                 QWidget *consumer)
@@ -313,4 +313,4 @@ bool ThemeVideo::paint(QPainter &painter, const QRectF &target,
     return true;
 }
 
-}  // namespace chatterino
+}

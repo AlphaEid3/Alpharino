@@ -3,13 +3,14 @@
 #include "providers/twitch/TwitchChannel.hpp"
 #include "widgets/BaseWidget.hpp"
 
-#include <pajlada/signals/scoped-connection.hpp>
-#include <QDateTime>
 #include <QHBoxLayout>
+#include <QDateTime>
 #include <QLabel>
 #include <QTimer>
-#include <QVariantAnimation>
 #include <QVBoxLayout>
+#include <QVariantAnimation>
+
+#include <pajlada/signals/scoped-connection.hpp>
 
 namespace chatterino {
 
@@ -78,4 +79,4 @@ private:
     std::vector<pajlada::Signals::ScopedConnection> managedConnections_;
 };
 
-}  // namespace chatterino
+}

@@ -127,7 +127,7 @@ void reportTargetError(YouTubeChannel *channel, const ResolvedTarget &target)
         target.displayName % u"\". Use the message menu or id:<channel-id>."_s);
 }
 
-}  // namespace
+}
 
 namespace chatterino::commands {
 
@@ -149,8 +149,8 @@ QString doYouTubeBan(const CommandContext &ctx)
     {
         for (qsizetype end = 2; end < ctx.words.size(); ++end)
         {
-            auto candidate =
-                resolveTarget(channel, ctx.words.sliced(1, end - 1).join(' '));
+            auto candidate = resolveTarget(
+                channel, ctx.words.sliced(1, end - 1).join(' '));
             if (candidate.resolution == TargetResolution::Missing)
             {
                 continue;
@@ -272,7 +272,8 @@ QString doYouTubeUnban(const CommandContext &ctx)
         return {};
     }
 
-    const auto target = resolveTarget(channel, ctx.words.sliced(1).join(' '));
+    const auto target =
+        resolveTarget(channel, ctx.words.sliced(1).join(' '));
     if (target.resolution != TargetResolution::Unique)
     {
         reportTargetError(channel, target);
@@ -299,4 +300,4 @@ QString doYouTubeDelete(const CommandContext &ctx)
     return {};
 }
 
-}  // namespace chatterino::commands
+}

@@ -24,7 +24,8 @@
 namespace chatterino {
 namespace {
 
-QString linkifiedText(const QString &text, const QVector<DialogTextLink> &links)
+QString linkifiedText(const QString &text,
+                      const QVector<DialogTextLink> &links)
 {
     if (links.isEmpty())
     {
@@ -44,8 +45,9 @@ QString linkifiedText(const QString &text, const QVector<DialogTextLink> &links)
                          text.sliced(link.start, link.length).toHtmlEscaped());
         position = link.start + link.length;
     }
-    html += text.sliced(position).toHtmlEscaped().replace(
-        u'\n', QStringLiteral("<br>"));
+    html += text.sliced(position)
+                .toHtmlEscaped()
+                .replace(u'\n', QStringLiteral("<br>"));
     return html;
 }
 
@@ -122,7 +124,7 @@ QRect itemTextRect(const QStyleOptionViewItem &option)
                                  option.widget);
 }
 
-}  // namespace
+}
 
 QVector<DialogTextLink> dialogTextLinks(const QString &text)
 {
@@ -172,7 +174,8 @@ QVector<DialogTextLink> dialogTextLinks(const QString &text)
 void openDialogTextLink(const QString &target)
 {
     const QUrl url(target);
-    if (!url.isValid() || (url.scheme() != u"http" && url.scheme() != u"https"))
+    if (!url.isValid() ||
+        (url.scheme() != u"http" && url.scheme() != u"https"))
     {
         return;
     }
@@ -197,11 +200,11 @@ void configureDialogLinkLabel(QLabel *label)
 void setDialogLinkLabelText(QLabel *label, const QString &text)
 {
     const auto links = dialogTextLinks(text);
-    label->setTextInteractionFlags(links.isEmpty()
-                                       ? Qt::TextSelectableByMouse
-                                       : Qt::TextSelectableByMouse |
-                                             Qt::LinksAccessibleByMouse |
-                                             Qt::LinksAccessibleByKeyboard);
+    label->setTextInteractionFlags(
+        links.isEmpty()
+            ? Qt::TextSelectableByMouse
+            : Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse |
+                  Qt::LinksAccessibleByKeyboard);
     label->setFocusPolicy(links.isEmpty() ? Qt::NoFocus : Qt::StrongFocus);
     label->setText(linkifiedText(text, links));
 }
@@ -288,10 +291,9 @@ void DialogLinkTextDelegate::paint(QPainter *painter,
     painter->restore();
 }
 
-bool DialogLinkTextDelegate::editorEvent(QEvent *event,
-                                         QAbstractItemModel *model,
-                                         const QStyleOptionViewItem &option,
-                                         const QModelIndex &index)
+bool DialogLinkTextDelegate::editorEvent(
+    QEvent *event, QAbstractItemModel *model,
+    const QStyleOptionViewItem &option, const QModelIndex &index)
 {
     if (event->type() == QEvent::MouseMove)
     {
@@ -306,7 +308,8 @@ bool DialogLinkTextDelegate::editorEvent(QEvent *event,
         const auto *mouse = static_cast<QMouseEvent *>(event);
         if (mouse->button() == Qt::LeftButton)
         {
-            this->pressedLink_ = this->linkAt(option, index, mouse->position());
+            this->pressedLink_ =
+                this->linkAt(option, index, mouse->position());
             this->pressedIndex_ = index;
             if (!this->pressedLink_.isEmpty())
             {
@@ -317,13 +320,13 @@ bool DialogLinkTextDelegate::editorEvent(QEvent *event,
     else if (event->type() == QEvent::MouseButtonRelease)
     {
         const auto *mouse = static_cast<QMouseEvent *>(event);
-        if (mouse->button() == Qt::LeftButton && !this->pressedLink_.isEmpty())
+        if (mouse->button() == Qt::LeftButton &&
+            !this->pressedLink_.isEmpty())
         {
             const auto pressed = std::exchange(this->pressedLink_, {});
-            const auto pressedIndex =
-                std::exchange(this->pressedIndex_, QPersistentModelIndex{});
-            const auto released =
-                this->linkAt(option, index, mouse->position());
+            const auto pressedIndex = std::exchange(
+                this->pressedIndex_, QPersistentModelIndex{});
+            const auto released = this->linkAt(option, index, mouse->position());
             if (pressedIndex == index && released == pressed)
             {
                 openDialogTextLink(released);
@@ -366,9 +369,9 @@ bool DialogLinkTextDelegate::eventFilter(QObject *watched, QEvent *event)
     return QStyledItemDelegate::eventFilter(watched, event);
 }
 
-QString DialogLinkTextDelegate::linkAt(const QStyleOptionViewItem &option,
-                                       const QModelIndex &index,
-                                       const QPointF &position) const
+QString DialogLinkTextDelegate::linkAt(
+    const QStyleOptionViewItem &option, const QModelIndex &index,
+    const QPointF &position) const
 {
     const auto text = index.data(Qt::DisplayRole).toString();
     const auto links = dialogTextLinks(text);
@@ -391,12 +394,12 @@ QString DialogLinkTextDelegate::linkAt(const QStyleOptionViewItem &option,
     {
         return {};
     }
-    const auto top =
-        textRect.top() +
-        std::max<qreal>(0, (textRect.height() - line.height()) / 2);
+    const auto top = textRect.top() +
+                     std::max<qreal>(0,
+                                     (textRect.height() - line.height()) / 2);
     const auto local = position - QPointF(textRect.left(), top);
-    if (local.x() < 0 || local.y() < 0 || local.y() >= line.height() ||
-        local.x() > line.naturalTextWidth())
+    if (local.x() < 0 || local.y() < 0 ||
+        local.y() >= line.height() || local.x() > line.naturalTextWidth())
     {
         return {};
     }
@@ -412,7 +415,8 @@ QString DialogLinkTextDelegate::linkAt(const QStyleOptionViewItem &option,
     }
     for (const auto &link : links)
     {
-        if (sourceIndex >= link.start && sourceIndex < link.start + link.length)
+        if (sourceIndex >= link.start &&
+            sourceIndex < link.start + link.length)
         {
             return link.target;
         }
@@ -420,4 +424,4 @@ QString DialogLinkTextDelegate::linkAt(const QStyleOptionViewItem &option,
     return {};
 }
 
-}  // namespace chatterino
+}

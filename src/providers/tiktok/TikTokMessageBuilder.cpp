@@ -144,12 +144,11 @@ void appendText(MessageBuilder &builder, TikTokChannel *channel,
         }
     }
 }
-}  // namespace
+}
 
-TikTokUsernameElement::TikTokUsernameElement(const QString &text,
-                                             MessageElementFlags flags,
-                                             MessageColor color, FontStyle font,
-                                             QString avatarUrl)
+TikTokUsernameElement::TikTokUsernameElement(
+    const QString &text, MessageElementFlags flags, MessageColor color,
+    FontStyle font, QString avatarUrl)
     : TextElement(text, flags, color, font)
     , avatarUrl_(std::move(avatarUrl))
 {
@@ -376,4 +375,4 @@ std::pair<MessagePtrMut, HighlightAlert> makeTikTokMessage(
     }
     return {builder.release(), alert};
 }
-}  // namespace chatterino
+}

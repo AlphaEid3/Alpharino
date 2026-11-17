@@ -147,4 +147,4 @@ private:
     bool commercialMessageIsError_ = false;
 };
 
-}  // namespace chatterino
+}

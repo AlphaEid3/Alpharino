@@ -42,4 +42,4 @@ private:
     bool credentialSaved_ = false;
 };
 
-}  // namespace chatterino
+}

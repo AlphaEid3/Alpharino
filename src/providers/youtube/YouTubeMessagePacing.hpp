@@ -65,10 +65,11 @@ struct MessageDeliveryStep {
     bool receivedMessages, bool recentlyActive,
     std::optional<std::chrono::milliseconds> serverTimeout)
 {
-    const auto maximum = (receivedMessages || recentlyActive)
-                             ? (receivedMessages ? MIN_CONTINUATION_POLL_DELAY
-                                                 : RECENT_ACTIVITY_POLL_DELAY)
-                             : IDLE_CONTINUATION_POLL_DELAY;
+    const auto maximum =
+        (receivedMessages || recentlyActive)
+            ? (receivedMessages ? MIN_CONTINUATION_POLL_DELAY
+                                : RECENT_ACTIVITY_POLL_DELAY)
+            : IDLE_CONTINUATION_POLL_DELAY;
     return std::clamp(serverTimeout.value_or(maximum),
                       MIN_CONTINUATION_POLL_DELAY, maximum);
 }
@@ -83,12 +84,13 @@ struct MessageDeliveryStep {
         return DEFAULT_MESSAGE_DELIVERY_WINDOW;
     }
 
-    const auto boundedInterval = std::clamp(
-        observedBatchInterval, MIN_MESSAGE_DELIVERY_WINDOW,
-        MAX_MESSAGE_DELIVERY_WINDOW + MESSAGE_DELIVERY_BREATHING_GAP);
-    const auto observedWindow =
-        std::clamp(boundedInterval - MESSAGE_DELIVERY_BREATHING_GAP,
-                   MIN_MESSAGE_DELIVERY_WINDOW, MAX_MESSAGE_DELIVERY_WINDOW);
+    const auto boundedInterval =
+        std::clamp(observedBatchInterval, MIN_MESSAGE_DELIVERY_WINDOW,
+                   MAX_MESSAGE_DELIVERY_WINDOW +
+                       MESSAGE_DELIVERY_BREATHING_GAP);
+    const auto observedWindow = std::clamp(
+        boundedInterval - MESSAGE_DELIVERY_BREATHING_GAP,
+        MIN_MESSAGE_DELIVERY_WINDOW, MAX_MESSAGE_DELIVERY_WINDOW);
 
     const auto boundedPrevious =
         std::clamp(previousWindow, MIN_MESSAGE_DELIVERY_WINDOW,
@@ -100,9 +102,9 @@ struct MessageDeliveryStep {
         return boundedPrevious;
     }
 
-    const auto adjustment =
-        std::clamp(difference / 2, -MAX_MESSAGE_DELIVERY_WINDOW_ADJUSTMENT,
-                   MAX_MESSAGE_DELIVERY_WINDOW_ADJUSTMENT);
+    const auto adjustment = std::clamp(
+        difference / 2, -MAX_MESSAGE_DELIVERY_WINDOW_ADJUSTMENT,
+        MAX_MESSAGE_DELIVERY_WINDOW_ADJUSTMENT);
     return boundedPrevious + adjustment;
 }
 
@@ -116,7 +118,8 @@ struct MessageDeliveryStep {
     if (remainingWindow <= std::chrono::milliseconds{0})
     {
         return {
-            .batchSize = std::min(queuedMessages, MAX_MESSAGE_DELIVERY_BATCH),
+            .batchSize =
+                std::min(queuedMessages, MAX_MESSAGE_DELIVERY_BATCH),
             .delay = std::chrono::milliseconds{0},
         };
     }
@@ -126,9 +129,10 @@ struct MessageDeliveryStep {
                                     MIN_MESSAGE_DELIVERY_INTERVAL));
     const auto requiredBatch =
         (queuedMessages + availableTicks - 1) / availableTicks;
-    const auto batchSize =
-        std::clamp<std::size_t>(requiredBatch, 1, MAX_MESSAGE_DELIVERY_BATCH);
-    const auto requiredTicks = (queuedMessages + batchSize - 1) / batchSize;
+    const auto batchSize = std::clamp<std::size_t>(
+        requiredBatch, 1, MAX_MESSAGE_DELIVERY_BATCH);
+    const auto requiredTicks =
+        (queuedMessages + batchSize - 1) / batchSize;
     const auto idealDelay = std::chrono::milliseconds{
         remainingWindow.count() /
         static_cast<std::chrono::milliseconds::rep>(requiredTicks)};
@@ -140,4 +144,4 @@ struct MessageDeliveryStep {
     };
 }
 
-}  // namespace chatterino::youtube
+}

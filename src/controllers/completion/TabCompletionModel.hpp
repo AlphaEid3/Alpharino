@@ -23,6 +23,7 @@ struct EmoteItem;
 class TabCompletionModel : public QStringListModel
 {
 public:
+
     explicit TabCompletionModel(Channel &channel, QObject *parent);
 
     void updateResults(const QString &query, const QString &fullTextContent,
@@ -64,4 +65,4 @@ private:
     std::vector<qsizetype> sourceRows_;
 };
 
-}  // namespace chatterino
+}

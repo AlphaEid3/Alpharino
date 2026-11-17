@@ -20,8 +20,8 @@
 #include "controllers/commands/builtin/twitch/ChatSettings.hpp"
 #include "controllers/commands/builtin/twitch/Chatters.hpp"
 #include "controllers/commands/builtin/twitch/DeleteMessages.hpp"
-#include "controllers/commands/builtin/twitch/GetFounders.hpp"
 #include "controllers/commands/builtin/twitch/GetModerators.hpp"
+#include "controllers/commands/builtin/twitch/GetFounders.hpp"
 #include "controllers/commands/builtin/twitch/GetVIPs.hpp"
 #include "controllers/commands/builtin/twitch/LowTrust.hpp"
 #include "controllers/commands/builtin/twitch/ModVipActions.hpp"
@@ -742,13 +742,12 @@ CommandController::CommandController(const Paths &paths)
             s.requestSave();
 
             ctx.channel->addSystemMessage(
-                enabling
-                    ? (s.botBadgeOverrideAllAccounts.getValue()
-                           ? QStringLiteral(
-                                 "Bot mode enabled for all accounts.")
-                           : QStringLiteral(
-                                 "Bot mode enabled for the bot account only."))
-                    : QStringLiteral("Bot mode disabled."));
+                enabling ? (s.botBadgeOverrideAllAccounts.getValue()
+                                ? QStringLiteral(
+                                      "Bot mode enabled for all accounts.")
+                                : QStringLiteral(
+                                      "Bot mode enabled for the bot account only."))
+                         : QStringLiteral("Bot mode disabled."));
             return "";
         }
 
@@ -779,9 +778,10 @@ CommandController::CommandController(const Paths &paths)
             settings.sendMessageAsWarnings = enabled;
             settings.requestSave();
             ctx.channel->addSystemMessage(
-                enabled ? QStringLiteral(
-                              "Warning chat enabled in channels you moderate.")
-                        : QStringLiteral("Warning chat disabled."));
+                enabled
+                    ? QStringLiteral(
+                          "Warning chat enabled in channels you moderate.")
+                    : QStringLiteral("Warning chat disabled."));
             return "";
         });
 }

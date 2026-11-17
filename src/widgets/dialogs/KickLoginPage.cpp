@@ -11,8 +11,9 @@
 
 #include <QApplication>
 #include <QClipboard>
-#include <QCryptographicHash>
 #include <QDesktopServices>
+#include <QCryptographicHash>
+#include <QTimer>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QFormLayout>
@@ -24,7 +25,6 @@
 #include <QRegularExpressionValidator>
 #include <QSpacerItem>
 #include <QString>
-#include <QTimer>
 #include <QUrlQuery>
 #include <QVBoxLayout>
 
@@ -206,7 +206,8 @@ public:
             this->callbackReceived = true;
             this->statusLabel.setText("Kick login was not completed. Close "
                                       "this window to try again.");
-            return {200, "Login was not completed. You can close this tab."_ba};
+            return {200,
+                    "Login was not completed. You can close this tab."_ba};
         }
         const auto code = query.queryItemValue("code", QUrl::FullyDecoded);
         if (code.isEmpty())
@@ -264,8 +265,7 @@ private:
                 auto error = formatAPIError(result);
                 qCWarning(chatterinoKick) << "Getting token failed" << error;
                 this->statusLabel.setText(
-                    error +
-                    QStringLiteral("\nClose this window to try again."));
+                    error + QStringLiteral("\nClose this window to try again."));
             })
             .onSuccess([this](const NetworkResult &result) {
                 if (!this->active)
@@ -299,8 +299,7 @@ private:
                 auto error = formatAPIError(result);
                 qCWarning(chatterinoKick) << "Getting user failed" << error;
                 this->statusLabel.setText(
-                    error +
-                    QStringLiteral("\nClose this window to try again."));
+                    error + QStringLiteral("\nClose this window to try again."));
             })
             .onSuccess([this](const NetworkResult &result) {
                 if (!this->active)
@@ -342,7 +341,7 @@ private:
     bool callbackReceived = false;
 };
 
-}  // namespace
+}
 
 namespace chatterino {
 
@@ -456,7 +455,7 @@ void KickLoginPage::refreshState()
     }
 }
 
-void KickLoginPage::paintEvent(QPaintEvent *)
+void KickLoginPage::paintEvent(QPaintEvent * )
 {
     QPainter painter(this);
 
@@ -474,4 +473,4 @@ void KickLoginPage::hideEvent(QHideEvent *event)
     QWidget::hideEvent(event);
 }
 
-}  // namespace chatterino
+}

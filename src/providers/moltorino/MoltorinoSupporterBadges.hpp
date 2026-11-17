@@ -51,11 +51,11 @@ bool shouldSaveProfile(const MoltorinoVanityLayout &original,
                        bool forceOnlineSync = false);
 bool shouldClearLocalLayout(const MoltorinoVanityLayout &local,
                             const std::optional<MoltorinoVanityLayout> &remote);
-bool resolveMoltorinoBadgeVanityListing(const QString &categoryId,
-                                        std::optional<bool> serverListing);
+bool resolveMoltorinoBadgeVanityListing(
+    const QString &categoryId, std::optional<bool> serverListing);
 bool shouldShowMoltorinoBadge(bool listedInVanity, bool owned);
 
-}  // namespace vanity::detail
+}
 
 class MoltorinoSupporterBadges final : public QObject
 {

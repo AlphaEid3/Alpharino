@@ -47,6 +47,7 @@ ChannelPtr SearchPopup::filter(const QString &text, const QString &channelName,
         bool accept = true;
         for (const auto &pred : predicates)
         {
+
             if (!pred->appliesTo(*message))
             {
                 accept = false;
@@ -304,6 +305,7 @@ void SearchPopup::search()
 
 std::vector<MessagePtr> SearchPopup::buildSnapshot()
 {
+
     if (this->searchChannels_.length() == 1)
     {
         const auto channelPtr = this->searchChannels_.at(0);
@@ -348,6 +350,7 @@ std::vector<MessagePtr> SearchPopup::buildSnapshot()
 
 void SearchPopup::initLayout()
 {
+
     {
         auto *layout1 = new QVBoxLayout(this);
         layout1->setContentsMargins(0, 0, 0, 0);
@@ -392,6 +395,7 @@ void SearchPopup::initLayout()
 std::vector<std::unique_ptr<MessagePredicate>> SearchPopup::parsePredicates(
     const QString &input)
 {
+
     static QRegularExpression predicateRegex(
         R"lit((?<negation>[!\-])?(?:(?<name>\w+):(?<value>".+?"|[^\s]+))|[^\s]+?(?=$|\s))lit");
     static QRegularExpression trimQuotationMarksRegex(R"(^"|"$)");
@@ -453,4 +457,4 @@ std::vector<std::unique_ptr<MessagePredicate>> SearchPopup::parsePredicates(
     return predicates;
 }
 
-}  // namespace chatterino
+}

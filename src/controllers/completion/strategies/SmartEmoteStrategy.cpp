@@ -24,6 +24,7 @@ int costOfEmote(QStringView query, QStringView emote, bool prioritizeUpper)
 
     if (prioritizeUpper)
     {
+
         for (const auto i : emote)
         {
             score += int(!i.isUpper());
@@ -31,9 +32,11 @@ int costOfEmote(QStringView query, QStringView emote, bool prioritizeUpper)
     }
     else
     {
+
         int len = std::min(emote.size(), query.size());
         for (int i = 0; i < len; i++)
         {
+
             score += query.at(i).isUpper() ^ emote.at(i).isUpper();
         }
     }
@@ -46,6 +49,7 @@ int costOfEmote(QStringView query, QStringView emote, bool prioritizeUpper)
     auto diff = emote.size() - query.size();
     if (diff > 0)
     {
+
         score += diff * 100;
     }
     return score;
@@ -56,6 +60,7 @@ void completeEmotes(
     QStringView query, bool ignoreColonForCost, bool ignoreTildeForCost,
     const std::function<bool(EmoteItem, Qt::CaseSensitivity)> &matchingFunction)
 {
+
     bool haveUpper =
         std::any_of(query.begin(), query.end(), [](const QChar &c) {
             return c.isUpper();
@@ -76,6 +81,7 @@ void completeEmotes(
     {
         if (!haveUpper)
         {
+
             return;
         }
 
@@ -90,6 +96,7 @@ void completeEmotes(
         }
         if (output.empty())
         {
+
             return;
         }
     }
@@ -120,6 +127,7 @@ void completeEmotes(
                   auto costB = costOfEmote(query, tempB, prioritizeUpper);
                   if (costA == costB)
                   {
+
                       return QString::compare(tempA, tempB,
                                               Qt::CaseInsensitive) < 0;
                   }
@@ -127,7 +135,7 @@ void completeEmotes(
                   return costA < costB;
               });
 }
-}  // namespace
+}
 
 void SmartEmoteStrategy::apply(const std::vector<EmoteItem> &items,
                                std::vector<EmoteItem> &output,
@@ -173,6 +181,7 @@ void SmartTabEmoteStrategy::apply(const std::vector<EmoteItem> &items,
     QStringView normalizedQuery = query;
     if (colonStart)
     {
+
         normalizedQuery = normalizedQuery.mid(1);
     }
 
@@ -202,4 +211,4 @@ void SmartTabEmoteStrategy::apply(const std::vector<EmoteItem> &items,
         });
 }
 
-}  // namespace chatterino::completion
+}

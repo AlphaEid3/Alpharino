@@ -470,6 +470,7 @@ HighlightAlert processHighlights(KickMessageBuilder &builder,
 {
     if (getSettings()->isBlacklistedUser(builder->loginName))
     {
+
         return {};
     }
 
@@ -513,11 +514,12 @@ QStringView plural(QStringView pluralText, uint64_t n)
     return pluralText;
 }
 
-}  // namespace
+}
 
 namespace chatterino {
 
-KickMessageBuilder::KickMessageBuilder(SystemMessageTag, KickChannel *channel,
+KickMessageBuilder::KickMessageBuilder(SystemMessageTag ,
+                                       KickChannel *channel,
                                        const QDateTime &time)
     : channel_(channel)
 {
@@ -571,8 +573,8 @@ std::pair<MessagePtrMut, HighlightAlert> KickMessageBuilder::makeChatMessage(
     builder.appendChannelName();
 
     builder.emplace<TimestampElement>(builder->serverReceivedTime.time());
-    builder.emplace<TwitchModerationElement>(true, false, false,
-                                             kickChannel->weakFromThis());
+    builder.emplace<TwitchModerationElement>(
+        true, false, false, kickChannel->weakFromThis());
 
     appendKickV2Badges(builder, identity["badges_v2"].toArray());
     appendKickBadges(builder, identity["badges"].toArray());
@@ -1087,4 +1089,4 @@ void KickMessageBuilder::appendMentionedUser(const QString &username,
     }
 }
 
-}  // namespace chatterino
+}

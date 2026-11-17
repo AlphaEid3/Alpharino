@@ -28,4 +28,4 @@ struct CommandContext {
     YouTubeChannel *youtubeChannel{};
 };
 
-}  // namespace chatterino
+}

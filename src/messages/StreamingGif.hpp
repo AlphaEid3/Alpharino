@@ -49,4 +49,4 @@ private:
     bool decoding_ = false;
 };
 
-}  // namespace chatterino::detail
+}

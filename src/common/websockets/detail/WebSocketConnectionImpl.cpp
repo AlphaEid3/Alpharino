@@ -187,6 +187,7 @@ void WebSocketConnectionHelper<Derived, Inner>::doWsHandshake()
             bool hasUa = false;
             for (const auto &[key, value] : this->options.headers)
             {
+
                 QLatin1StringView keyView(key.c_str());
                 if (QLatin1StringView("user-agent")
                         .compare(keyView, Qt::CaseInsensitive) == 0)
@@ -196,6 +197,7 @@ void WebSocketConnectionHelper<Derived, Inner>::doWsHandshake()
 
                 try
                 {
+
                     req.set(key, value);
                 }
                 catch (const boost::system::system_error &err)
@@ -303,7 +305,7 @@ void WebSocketConnectionHelper<Derived, Inner>::onReadDone(
 
 template <typename Derived, typename Inner>
 void WebSocketConnectionHelper<Derived, Inner>::onWriteDone(
-    boost::system::error_code ec, size_t)
+    boost::system::error_code ec, size_t )
 {
     if (!this->queuedMessages.empty())
     {
@@ -417,6 +419,7 @@ TlsWebSocketConnection::TlsWebSocketConnection(
 
 bool TlsWebSocketConnection::setupStream(const std::string &host)
 {
+
     if (::SSL_set_tlsext_host_name(this->stream.next_layer().native_handle(),
                                    host.c_str()) == 0)
     {
@@ -467,4 +470,4 @@ void TcpWebSocketConnection::afterTcpHandshake()
     this->doWsHandshake();
 }
 
-}  // namespace chatterino::ws::detail
+}

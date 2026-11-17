@@ -68,4 +68,4 @@ private:
     std::vector<Row> rows_;
 };
 
-}  // namespace chatterino
+}

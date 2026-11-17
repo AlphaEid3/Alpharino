@@ -11,6 +11,7 @@ namespace chatterino {
 class NewPopupItem : public AbstractSwitcherItem
 {
 public:
+
     NewPopupItem(const QString &channelName);
 
     void action() override;
@@ -25,4 +26,4 @@ private:
     QString text_;
 };
 
-}  // namespace chatterino
+}

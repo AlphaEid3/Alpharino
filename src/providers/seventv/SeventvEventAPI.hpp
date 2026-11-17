@@ -21,7 +21,7 @@ struct EmoteUpdateDispatch;
 struct EmoteRemoveDispatch;
 struct UserConnectionUpdateDispatch;
 struct PersonalEmoteSetAdded;
-}  // namespace seventv::eventapi
+}
 
 class SeventvBadges;
 class SeventvPaints;
@@ -77,4 +77,4 @@ private:
     std::unique_ptr<SeventvEventAPIPrivate> private_;
 };
 
-}  // namespace chatterino
+}

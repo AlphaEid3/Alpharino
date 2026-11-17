@@ -15,6 +15,7 @@ class MutedChannelModel : public SignalVectorModel<QString>
     explicit MutedChannelModel(QObject *parent);
 
 protected:
+
     QString getItemFromRow(std::vector<QStandardItem *> &row,
                            const QString &original) override;
 
@@ -22,4 +23,4 @@ protected:
                         std::vector<QStandardItem *> &row) override;
 };
 
-}  // namespace chatterino
+}

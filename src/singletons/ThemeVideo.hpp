@@ -58,4 +58,4 @@ private:
     pajlada::Signals::ScopedConnection focusSettingConnection_;
 };
 
-}  // namespace chatterino
+}

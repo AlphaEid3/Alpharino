@@ -46,10 +46,10 @@ private:
     bool pending_ = false;
 };
 
-}  // namespace detail
+}
 
 void requestMemoryPressureRelief();
 
 void requestTransientMemoryPressureRelief();
 
-}  // namespace chatterino
+}

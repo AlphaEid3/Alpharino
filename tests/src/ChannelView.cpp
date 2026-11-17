@@ -7,12 +7,11 @@
 #include "mocks/BaseApplication.hpp"
 #include "singletons/WindowManager.hpp"
 #include "Test.hpp"
-#include "widgets/buttons/LabelButton.hpp"
 #include "widgets/Scrollbar.hpp"
-
-#include <QLabel>
+#include "widgets/buttons/LabelButton.hpp"
 
 #include <algorithm>
+#include <QLabel>
 
 using namespace chatterino;
 
@@ -45,10 +44,9 @@ TEST(ChannelViewTest, GoToBottomGeometryUpdatesWhenScaleChanges)
     view.resize(320, 180);
 
     const auto widgets = view.findChildren<QWidget *>();
-    const auto it =
-        std::find_if(widgets.begin(), widgets.end(), [](QWidget *w) {
-            return dynamic_cast<LabelButton *>(w) != nullptr;
-        });
+    const auto it = std::find_if(widgets.begin(), widgets.end(), [](QWidget *w) {
+        return dynamic_cast<LabelButton *>(w) != nullptr;
+    });
     auto *button =
         it == widgets.end() ? nullptr : dynamic_cast<LabelButton *>(*it);
     ASSERT_NE(button, nullptr);

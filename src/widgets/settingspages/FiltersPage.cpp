@@ -91,6 +91,7 @@ void FiltersPage::onShow()
 void FiltersPage::tableCellClicked(const QModelIndex &clicked,
                                    EditableModelView *view)
 {
+
     if (clicked.column() == 2)
     {
         QMessageBox popup(this->window());
@@ -141,4 +142,4 @@ bool FiltersPage::filterElements(const QString &query)
     return this->view_->filterSearchResults(query, fields);
 }
 
-}  // namespace chatterino
+}

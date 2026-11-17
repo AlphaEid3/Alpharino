@@ -10,4 +10,4 @@ ExpectedStr<void> signTikTokAccountRequest(const TikTokSession &session,
 ExpectedStr<void> validateTikTokSigningSession(const TikTokSession &session);
 void updateTikTokTicketGuard(TikTokSession &session,
                              const QByteArray &serverData);
-}  // namespace chatterino
+}

@@ -16,4 +16,4 @@ public:
     virtual void partChannel(const QString &channelName) = 0;
 };
 
-}  // namespace chatterino
+}

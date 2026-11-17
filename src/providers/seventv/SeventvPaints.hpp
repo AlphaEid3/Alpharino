@@ -24,7 +24,7 @@ namespace seventv::eventapi {
 struct TwitchUser;
 struct KickUser;
 using User = std::variant<TwitchUser, KickUser>;
-}  // namespace seventv::eventapi
+}
 
 enum class SeventvPaintLoadStatus : std::uint8_t {
     Unknown,
@@ -100,7 +100,8 @@ private:
     void handlePaintRequestWatchdog(std::uint64_t requestID);
     void schedulePaintRetry(const QStringList &paintIDs,
                             bool assignedOnly = false);
-    bool finishPaintLoad(const PaintBatchItem &paint, std::uint64_t requestID,
+    bool finishPaintLoad(const PaintBatchItem &paint,
+                         std::uint64_t requestID,
                          SeventvPaintLoadStatus status);
     void notifyPaintChanged(std::vector<std::pair<QString, bool>> users,
                             bool repaint = false);
@@ -116,11 +117,12 @@ private:
     std::unordered_map<QString, PaintLoadState> paintLoadStates_;
 
     std::deque<PaintBatchRequest> pendingPaintBatches_;
-    std::unordered_map<std::uint64_t, PaintBatchRequest> activePaintRequests_;
+    std::unordered_map<std::uint64_t, PaintBatchRequest>
+        activePaintRequests_;
     std::uint64_t nextPaintGeneration_ = 0;
     std::uint64_t nextPaintRequestID_ = 0;
 
     QObject lifetimeGuard_;
 };
 
-}  // namespace chatterino
+}

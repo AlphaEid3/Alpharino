@@ -136,4 +136,4 @@ void updateTikTokTicketGuard(TikTokSession &session,
     }
 #endif
 }
-}  // namespace chatterino
+}

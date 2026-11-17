@@ -74,4 +74,4 @@ private:
     QString credentialError_;
     bool loaded_ = false;
 };
-}  // namespace chatterino
+}

@@ -316,4 +316,4 @@ int64_t StreamingImageDecoder::compressedBytes() const
     return this->buffer_.size();
 }
 
-}  // namespace chatterino::detail
+}

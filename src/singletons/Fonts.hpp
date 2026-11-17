@@ -99,4 +99,4 @@ private:
     pajlada::Signals::SignalHolder themeConnections_;
 };
 
-}  // namespace chatterino
+}

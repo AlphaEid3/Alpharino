@@ -72,4 +72,4 @@ void YouTubeAccountSwitchWidget::refreshItems()
     }
 }
 
-}  // namespace chatterino
+}

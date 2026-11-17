@@ -258,7 +258,7 @@ private:
     bool ebml_ = false;
 };
 
-}  // namespace
+}
 
 struct ThemeVideoDecoder::Private {
     explicit Private(const QString &source)
@@ -466,4 +466,4 @@ QString validateThemeVideo(const QString &source, std::stop_token cancellation)
     return {};
 }
 
-}  // namespace chatterino
+}

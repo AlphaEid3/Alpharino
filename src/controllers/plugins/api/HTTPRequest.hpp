@@ -28,6 +28,7 @@ namespace chatterino::lua::api {
  */
 class HTTPRequest : public std::enable_shared_from_this<HTTPRequest>
 {
+
     struct ConstructorAccessTag {
     };
 

@@ -41,7 +41,8 @@ enum class HighlightWordListPlatform : std::uint8_t {
 
 QString highlightWordListPlatformKey(HighlightWordListPlatform platform);
 QString highlightWordListPlatformName(HighlightWordListPlatform platform);
-HighlightWordListPlatform highlightWordListPlatformFromKey(const QString &key);
+HighlightWordListPlatform highlightWordListPlatformFromKey(
+    const QString &key);
 
 struct HighlightWordListMatchResult {
     bool matched{};
@@ -51,14 +52,16 @@ struct HighlightWordListMatchResult {
 class HighlightWordList
 {
 public:
-    HighlightWordList(
-        QString name, bool enabled, std::vector<QString> terms,
-        std::vector<QString> channels, bool caseSensitive, bool showInMentions,
-        bool hasAlert, bool hasSound, QString soundUrl, QColor color,
-        bool isRegex = false, QColor matchColor = {},
-        HighlightMatchStyle matchStyle = HighlightMatchStyle::Outline,
-        QString matchPaintID = {},
-        HighlightWordListPlatform platform = HighlightWordListPlatform::All);
+    HighlightWordList(QString name, bool enabled, std::vector<QString> terms,
+                      std::vector<QString> channels, bool caseSensitive,
+                      bool showInMentions, bool hasAlert, bool hasSound,
+                      QString soundUrl, QColor color, bool isRegex = false,
+                      QColor matchColor = {},
+                      HighlightMatchStyle matchStyle =
+                          HighlightMatchStyle::Outline,
+                      QString matchPaintID = {},
+                      HighlightWordListPlatform platform =
+                          HighlightWordListPlatform::All);
 
     bool operator==(const HighlightWordList &other) const;
 
@@ -105,7 +108,8 @@ private:
     struct CompiledData;
     static std::shared_ptr<const CompiledData> compile(
         const std::vector<QString> &terms, bool caseSensitive, bool isRegex);
-    bool appliesToNormalizedChannel(const QString &normalizedChannelName) const;
+    bool appliesToNormalizedChannel(
+        const QString &normalizedChannelName) const;
 
     QString name_;
     bool enabled_{};
@@ -126,7 +130,7 @@ private:
     std::shared_ptr<const CompiledData> compiled_;
 };
 
-}  // namespace chatterino
+}
 
 namespace pajlada {
 
@@ -150,9 +154,10 @@ struct Serialize<chatterino::HighlightWordList> {
         chatterino::rj::set(ret, "regex", value.isRegex(), a);
         chatterino::rj::set(ret, "matchColor",
                             value.matchColor()->name(QColor::HexArgb), a);
-        chatterino::rj::set(
-            ret, "matchStyle",
-            chatterino::highlightMatchStyleName(value.matchStyle()), a);
+        chatterino::rj::set(ret, "matchStyle",
+                            chatterino::highlightMatchStyleName(
+                                value.matchStyle()),
+                            a);
         chatterino::rj::set(ret, "matchPaintId", value.matchPaintID(), a);
         chatterino::rj::set(
             ret, "platform",
@@ -232,4 +237,4 @@ struct Deserialize<chatterino::HighlightWordList> {
     }
 };
 
-}  // namespace pajlada
+}

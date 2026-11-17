@@ -53,10 +53,12 @@ consteval bool isLatin1(std::string_view maybe)
 }
 
 template <typename BinaryPredicate>
-constexpr bool eq(QStringView a, QStringView b,
-                  [[maybe_unused]] BinaryPredicate
-                      &&p) noexcept(isNothrowInvocable<BinaryPredicate>())
+constexpr bool eq(
+    QStringView a, QStringView b,
+    [[maybe_unused]] BinaryPredicate &&
+        p) noexcept(isNothrowInvocable<BinaryPredicate>())
 {
+
     if (a.size() != b.size())
     {
         return false;
@@ -94,7 +96,7 @@ template <typename E, E V>
 inline constexpr auto ENUM_NAME_STORAGE = enumNameStorage<char16_t, E, V>();
 
 template <typename E, std::size_t... I>
-consteval auto namesStorage(std::index_sequence<I...>)
+consteval auto namesStorage(std::index_sequence<I...> )
 {
     return std::array<QStringView, sizeof...(I)>{{detail::fromArray(
         ENUM_NAME_STORAGE<E, magic_enum::enum_values<E>()[I]>)...}};
@@ -125,6 +127,7 @@ public:
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 [[nodiscard]] inline QString staticString(QStringView view) noexcept
 {
+
     return QString(QStringPrivate(nullptr, const_cast<char16_t *>(view.utf16()),
                                   view.size()));
 }
@@ -135,7 +138,7 @@ public:
 }
 #endif
 
-}  // namespace chatterino::qmagicenum::detail
+}
 
 namespace chatterino::qmagicenum {
 
@@ -244,4 +247,4 @@ template <detail::IsEnum E>
 
 inline constexpr auto CASE_INSENSITIVE = detail::CaseInsensitive<>{};
 
-}  // namespace chatterino::qmagicenum
+}

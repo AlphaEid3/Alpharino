@@ -850,8 +850,9 @@ public:
     std::string_view type() const override;
 
 private:
-    bool shouldShowAction(const ModerationAction &action, bool inModerationMode,
-                          int selfDeleteMode, int pinOnModeratorsMode) const;
+    bool shouldShowAction(const ModerationAction &action,
+                          bool inModerationMode, int selfDeleteMode,
+                          int pinOnModeratorsMode) const;
     bool canModerateUserNow() const;
     bool sourceHasModRightsNow() const;
 

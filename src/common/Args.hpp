@@ -66,4 +66,4 @@ private:
     QStringList currentArguments_;
 };
 
-}  // namespace chatterino
+}

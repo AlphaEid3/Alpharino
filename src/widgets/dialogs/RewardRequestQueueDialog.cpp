@@ -15,7 +15,6 @@
 
 #    include <QAbstractTableModel>
 #    include <QDateTime>
-#    include <QFontMetrics>
 #    include <QFrame>
 #    include <QHBoxLayout>
 #    include <QHeaderView>
@@ -29,6 +28,7 @@
 #    include <QPushButton>
 #    include <QScrollBar>
 #    include <QSignalBlocker>
+#    include <QFontMetrics>
 #    include <QSizePolicy>
 #    include <QSplitter>
 #    include <QStyledItemDelegate>
@@ -114,7 +114,7 @@ enum RewardItemRole {
     RewardColorRole,
 };
 
-}  // namespace
+}
 
 class RewardListDelegate final : public QStyledItemDelegate
 {
@@ -134,10 +134,11 @@ public:
         painter->setClipRect(option.rect);
         const bool selected = option.state & QStyle::State_Selected;
         const bool hovered = option.state & QStyle::State_MouseOver;
-        painter->fillRect(option.rect, selected ? option.palette.highlight()
-                                       : hovered
-                                           ? option.palette.alternateBase()
-                                           : option.palette.base());
+        painter->fillRect(
+            option.rect,
+            selected ? option.palette.highlight()
+            : hovered ? option.palette.alternateBase()
+                      : option.palette.base());
 
         const auto foreground = selected
                                     ? option.palette.highlightedText().color()
@@ -573,9 +574,9 @@ RewardRequestQueueDialog::RewardRequestQueueDialog(
                                               false);
     getSettings()->moltorinoAuthAccounts.connect(checkAuth,
                                                  this->authConnections_, false);
-    for (auto *label :
-         {this->countLabel_, this->statusLabel_, this->requestTitle_,
-          this->loadedLabel_, this->selectionTitle_, this->selectionMeta_})
+    for (auto *label : {this->countLabel_, this->statusLabel_,
+                        this->requestTitle_, this->loadedLabel_,
+                        this->selectionTitle_, this->selectionMeta_})
     {
         label->setTextFormat(Qt::PlainText);
     }
@@ -994,7 +995,8 @@ void RewardRequestQueueDialog::updateSelectionPreview()
                 : QStringLiteral("All requests for this reward"));
         setDialogLinkLabelText(
             this->selectionMessage_,
-            QStringLiteral("Select rows to act on specific requests instead."));
+            QStringLiteral(
+                "Select rows to act on specific requests instead."));
     }
     else
     {
@@ -1296,6 +1298,6 @@ void RewardRequestQueueDialog::publishResult(const QString &text) const
     }
 }
 
-}  // namespace chatterino
+}
 
 #endif

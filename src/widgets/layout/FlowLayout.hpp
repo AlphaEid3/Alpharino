@@ -56,6 +56,7 @@ public:
     QLayoutItem *takeAt(int index) override;
 
 private:
+
     int doLayout(const QRect &rect, bool testOnly) const;
 
     int defaultSpacing(QStyle::PixelMetric pm) const;
@@ -67,4 +68,4 @@ private:
     int vSpace_ = -1;
 };
 
-}  // namespace chatterino
+}

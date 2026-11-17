@@ -90,4 +90,4 @@ struct TikTokRoom {
     bool paused = false;
 };
 
-}  // namespace chatterino
+}

@@ -120,7 +120,7 @@ const QSet<QString> SPECIAL_MESSAGE_TYPES{
 };
 
 const QSet<QString> SUB_MESSAGE_TYPES{
-    "sub",  //
+    "sub",              //
     "subgift",
     "resub",
 };
@@ -408,7 +408,8 @@ bool isWarningAcknowledgeNotice(const QString &text)
     return text.startsWith(
                "You received a Warning from a moderator in this channel.",
                Qt::CaseInsensitive) ||
-           text.contains("Acknowledge the Warning at", Qt::CaseInsensitive);
+           text.contains("Acknowledge the Warning at",
+                         Qt::CaseInsensitive);
 }
 
 bool isRaidCanceledNoticeText(const QString &text)
@@ -1346,8 +1347,8 @@ void IrcMessageHandler::addMessage(Communi::IrcMessage *message,
                 roomId = chan->roomId();
             }
 
-            if (!chan->markChannelPointRedemptionSeen(u"irc:" % roomId % u':' %
-                                                      messageId))
+            if (!chan->markChannelPointRedemptionSeen(u"irc:" % roomId %
+                                                      u':' % messageId))
             {
                 return;
             }

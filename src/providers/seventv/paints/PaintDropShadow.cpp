@@ -34,6 +34,7 @@ void PaintDropShadow::apply(QPixmapDropShadowFilter &effect) const
     auto radius = this->radius_;
     if (getSettings()->largeSevenTVPaintShadows)
     {
+
         radius *= 3;
     }
     effect.setBlurRadius(radius);
@@ -63,4 +64,4 @@ QMarginsF PaintDropShadow::margins(float scale) const
     };
 }
 
-}  // namespace chatterino
+}

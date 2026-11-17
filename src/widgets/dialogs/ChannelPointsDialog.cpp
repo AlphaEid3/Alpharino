@@ -2,46 +2,46 @@
 
 #if MOLTORINO_ENABLE_CHANNEL_POINT_REWARDS
 
-#    include "Application.hpp"
-#    include "controllers/accounts/AccountController.hpp"
-#    include "messages/Image.hpp"
-#    include "providers/moltorino/MoltorinoAuth.hpp"
-#    include "providers/twitch/TwitchChannel.hpp"
-#    include "singletons/Fonts.hpp"
-#    include "singletons/Settings.hpp"
-#    include "singletons/Theme.hpp"
-#    include "util/Helpers.hpp"
-#    include "widgets/buttons/Button.hpp"
-#    include "widgets/buttons/SvgButton.hpp"
-#    include "widgets/helper/Line.hpp"
-#    include "widgets/splits/SplitInput.hpp"
+#include "Application.hpp"
+#include "controllers/accounts/AccountController.hpp"
+#include "messages/Image.hpp"
+#include "providers/moltorino/MoltorinoAuth.hpp"
+#include "providers/twitch/TwitchChannel.hpp"
+#include "singletons/Fonts.hpp"
+#include "singletons/Settings.hpp"
+#include "singletons/Theme.hpp"
+#include "util/Helpers.hpp"
+#include "widgets/buttons/Button.hpp"
+#include "widgets/buttons/SvgButton.hpp"
+#include "widgets/helper/Line.hpp"
+#include "widgets/splits/SplitInput.hpp"
 
-#    include <QCursor>
-#    include <QEvent>
-#    include <QFontMetrics>
-#    include <QFrame>
-#    include <QGridLayout>
-#    include <QHBoxLayout>
-#    include <QLabel>
-#    include <QLayout>
-#    include <QLineEdit>
-#    include <QPainter>
-#    include <QPainterPath>
-#    include <QPalette>
-#    include <QPolygonF>
-#    include <QPushButton>
-#    include <QResizeEvent>
-#    include <QScrollArea>
-#    include <QScrollBar>
-#    include <QShowEvent>
-#    include <QSizePolicy>
-#    include <QTimer>
-#    include <QVBoxLayout>
+#include <QCursor>
+#include <QEvent>
+#include <QFontMetrics>
+#include <QFrame>
+#include <QGridLayout>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QLayout>
+#include <QLineEdit>
+#include <QPalette>
+#include <QPainter>
+#include <QPainterPath>
+#include <QPolygonF>
+#include <QPushButton>
+#include <QResizeEvent>
+#include <QScrollArea>
+#include <QScrollBar>
+#include <QShowEvent>
+#include <QSizePolicy>
+#include <QTimer>
+#include <QVBoxLayout>
 
-#    include <algorithm>
-#    include <array>
-#    include <cmath>
-#    include <memory>
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <memory>
 
 namespace chatterino {
 
@@ -78,7 +78,8 @@ int rewardCardMinimumWidth(float scale)
 
 int rewardCardPreferredWidth(float scale)
 {
-    return std::max(rewardCardMinimumWidth(scale), scaledMetric(scale, 92, 48));
+    return std::max(rewardCardMinimumWidth(scale),
+                    scaledMetric(scale, 92, 48));
 }
 
 int rewardTitleMinimumHeight(float scale)
@@ -106,9 +107,9 @@ int gridColumnsForWidth(int availableWidth, int minimumItemWidth, int spacing,
         return minimumColumns;
     }
 
-    return std::clamp(
-        (availableWidth + spacing) / std::max(1, minimumItemWidth + spacing),
-        minimumColumns, maximumColumns);
+    return std::clamp((availableWidth + spacing) /
+                          std::max(1, minimumItemWidth + spacing),
+                      minimumColumns, maximumColumns);
 }
 
 int availableContentWidth(QScrollArea *scrollArea, QLayout *layout)
@@ -175,8 +176,8 @@ bool isGigantifyReward(const GqlChannelPointReward &reward)
 
 QString rewardCostLabel(const GqlChannelPointReward &reward, bool compact)
 {
-    const auto amount =
-        compact ? compactPoints(reward.cost) : fullPoints(reward.cost);
+    const auto amount = compact ? compactPoints(reward.cost)
+                                : fullPoints(reward.cost);
     return isBitsReward(reward) ? amount + QStringLiteral(" Bits") : amount;
 }
 
@@ -307,18 +308,10 @@ QString firstAvailableModifierId(
 QColor rewardColor(const GqlChannelPointReward &reward)
 {
     static const std::array<QColor, 12> palette = {{
-        QColor("#ff1493"),
-        QColor("#ff8500"),
-        QColor("#9146ff"),
-        QColor("#00e015"),
-        QColor("#ff8080"),
-        QColor("#ff1a1a"),
-        QColor("#ffbd14"),
-        QColor("#20a8ff"),
-        QColor("#2d7f33"),
-        QColor("#12d6c9"),
-        QColor("#ff40d5"),
-        QColor("#7c3cff"),
+        QColor("#ff1493"), QColor("#ff8500"), QColor("#9146ff"),
+        QColor("#00e015"), QColor("#ff8080"), QColor("#ff1a1a"),
+        QColor("#ffbd14"), QColor("#20a8ff"), QColor("#2d7f33"),
+        QColor("#12d6c9"), QColor("#ff40d5"), QColor("#7c3cff"),
     }};
 
     auto color = QColor(reward.backgroundColor);
@@ -351,7 +344,8 @@ bool shouldShowReward(const GqlChannelPointReward &reward)
     {
         return false;
     }
-    if (isGigantifyReward(reward) && !getSettings()->enableGigantifyEmotes)
+    if (isGigantifyReward(reward) &&
+        !getSettings()->enableGigantifyEmotes)
     {
         return false;
     }
@@ -378,7 +372,8 @@ QStringList twoLineTitle(const QString &title, const QFontMetrics &metrics,
     for (const auto &word : words)
     {
         const auto candidate = current.isEmpty() ? word : current + ' ' + word;
-        if (metrics.horizontalAdvance(candidate) <= width || current.isEmpty())
+        if (metrics.horizontalAdvance(candidate) <= width ||
+            current.isEmpty())
         {
             current = candidate;
             continue;
@@ -421,8 +416,8 @@ void drawRewardGlyph(QPainter &painter, const QRectF &square,
     painter.setRenderHint(QPainter::Antialiasing, true);
 
     QColor glyph(255, 255, 255, unavailable ? 155 : 245);
-    QPen pen(glyph, std::max<qreal>(2.4, square.width() * 0.045), Qt::SolidLine,
-             Qt::RoundCap, Qt::RoundJoin);
+    QPen pen(glyph, std::max<qreal>(2.4, square.width() * 0.045),
+             Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
     painter.setPen(pen);
     painter.setBrush(Qt::NoBrush);
 
@@ -458,8 +453,8 @@ void drawRewardGlyph(QPainter &painter, const QRectF &square,
         QRectF bubble(cx - size * 0.16, cy - size * 0.05, size * 0.28,
                       size * 0.20);
         painter.drawRoundedRect(bubble, 2, 2);
-        painter.drawArc(QRectF(cx - size * 0.08, cy - size * 0.19, size * 0.16,
-                               size * 0.16),
+        painter.drawArc(QRectF(cx - size * 0.08, cy - size * 0.19,
+                               size * 0.16, size * 0.16),
                         0, 180 * 16);
     }
     else if (reward.rewardType == "RANDOM_SUB_EMOTE_UNLOCK")
@@ -471,8 +466,8 @@ void drawRewardGlyph(QPainter &painter, const QRectF &square,
         painter.setPen(Qt::NoPen);
         const auto dot = size * 0.025;
         for (const auto point :
-             {QPointF(cx - size * 0.07, cy - size * 0.07), QPointF(cx, cy),
-              QPointF(cx + size * 0.07, cy + size * 0.07)})
+             {QPointF(cx - size * 0.07, cy - size * 0.07),
+              QPointF(cx, cy), QPointF(cx + size * 0.07, cy + size * 0.07)})
         {
             painter.drawEllipse(point, dot, dot);
         }
@@ -482,8 +477,8 @@ void drawRewardGlyph(QPainter &painter, const QRectF &square,
         QRectF body(cx - size * 0.13, cy - size * 0.04, size * 0.26,
                     size * 0.22);
         painter.drawRoundedRect(body, 2, 2);
-        painter.drawArc(QRectF(cx - size * 0.10, cy - size * 0.19, size * 0.20,
-                               size * 0.22),
+        painter.drawArc(QRectF(cx - size * 0.10, cy - size * 0.19,
+                               size * 0.20, size * 0.22),
                         0, 180 * 16);
     }
     else if (reward.rewardType == "CHOSEN_MODIFIED_SUB_EMOTE_UNLOCK")
@@ -510,8 +505,7 @@ void drawRewardGlyph(QPainter &painter, const QRectF &square,
     painter.restore();
 }
 
-std::shared_ptr<TwitchChannel> twitchChannelFromWeak(
-    const std::weak_ptr<Channel> &weak)
+std::shared_ptr<TwitchChannel> twitchChannelFromWeak(const std::weak_ptr<Channel> &weak)
 {
     auto shared = weak.lock();
     if (!shared)
@@ -523,7 +517,8 @@ std::shared_ptr<TwitchChannel> twitchChannelFromWeak(
 
 void applyChannelPointRedeemResult(const std::weak_ptr<Channel> &weak,
                                    const GqlChannelPointRedeemResult &result,
-                                   const QString &message, const QString &token,
+                                   const QString &message,
+                                   const QString &token,
                                    int fallbackCost = 0)
 {
     if (MoltorinoAuth::resolveCurrentUserToken().token != token)
@@ -551,7 +546,8 @@ void applyChannelPointRedeemResult(const std::weak_ptr<Channel> &weak,
 }
 
 void showChannelPointRedeemError(const std::weak_ptr<Channel> &weak,
-                                 const QString &context, const QString &error)
+                                 const QString &context,
+                                 const QString &error)
 {
     auto channel = twitchChannelFromWeak(weak);
     if (channel == nullptr)
@@ -595,8 +591,9 @@ public:
         this->setAccessibleName(reward.title);
         this->setAccessibleDescription(rewardCostLabel(reward, false));
         this->setToolTip(reward.prompt.isEmpty()
-                             ? QStringLiteral("%1\n%2").arg(
-                                   reward.title, rewardCostLabel(reward, false))
+                             ? QStringLiteral("%1\n%2")
+                                   .arg(reward.title,
+                                        rewardCostLabel(reward, false))
                              : QStringLiteral("%1\n%2\n%3")
                                    .arg(reward.title, reward.prompt,
                                         rewardCostLabel(reward, false)));
@@ -646,8 +643,7 @@ protected:
 
         const int titleHeight = this->titleAreaHeight();
         const int squareSize = std::max(
-            1,
-            std::min(rect.width(), std::max(1, rect.height() - titleHeight)));
+            1, std::min(rect.width(), std::max(1, rect.height() - titleHeight)));
         QRect square(rect.left() + (rect.width() - squareSize) / 2, rect.top(),
                      squareSize, squareSize);
 
@@ -665,12 +661,12 @@ protected:
         painter.setBrush(base);
         painter.drawRoundedRect(square.adjusted(0, 0, -1, -1), 2, 2);
 
-        const auto imageSize = squareSize * rewardImageSizeRatio(this->reward_);
+        const auto imageSize =
+            squareSize * rewardImageSizeRatio(this->reward_);
         const QRectF imageRect(square.center().x() - imageSize / 2.0,
-                               square.center().y() - imageSize / 2.0, imageSize,
-                               imageSize);
-        const bool drewImage =
-            drawLoadedImage(painter, imageRect, this->image_);
+                               square.center().y() - imageSize / 2.0,
+                               imageSize, imageSize);
+        const bool drewImage = drawLoadedImage(painter, imageRect, this->image_);
         if (!drewImage)
         {
             const auto glyphSize = squareSize * 0.50;
@@ -697,10 +693,10 @@ protected:
         const int pillWidth = std::max(
             scaledMetric(this->scale_, 30, 22),
             costMetrics.horizontalAdvance(costText) + pillPaddingX * 2);
-        QRect pill(
-            square.left() + (square.width() - pillWidth) / 2,
-            square.bottom() - pillHeight - scaledMetric(this->scale_, 6, 3),
-            pillWidth, pillHeight);
+        QRect pill(square.left() + (square.width() - pillWidth) / 2,
+                   square.bottom() - pillHeight -
+                       scaledMetric(this->scale_, 6, 3),
+                   pillWidth, pillHeight);
         painter.setPen(Qt::NoPen);
         painter.setBrush(QColor(0, 0, 0, unavailable ? 82 : 118));
         painter.drawRoundedRect(pill, 2, 2);
@@ -729,9 +725,9 @@ protected:
                 std::max(0, (titleRect.height() - textHeight) / 2);
         for (const auto &line : lines)
         {
-            painter.drawText(
-                QRect(titleRect.left(), y, titleRect.width(), lineHeight),
-                Qt::AlignCenter, line);
+            painter.drawText(QRect(titleRect.left(), y, titleRect.width(),
+                                   lineHeight),
+                             Qt::AlignCenter, line);
             y += lineHeight;
         }
 
@@ -749,9 +745,9 @@ private:
         QFont titleFont = this->font();
         titleFont = makeResolvedFont(titleFont, QFont::Bold);
         QFontMetrics metrics(titleFont);
-        return std::max(
-            rewardTitleMinimumHeight(this->scale_),
-            metrics.lineSpacing() * 2 + scaledMetric(this->scale_, 5, 3));
+        return std::max(rewardTitleMinimumHeight(this->scale_),
+                        metrics.lineSpacing() * 2 +
+                            scaledMetric(this->scale_, 5, 3));
     }
 
     GqlChannelPointReward reward_;
@@ -858,10 +854,11 @@ protected:
         QFontMetrics metrics(labelFont);
         const auto labelWidth =
             this->width() - scaledMetric(this->scale_, 10, 6);
-        const auto label = metrics.elidedText(emoteLabel(this->emote_),
-                                              Qt::ElideRight, labelWidth);
-        QRect labelRect(4, this->height() - textHeight - 3, this->width() - 8,
-                        textHeight);
+        const auto label =
+            metrics.elidedText(emoteLabel(this->emote_), Qt::ElideRight,
+                               labelWidth);
+        QRect labelRect(4, this->height() - textHeight - 3,
+                        this->width() - 8, textHeight);
         painter.setPen(text);
         painter.drawText(labelRect, Qt::AlignCenter, label);
 
@@ -974,9 +971,8 @@ ChannelPointsDialog::ChannelPointsDialog(TwitchChannel *channel,
     this->backButton_->setToolTip("Back to rewards");
     this->backButton_->setCursor(Qt::PointingHandCursor);
     this->backButton_->hide();
-    QObject::connect(this->backButton_, &QPushButton::clicked, this, [this] {
-        this->showRewardsView();
-    });
+    QObject::connect(this->backButton_, &QPushButton::clicked, this,
+                     [this] { this->showRewardsView(); });
     headerLayout->addWidget(this->backButton_);
 
     this->headerTitleLabel_ =
@@ -1038,18 +1034,13 @@ ChannelPointsDialog::ChannelPointsDialog(TwitchChannel *channel,
         });
     this->authToken_ = MoltorinoAuth::resolveCurrentUserToken().token;
     this->managedSettingConnections_.emplace_back(
-        getApp()->getAccounts()->twitch.currentUserChanged.connect([this] {
-            this->refreshAccount();
-        }));
+        getApp()->getAccounts()->twitch.currentUserChanged.connect(
+            [this] { this->refreshAccount(); }));
     getSettings()->customPinAuthToken.connect(
-        [this](const QString &, auto) {
-            this->refreshAccount();
-        },
+        [this](const QString &, auto) { this->refreshAccount(); },
         this->managedSettingConnections_, false);
     getSettings()->moltorinoAuthAccounts.connect(
-        [this](const QString &, auto) {
-            this->refreshAccount();
-        },
+        [this](const QString &, auto) { this->refreshAccount(); },
         this->managedSettingConnections_, false);
     getSettings()->enableGigantifyEmotes.connect(
         [this](bool enabled, auto) {
@@ -1108,8 +1099,9 @@ void ChannelPointsDialog::showDialog(TwitchChannel *channel, SplitInput *input,
 
     dialog->show();
     const auto size = dialog->size();
-    dialog->showAndMoveTo(center - QPoint(size.width() / 2, size.height() / 2),
-                          widgets::BoundsChecking::DesiredPosition);
+    dialog->showAndMoveTo(
+        center - QPoint(size.width() / 2, size.height() / 2),
+        widgets::BoundsChecking::DesiredPosition);
     dialog->raise();
     dialog->activateWindow();
     dialog->reloadRewards();
@@ -1157,9 +1149,9 @@ void ChannelPointsDialog::showEvent(QShowEvent *event)
 void ChannelPointsDialog::refreshHeader()
 {
     const auto balance = this->channel_->channelPointBalance();
-    const auto channelName = this->channel_->getName().isEmpty()
-                                 ? QStringLiteral("channel")
-                                 : this->channel_->getName();
+    const auto channelName =
+        this->channel_->getName().isEmpty() ? QStringLiteral("channel")
+                                            : this->channel_->getName();
     if (this->view_ == View::RewardDetail && this->selectedRewardValid_)
     {
         this->headerTitleLabel_->setText(this->selectedReward_.title);
@@ -1210,9 +1202,10 @@ void ChannelPointsDialog::refreshStyle()
         std::max(2, int(4 * rawScale)), std::max(2, int(3 * rawScale)),
         std::max(2, int(4 * rawScale)), std::max(2, int(3 * rawScale)));
     this->headerWidget_->layout()->setSpacing(std::max(2, int(3 * rawScale)));
-    this->mainLayout_->setContentsMargins(
-        std::max(3, int(5 * rawScale)), std::max(3, int(5 * rawScale)),
-        std::max(3, int(5 * rawScale)), std::max(3, int(5 * rawScale)));
+    this->mainLayout_->setContentsMargins(std::max(3, int(5 * rawScale)),
+                                          std::max(3, int(5 * rawScale)),
+                                          std::max(3, int(5 * rawScale)),
+                                          std::max(3, int(5 * rawScale)));
     this->mainLayout_->setSpacing(0);
     this->contentLayout_->setContentsMargins(
         scaledMetric(effectiveScale, 8, 4), scaledMetric(effectiveScale, 7, 4),
@@ -1226,8 +1219,9 @@ void ChannelPointsDialog::refreshStyle()
 
     if (this->statusLabel_ != nullptr)
     {
-        this->statusLabel_->setFont(fonts->getFont(
-            FontStyle::UiMedium, readableFontScale(this->scale())));
+        this->statusLabel_->setFont(
+            fonts->getFont(FontStyle::UiMedium,
+                           readableFontScale(this->scale())));
     }
 
     const auto *theme = this->theme;
@@ -1241,9 +1235,8 @@ void ChannelPointsDialog::refreshStyle()
     const auto buttonBg = theme->splits.input.background.name();
     const auto fieldBg = theme->splits.input.background.name();
     const auto hoverBg =
-        theme->isLightTheme()
-            ? theme->splits.input.background.darker(104).name()
-            : theme->splits.input.background.lighter(108).name();
+        theme->isLightTheme() ? theme->splits.input.background.darker(104).name()
+                              : theme->splits.input.background.lighter(108).name();
     const auto focusedBorder = theme->splits.header.focusedBorder.name();
 
     this->setStyleSheet(QStringLiteral(R"(
@@ -1548,9 +1541,9 @@ void ChannelPointsDialog::refreshRewardsLayout()
 {
     auto *gridWidget = this->contentWidget_->findChild<QWidget *>(
         QStringLiteral("ChannelPointsRewardGridContent"));
-    auto *grid = gridWidget == nullptr
-                     ? nullptr
-                     : dynamic_cast<QGridLayout *>(gridWidget->layout());
+    auto *grid =
+        gridWidget == nullptr ? nullptr : dynamic_cast<QGridLayout *>(
+                                      gridWidget->layout());
     if (grid == nullptr)
     {
         return;
@@ -1682,9 +1675,9 @@ void ChannelPointsDialog::refreshEmotesLayout()
 
     auto *gridWidget = this->contentWidget_->findChild<QWidget *>(
         QStringLiteral("ChannelPointsEmoteGridContent"));
-    auto *grid = gridWidget == nullptr
-                     ? nullptr
-                     : dynamic_cast<QGridLayout *>(gridWidget->layout());
+    auto *grid =
+        gridWidget == nullptr ? nullptr : dynamic_cast<QGridLayout *>(
+                                      gridWidget->layout());
     if (grid == nullptr)
     {
         return;
@@ -1701,7 +1694,8 @@ void ChannelPointsDialog::refreshEmotesLayout()
     grid->setVerticalSpacing(gridSpacing);
     const int columns = gridColumnsForWidth(
         availableContentWidth(this->scrollArea_, this->contentLayout_),
-        emoteTileMinimumWidth(effectiveScale), gridSpacing, EMOTE_GRID_COLUMNS);
+        emoteTileMinimumWidth(effectiveScale), gridSpacing,
+        EMOTE_GRID_COLUMNS);
     int row = 0;
     int column = 0;
     for (auto *tile : tiles)
@@ -1765,17 +1759,15 @@ void ChannelPointsDialog::rebuildRewards()
     {
         if (!(this->statusIsError_ && !this->statusText_.isEmpty()))
         {
-            this->setStatus(
-                this->rewards_.isEmpty()
-                    ? QStringLiteral("No rewards loaded yet.")
-                    : QStringLiteral("No supported rewards found."));
+            this->setStatus(this->rewards_.isEmpty()
+                                ? QStringLiteral("No rewards loaded yet.")
+                                : QStringLiteral("No supported rewards found."));
         }
         auto *refresh = new QPushButton("Refresh", this->contentWidget_);
         refresh->setObjectName("ChannelPointsUtilityButton");
         refresh->setCursor(Qt::PointingHandCursor);
-        QObject::connect(refresh, &QPushButton::clicked, this, [this] {
-            this->reloadRewards();
-        });
+        QObject::connect(refresh, &QPushButton::clicked, this,
+                         [this] { this->reloadRewards(); });
         this->contentLayout_->addWidget(refresh);
         this->contentLayout_->addStretch(1);
         return;
@@ -1808,9 +1800,8 @@ void ChannelPointsDialog::rebuildRewards()
         card->setFont(getApp()->getFonts()->getFont(
             FontStyle::UiMedium, readableFontScale(effectiveScale)));
         card->setEnabled(!this->actionInFlight_);
-        QObject::connect(card, &QPushButton::clicked, this, [this, reward] {
-            this->openRewardDetail(reward);
-        });
+        QObject::connect(card, &QPushButton::clicked, this,
+                         [this, reward] { this->openRewardDetail(reward); });
         grid->addWidget(card, row, column);
         column += 1;
         if (column >= columns)
@@ -1856,14 +1847,15 @@ void ChannelPointsDialog::rebuildRewardDetail()
     prompt->setAlignment(Qt::AlignCenter);
     prompt->setText(this->selectedReward_.prompt);
     prompt->setVisible(!this->selectedReward_.prompt.isEmpty());
-    prompt->setFont(getApp()->getFonts()->getFont(
-        FontStyle::UiMediumBold, readableFontScale(effectiveScale)));
+    prompt->setFont(getApp()->getFonts()->getFont(FontStyle::UiMediumBold,
+                                                  readableFontScale(
+                                                      effectiveScale)));
     this->contentLayout_->addWidget(prompt);
 
     this->contentLayout_->addStretch(1);
 
-    auto *preview =
-        new RewardIconPreview(this->selectedReward_, this->contentWidget_);
+    auto *preview = new RewardIconPreview(this->selectedReward_,
+                                          this->contentWidget_);
     preview->setScale(effectiveScale);
     this->contentLayout_->addWidget(preview, 0, Qt::AlignCenter);
     if (!this->selectedReward_.imageUrl.isEmpty())
@@ -1874,9 +1866,9 @@ void ChannelPointsDialog::rebuildRewardDetail()
     this->contentLayout_->addStretch(2);
 
     const auto balance = this->channel_->channelPointBalance();
-    const bool enoughPoints = isBitsReward(this->selectedReward_) ||
-                              balance < 0 ||
-                              balance >= this->selectedReward_.cost;
+    const bool enoughPoints =
+        isBitsReward(this->selectedReward_) || balance < 0 ||
+        balance >= this->selectedReward_.cost;
     const bool redeemable = !this->actionInFlight_ &&
                             this->selectedReward_.isEnabled &&
                             this->selectedReward_.isInStock && enoughPoints;
@@ -1885,8 +1877,9 @@ void ChannelPointsDialog::rebuildRewardDetail()
     button->setObjectName("ChannelPointsRedeemButton");
     button->setCursor(redeemable ? Qt::PointingHandCursor : Qt::ArrowCursor);
     button->setEnabled(redeemable);
-    button->setFont(getApp()->getFonts()->getFont(
-        FontStyle::UiMediumBold, readableFontScale(effectiveScale)));
+    button->setFont(getApp()->getFonts()->getFont(FontStyle::UiMediumBold,
+                                                  readableFontScale(
+                                                      effectiveScale)));
     if (this->actionInFlight_)
     {
         button->setText("Redeeming...");
@@ -1898,8 +1891,8 @@ void ChannelPointsDialog::rebuildRewardDetail()
     }
     else if (!enoughPoints)
     {
-        button->setText(QStringLiteral("%1 Required")
-                            .arg(fullPoints(this->selectedReward_.cost)));
+        button->setText(QStringLiteral("%1 Required").arg(
+            fullPoints(this->selectedReward_.cost)));
     }
     else
     {
@@ -1907,12 +1900,11 @@ void ChannelPointsDialog::rebuildRewardDetail()
             isGigantifyReward(this->selectedReward_)
                 ? QStringLiteral("Choose an emote · %1")
                       .arg(rewardCostLabel(this->selectedReward_, false))
-                : QStringLiteral("Redeem %1")
-                      .arg(rewardCostLabel(this->selectedReward_, false)));
+                : QStringLiteral("Redeem %1").arg(
+                      rewardCostLabel(this->selectedReward_, false)));
     }
-    QObject::connect(button, &QPushButton::clicked, this, [this] {
-        this->activateSelectedReward();
-    });
+    QObject::connect(button, &QPushButton::clicked, this,
+                     [this] { this->activateSelectedReward(); });
     this->contentLayout_->addWidget(button);
 }
 
@@ -1925,21 +1917,23 @@ void ChannelPointsDialog::rebuildEmotes()
     search->setObjectName("ChannelPointsEmoteSearch");
     search->setPlaceholderText("Search emotes");
     search->setText(this->emoteSearch_);
-    search->setFont(getApp()->getFonts()->getFont(
-        FontStyle::UiMedium, readableFontScale(effectiveScale)));
-    QObject::connect(
-        search, &QLineEdit::textChanged, this, [this](const QString &text) {
-            this->emoteSearch_ = text;
-            this->emoteVisibleLimit_ = EMOTE_GRID_INITIAL_LIMIT;
-            this->emoteScrollValue_ = 0;
-            this->rebuildContent();
-            if (this->emoteSearchInput_ != nullptr)
-            {
-                this->emoteSearchInput_->setFocus(Qt::OtherFocusReason);
-                this->emoteSearchInput_->setCursorPosition(
-                    this->emoteSearch_.size());
-            }
-        });
+    search->setFont(getApp()->getFonts()->getFont(FontStyle::UiMedium,
+                                                  readableFontScale(
+                                                      effectiveScale)));
+    QObject::connect(search, &QLineEdit::textChanged, this,
+                     [this](const QString &text) {
+                         this->emoteSearch_ = text;
+                         this->emoteVisibleLimit_ = EMOTE_GRID_INITIAL_LIMIT;
+                         this->emoteScrollValue_ = 0;
+                         this->rebuildContent();
+                         if (this->emoteSearchInput_ != nullptr)
+                         {
+                             this->emoteSearchInput_->setFocus(
+                                 Qt::OtherFocusReason);
+                             this->emoteSearchInput_->setCursorPosition(
+                                 this->emoteSearch_.size());
+                         }
+                     });
     this->contentLayout_->addWidget(search);
 
     this->statusLabel_ = new QLabel(this->contentWidget_);
@@ -1954,11 +1948,11 @@ void ChannelPointsDialog::rebuildEmotes()
     if (this->selectingGigantifiedEmote_ &&
         this->selectedGigantifiedEmoteValid_)
     {
-        auto *selection =
-            new QLabel(QStringLiteral("%1 · %2").arg(
-                           emoteLabel(this->selectedGigantifiedEmote_),
-                           rewardCostLabel(this->selectedReward_, false)),
-                       this->contentWidget_);
+        auto *selection = new QLabel(
+            QStringLiteral("%1 · %2")
+                .arg(emoteLabel(this->selectedGigantifiedEmote_),
+                     rewardCostLabel(this->selectedReward_, false)),
+            this->contentWidget_);
         selection->setTextFormat(Qt::PlainText);
         selection->setObjectName("ChannelPointsGigantifySelectionLabel");
         selection->setAlignment(Qt::AlignCenter);
@@ -1981,15 +1975,14 @@ void ChannelPointsDialog::rebuildEmotes()
                          [this](const QString &message) {
                              this->gigantifyMessage_ = message;
                          });
-        QObject::connect(messageInput, &QLineEdit::returnPressed, this, [this] {
-            this->sendSelectedGigantifiedEmote();
-        });
+        QObject::connect(messageInput, &QLineEdit::returnPressed, this,
+                         [this] { this->sendSelectedGigantifiedEmote(); });
         this->contentLayout_->addWidget(messageInput);
 
         auto *confirm = new QPushButton(this->contentWidget_);
         confirm->setObjectName("ChannelPointsGigantifyConfirmButton");
         confirm->setCursor(this->actionInFlight_ ? Qt::ArrowCursor
-                                                 : Qt::PointingHandCursor);
+                                                : Qt::PointingHandCursor);
         confirm->setEnabled(!this->actionInFlight_);
         confirm->setFont(getApp()->getFonts()->getFont(
             FontStyle::UiMediumBold, readableFontScale(effectiveScale)));
@@ -1998,9 +1991,8 @@ void ChannelPointsDialog::rebuildEmotes()
                 ? QStringLiteral("Sending...")
                 : QStringLiteral("Send enlarged emote · %1")
                       .arg(rewardCostLabel(this->selectedReward_, false)));
-        QObject::connect(confirm, &QPushButton::clicked, this, [this] {
-            this->sendSelectedGigantifiedEmote();
-        });
+        QObject::connect(confirm, &QPushButton::clicked, this,
+                         [this] { this->sendSelectedGigantifiedEmote(); });
         this->contentLayout_->addWidget(confirm);
     }
 
@@ -2078,7 +2070,8 @@ void ChannelPointsDialog::rebuildEmotes()
     int matched = 0;
     const int columns = gridColumnsForWidth(
         availableContentWidth(this->scrollArea_, this->contentLayout_),
-        emoteTileMinimumWidth(effectiveScale), gridSpacing, EMOTE_GRID_COLUMNS);
+        emoteTileMinimumWidth(effectiveScale), gridSpacing,
+        EMOTE_GRID_COLUMNS);
     for (const auto &emote : this->emotes_)
     {
         if (!needle.isEmpty() &&
@@ -2086,7 +2079,8 @@ void ChannelPointsDialog::rebuildEmotes()
         {
             continue;
         }
-        if (emote.type == "GLOBALS" && !this->selectingGigantifiedEmote_)
+        if (emote.type == "GLOBALS" &&
+            !this->selectingGigantifiedEmote_)
         {
             continue;
         }
@@ -2105,19 +2099,20 @@ void ChannelPointsDialog::rebuildEmotes()
 
         auto *button = new EmoteTileButton(emote, true, gridWidget);
         button->setObjectName("ChannelPointsEmoteButton");
-        button->setFont(getApp()->getFonts()->getFont(
-            FontStyle::UiMedium, readableFontScale(effectiveScale)));
+        button->setFont(getApp()->getFonts()->getFont(FontStyle::UiMedium,
+                                                      readableFontScale(
+                                                          effectiveScale)));
         button->setScale(effectiveScale);
         button->setEnabled(!this->actionInFlight_);
         if (this->selectingGigantifiedEmote_)
         {
             button->setCheckable(true);
-            button->setChecked(this->selectedGigantifiedEmoteValid_ &&
-                               this->selectedGigantifiedEmote_.id == emote.id);
-            QObject::connect(button, &QPushButton::clicked, this,
-                             [this, emote] {
-                                 this->selectGigantifiedEmote(emote);
-                             });
+            button->setChecked(
+                this->selectedGigantifiedEmoteValid_ &&
+                this->selectedGigantifiedEmote_.id == emote.id);
+            QObject::connect(
+                button, &QPushButton::clicked, this,
+                [this, emote] { this->selectGigantifiedEmote(emote); });
         }
         else
         {
@@ -2142,9 +2137,8 @@ void ChannelPointsDialog::rebuildEmotes()
 
     if (shown == 0)
     {
-        this->setStatus(needle.isEmpty()
-                            ? QStringLiteral("No emotes found.")
-                            : QStringLiteral("No matching emotes."));
+        this->setStatus(needle.isEmpty() ? QStringLiteral("No emotes found.")
+                                         : QStringLiteral("No matching emotes."));
     }
 
     emoteScrollArea->setWidget(gridWidget);
@@ -2228,7 +2222,8 @@ void ChannelPointsDialog::showRewardsView()
     this->rebuildContent();
 }
 
-void ChannelPointsDialog::openRewardDetail(const GqlChannelPointReward &reward)
+void ChannelPointsDialog::openRewardDetail(
+    const GqlChannelPointReward &reward)
 {
     if (this->actionInFlight_)
     {
@@ -2286,23 +2281,26 @@ void ChannelPointsDialog::selectReward(const GqlChannelPointReward &reward)
                 QStringLiteral("Redeem %1").arg(reward.title),
                 reward.prompt.isEmpty() ? QStringLiteral("Add a message")
                                         : reward.prompt,
-                true, [weak, channelId, reward, token](const QString &text) {
+                true,
+                [weak, channelId, reward, token](const QString &text) {
                     if (!channelPointAccountMatches(weak, token))
                     {
                         return;
                     }
                     TwitchGql::redeemCustomReward(
                         channelId, reward, text, token,
-                        [weak, reward,
-                         token](const GqlChannelPointRedeemResult &result) {
+                        [weak, reward, token](
+                            const GqlChannelPointRedeemResult &result) {
                             applyChannelPointRedeemResult(
                                 weak, result,
-                                QStringLiteral("Redeemed %1").arg(reward.title),
+                                QStringLiteral("Redeemed %1").arg(
+                                    reward.title),
                                 token, reward.cost);
                         },
                         [weak](const QString &error) {
                             showChannelPointRedeemError(
-                                weak, "redeeming channel point rewards", error);
+                                weak, "redeeming channel point rewards",
+                                error);
                         });
                 });
             this->close();
@@ -2338,18 +2336,19 @@ void ChannelPointsDialog::selectReward(const GqlChannelPointReward &reward)
                 {
                     return;
                 }
-                auto success = [weak, token, successMessage](
-                                   const GqlChannelPointRedeemResult &result) {
-                    applyChannelPointRedeemResult(weak, result, successMessage,
-                                                  token);
-                };
+                auto success =
+                    [weak, token,
+                     successMessage](const GqlChannelPointRedeemResult &result) {
+                        applyChannelPointRedeemResult(weak, result,
+                                                      successMessage, token);
+                    };
                 auto failure = [weak](const QString &error) {
                     showChannelPointRedeemError(
                         weak, "redeeming channel point rewards", error);
                 };
 
-                TwitchGql::sendSubOnlyBypassMessage(channelId, cost, text,
-                                                    token, success, failure);
+                TwitchGql::sendSubOnlyBypassMessage(
+                    channelId, cost, text, token, success, failure);
             });
         this->close();
         return;
@@ -2380,18 +2379,19 @@ void ChannelPointsDialog::selectReward(const GqlChannelPointReward &reward)
                 {
                     return;
                 }
-                auto success = [weak, token, successMessage](
-                                   const GqlChannelPointRedeemResult &result) {
-                    applyChannelPointRedeemResult(weak, result, successMessage,
-                                                  token);
-                };
+                auto success =
+                    [weak, token,
+                     successMessage](const GqlChannelPointRedeemResult &result) {
+                        applyChannelPointRedeemResult(weak, result,
+                                                      successMessage, token);
+                    };
                 auto failure = [weak](const QString &error) {
                     showChannelPointRedeemError(
                         weak, "redeeming channel point rewards", error);
                 };
 
-                TwitchGql::sendHighlightedChatMessage(channelId, cost, text,
-                                                      token, success, failure);
+                TwitchGql::sendHighlightedChatMessage(
+                    channelId, cost, text, token, success, failure);
             });
         this->close();
         return;
@@ -2460,7 +2460,8 @@ void ChannelPointsDialog::redeemCustomReward(
         });
 }
 
-void ChannelPointsDialog::unlockRandomEmote(const GqlChannelPointReward &reward)
+void ChannelPointsDialog::unlockRandomEmote(
+    const GqlChannelPointReward &reward)
 {
     const auto token = this->authTokenOrMessage();
     if (token.isEmpty())
@@ -2584,8 +2585,7 @@ void ChannelPointsDialog::loadEmotePickerData()
         }
         TwitchGql::getChannelPointEmoteModifiers(
             token,
-            [self, generation,
-             finish](QVector<GqlChannelPointEmoteModifier> modifiers) {
+            [self, generation, finish](QVector<GqlChannelPointEmoteModifier> modifiers) {
                 if (!self || self->authGeneration_ != generation)
                 {
                     return;
@@ -2596,8 +2596,9 @@ void ChannelPointsDialog::loadEmotePickerData()
                                           self->selectedModifierId_)) &&
                     !self->modifiers_.isEmpty())
                 {
-                    self->selectedModifierId_ = firstAvailableModifierId(
-                        self->modifiers_, self->emotes_);
+                    self->selectedModifierId_ =
+                        firstAvailableModifierId(self->modifiers_,
+                                                 self->emotes_);
                 }
 
                 if (self->modifiers_.isEmpty())
@@ -2620,48 +2621,54 @@ void ChannelPointsDialog::loadEmotePickerData()
         return;
     }
 
-    const auto emoteSuccess = [self, generation, loadModifiers, finish,
-                               needsModifiers, loadingModifiedEmotes,
-                               loadingGigantifyEmotes](
-                                  QVector<GqlChannelPointEmote> emotes) {
-        if (!self || self->authGeneration_ != generation)
-        {
-            return;
-        }
-        self->emotes_ = std::move(emotes);
-        self->emotesLoadedForModifiedPicker_ = loadingModifiedEmotes;
-        self->emotesLoadedForGigantifyPicker_ = loadingGigantifyEmotes;
-        if (self->selectingModifiedEmote_ && !self->modifiers_.isEmpty() &&
-            (self->selectedModifierId_.isEmpty() ||
-             !hasEmoteForModifier(self->emotes_, self->selectedModifierId_)))
-        {
-            self->selectedModifierId_ =
-                firstAvailableModifierId(self->modifiers_, self->emotes_);
-        }
-        if (self->view_ == View::Emotes &&
-            (self->selectingModifiedEmote_ != loadingModifiedEmotes ||
-             self->selectingGigantifiedEmote_ != loadingGigantifyEmotes))
-        {
-            self->emotesLoading_ = false;
-            self->loadEmotePickerData();
-            self->rebuildContent();
-            return;
-        }
-        if (!needsModifiers)
-        {
-            finish({}, false);
-            return;
-        }
+    const auto emoteSuccess =
+        [self, generation, loadModifiers, finish,
+         needsModifiers,
+         loadingModifiedEmotes,
+         loadingGigantifyEmotes](QVector<GqlChannelPointEmote> emotes) {
+            if (!self || self->authGeneration_ != generation)
+            {
+                return;
+            }
+            self->emotes_ = std::move(emotes);
+            self->emotesLoadedForModifiedPicker_ = loadingModifiedEmotes;
+            self->emotesLoadedForGigantifyPicker_ =
+                loadingGigantifyEmotes;
+            if (self->selectingModifiedEmote_ && !self->modifiers_.isEmpty() &&
+                (self->selectedModifierId_.isEmpty() ||
+                 !hasEmoteForModifier(self->emotes_,
+                                      self->selectedModifierId_)))
+            {
+                self->selectedModifierId_ =
+                    firstAvailableModifierId(self->modifiers_,
+                                             self->emotes_);
+            }
+            if (self->view_ == View::Emotes &&
+                (self->selectingModifiedEmote_ != loadingModifiedEmotes ||
+                 self->selectingGigantifiedEmote_ !=
+                     loadingGigantifyEmotes))
+            {
+                self->emotesLoading_ = false;
+                self->loadEmotePickerData();
+                self->rebuildContent();
+                return;
+            }
+            if (!needsModifiers)
+            {
+                finish({}, false);
+                return;
+            }
 
-        loadModifiers();
-    };
-    const auto emoteFailure = [finish,
-                               loadingGigantifyEmotes](const QString &error) {
-        const auto operation =
-            loadingGigantifyEmotes
-                ? QStringLiteral("loading Twitch emotes")
-                : QStringLiteral("loading channel point emotes");
-        finish(MoltorinoAuth::normalizeAuthError(operation, error), true);
+            loadModifiers();
+        };
+    const auto emoteFailure = [finish, loadingGigantifyEmotes](
+                                  const QString &error) {
+        const auto operation = loadingGigantifyEmotes
+                                   ? QStringLiteral("loading Twitch emotes")
+                                   : QStringLiteral(
+                                         "loading channel point emotes");
+        finish(MoltorinoAuth::normalizeAuthError(operation, error),
+               true);
     };
 
     if (loadingModifiedEmotes)
@@ -2674,16 +2681,17 @@ void ChannelPointsDialog::loadEmotePickerData()
 
     if (loadingGigantifyEmotes)
     {
-        TwitchGql::getAvailableGigantifyEmotes(this->redeemChannelId(), token,
-                                               emoteSuccess, emoteFailure);
+        TwitchGql::getAvailableGigantifyEmotes(
+            this->redeemChannelId(), token, emoteSuccess, emoteFailure);
         return;
     }
 
-    TwitchGql::getAvailableChannelPointEmotes(this->redeemChannelId(), token,
-                                              emoteSuccess, emoteFailure);
+    TwitchGql::getAvailableChannelPointEmotes(
+        this->redeemChannelId(), token, emoteSuccess, emoteFailure);
 }
 
-void ChannelPointsDialog::unlockSelectedEmote(const GqlChannelPointEmote &emote)
+void ChannelPointsDialog::unlockSelectedEmote(
+    const GqlChannelPointEmote &emote)
 {
     if (!this->selectedRewardValid_ || this->actionInFlight_)
     {
@@ -2701,8 +2709,7 @@ void ChannelPointsDialog::unlockSelectedEmote(const GqlChannelPointEmote &emote)
     QPointer<ChannelPointsDialog> self = this;
     const auto generation = this->authGeneration_;
     const auto cost = this->selectedReward_.cost;
-    auto success = [self, generation,
-                    emote](const GqlChannelPointRedeemResult &result) {
+    auto success = [self, generation, emote](const GqlChannelPointRedeemResult &result) {
         if (!self || self->authGeneration_ != generation)
         {
             return;
@@ -2741,18 +2748,18 @@ void ChannelPointsDialog::unlockSelectedEmote(const GqlChannelPointEmote &emote)
             this->rebuildContent();
             return;
         }
-        const auto modifiedLabel = modification->emoteToken.isEmpty()
-                                       ? emoteLabel(emote)
-                                       : modification->emoteToken;
-        auto modifiedSuccess = [self, generation, modifiedLabel](
-                                   const GqlChannelPointRedeemResult &result) {
-            if (!self || self->authGeneration_ != generation)
-            {
-                return;
-            }
-            self->applyRedeemResult(
-                result, QStringLiteral("Unlocked %1").arg(modifiedLabel));
-        };
+        const auto modifiedLabel =
+            modification->emoteToken.isEmpty() ? emoteLabel(emote)
+                                               : modification->emoteToken;
+        auto modifiedSuccess =
+            [self, generation, modifiedLabel](const GqlChannelPointRedeemResult &result) {
+                if (!self || self->authGeneration_ != generation)
+                {
+                    return;
+                }
+                self->applyRedeemResult(
+                    result, QStringLiteral("Unlocked %1").arg(modifiedLabel));
+            };
         TwitchGql::unlockModifiedSubscriberEmote(
             this->redeemChannelId(), modification->emoteId, cost, token,
             modifiedSuccess, failure);
@@ -2787,8 +2794,8 @@ void ChannelPointsDialog::sendSelectedGigantifiedEmote()
 {
     if (!getSettings()->enableGigantifyEmotes ||
         !this->selectingGigantifiedEmote_ ||
-        !this->selectedGigantifiedEmoteValid_ || !this->selectedRewardValid_ ||
-        this->actionInFlight_)
+        !this->selectedGigantifiedEmoteValid_ ||
+        !this->selectedRewardValid_ || this->actionInFlight_)
     {
         return;
     }
@@ -2904,7 +2911,8 @@ void ChannelPointsDialog::queueEmoteImageRefresh()
             return;
         }
 
-        for (auto *button : this->contentWidget_->findChildren<QPushButton *>(
+        for (auto *button :
+             this->contentWidget_->findChildren<QPushButton *>(
                  QStringLiteral("ChannelPointsEmoteButton")))
         {
             button->update();
@@ -2931,7 +2939,8 @@ void ChannelPointsDialog::queueRewardImageRefresh()
             return;
         }
 
-        for (auto *button : this->contentWidget_->findChildren<QPushButton *>(
+        for (auto *button :
+             this->contentWidget_->findChildren<QPushButton *>(
                  QStringLiteral("ChannelPointsRewardCardButton")))
         {
             button->update();
@@ -2994,7 +3003,8 @@ QString ChannelPointsDialog::authTokenOrMessage()
 
     const auto message =
         authError.isEmpty()
-            ? MoltorinoAuth::authRequiredMessage("using channel point rewards")
+            ? MoltorinoAuth::authRequiredMessage(
+                  "using channel point rewards")
             : authError;
     this->setStatus(message, true);
     return {};
@@ -3019,9 +3029,10 @@ bool ChannelPointsDialog::canRedeem(const GqlChannelPointReward &reward)
     const auto balance = this->channel_->channelPointBalance();
     if (!isBitsReward(reward) && balance >= 0 && reward.cost > balance)
     {
-        this->setStatus(QStringLiteral("You need %1 more points.")
-                            .arg(compactPoints(reward.cost - balance)),
-                        true);
+        this->setStatus(
+            QStringLiteral("You need %1 more points.")
+                .arg(compactPoints(reward.cost - balance)),
+            true);
         return false;
     }
     if (this->redeemChannelId().isEmpty())
@@ -3038,10 +3049,10 @@ void ChannelPointsDialog::applySizeConstraints()
         std::max(1, int(DEFAULT_DIALOG_SIZE.width() * this->scale()));
     const int targetHeight =
         std::max(1, int(DEFAULT_DIALOG_SIZE.height() * this->scale()));
-    const int minimumWidth =
-        std::min(targetWidth, std::max(118, int(220 * this->scale())));
-    const int minimumHeight =
-        std::min(targetHeight, std::max(120, int(210 * this->scale())));
+    const int minimumWidth = std::min(
+        targetWidth, std::max(118, int(220 * this->scale())));
+    const int minimumHeight = std::min(
+        targetHeight, std::max(120, int(210 * this->scale())));
     this->setMinimumSize(QSize(minimumWidth, minimumHeight));
     this->applyPopupSize(QSize(targetWidth, targetHeight));
 }

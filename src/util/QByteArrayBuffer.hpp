@@ -23,6 +23,7 @@ struct QByteArrayBuffer {
     };
 
     struct ConstIterator : public std::bidirectional_iterator_tag {
+
         using value_type = QByteArrayHolder;
         using difference_type = ptrdiff_t;
         using pointer = const QByteArrayHolder *;
@@ -115,7 +116,7 @@ struct QByteArrayBuffer {
 
 static_assert(sizeof(QByteArrayBuffer) == sizeof(QByteArray));
 
-}  // namespace chatterino
+}
 
 static_assert(boost::beast::is_const_buffer_sequence<
               chatterino::QByteArrayBuffer>::value);

@@ -28,7 +28,7 @@ QString effectiveClientDetectionDisplayMode(const QString &value,
                             : QStringLiteral("off");
 }
 
-}  // namespace
+}
 
 void MessageLayoutContext::resetMessageTextCursor() const
 {
@@ -234,4 +234,4 @@ void MessagePreferences::connectSettings(Settings *settings,
         holder);
 }
 
-}  // namespace chatterino
+}

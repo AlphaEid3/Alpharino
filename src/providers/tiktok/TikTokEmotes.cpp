@@ -85,4 +85,4 @@ EmotePtr tikTokEmote(QStringView name, QStringView url, int height)
     }
     return result;
 }
-}  // namespace chatterino
+}

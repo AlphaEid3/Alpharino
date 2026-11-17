@@ -23,7 +23,8 @@ public:
     QString key_;
     QString value_;
 
-    MessageElementFlag flag_{MessageElementFlag::BadgeVanity};
+    MessageElementFlag flag_{
+        MessageElementFlag::BadgeVanity};
 };
 
-}  // namespace chatterino
+}

@@ -86,13 +86,15 @@ private:
                                 std::uint64_t cleanupGeneration,
                                 int attempt = 0);
     void revokeRemovedToken(const QString &channelID, const QString &token,
-                            std::uint64_t cleanupGeneration, int attempt = 0);
+                            std::uint64_t cleanupGeneration,
+                            int attempt = 0);
     void recordCredentialCleanupFailure(const QString &channelID,
                                         const QString &error);
     void retryPendingCredentialCleanup();
     void clearPendingCredentialCleanup(const QString &channelID);
-    bool isCredentialCleanupCurrent(const QString &channelID,
-                                    std::uint64_t cleanupGeneration) const;
+    bool isCredentialCleanupCurrent(
+        const QString &channelID,
+        std::uint64_t cleanupGeneration) const;
     void auditStoredMetadata();
     void refreshCurrentMetadataIfNeeded();
     void refreshMetadata(const std::shared_ptr<YouTubeAccount> &account);
@@ -100,7 +102,8 @@ private:
                        const QString &accessToken,
                        bool retriedUnauthorized = false);
     void applyMetadataRefresh(const std::shared_ptr<YouTubeAccount> &account,
-                              const QString &handle, const QString &displayName,
+                              const QString &handle,
+                              const QString &displayName,
                               const QString &avatarUrl);
     void failMetadataRefresh(const std::shared_ptr<YouTubeAccount> &account,
                              const QString &reason);
@@ -137,4 +140,4 @@ private:
     std::shared_ptr<char> lifetimeToken_ = std::make_shared<char>();
 };
 
-}  // namespace chatterino
+}

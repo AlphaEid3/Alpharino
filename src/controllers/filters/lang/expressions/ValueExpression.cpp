@@ -37,7 +37,7 @@ TokenType ValueExpression::type()
     return this->type_;
 }
 
-QString ValueExpression::debug(const TypingContext &) const
+QString ValueExpression::debug(const TypingContext & ) const
 {
     return QString("Val(%1)").arg(this->value_.toString());
 }
@@ -56,4 +56,4 @@ QString ValueExpression::filterString() const
     }
 }
 
-}  // namespace chatterino::filters
+}

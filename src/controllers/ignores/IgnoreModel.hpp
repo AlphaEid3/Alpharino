@@ -18,6 +18,7 @@ public:
     explicit IgnoreModel(QObject *parent);
 
 protected:
+
     IgnorePhrase getItemFromRow(std::vector<QStandardItem *> &row,
                                 const IgnorePhrase &original) override;
 
@@ -25,4 +26,4 @@ protected:
                         std::vector<QStandardItem *> &row) override;
 };
 
-}  // namespace chatterino
+}

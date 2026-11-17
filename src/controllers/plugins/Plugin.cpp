@@ -71,6 +71,7 @@ Plugin::~Plugin()
     this->activeTimeouts.clear();
     if (this->state_ != nullptr)
     {
+
         this->ownedCommands.clear();
         this->callbacks.clear();
         lua_close(this->state_);
@@ -174,5 +175,5 @@ bool Plugin::hasNetworkPermission() const
     });
 }
 
-}  // namespace chatterino
+}
 #endif

@@ -343,4 +343,4 @@ const QStringList &getSampleLinkMessages()
     return linkList;
 };
 
-}  // namespace chatterino
+}

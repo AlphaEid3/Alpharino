@@ -10,51 +10,51 @@ namespace chatterino {
 
 namespace {
 
-QString normalizePubSubAuthToken(QString token)
-{
-    token = token.trimmed();
-
-    while (!token.isEmpty())
+    QString normalizePubSubAuthToken(QString token)
     {
-        const auto previous = token;
+        token = token.trimmed();
 
-        if (token.size() >= 2 &&
-            ((token.startsWith('"') && token.endsWith('"')) ||
-             (token.startsWith('\'') && token.endsWith('\''))))
+        while (!token.isEmpty())
         {
-            token = token.mid(1, token.size() - 2).trimmed();
+            const auto previous = token;
+
+            if (token.size() >= 2 &&
+                ((token.startsWith('"') && token.endsWith('"')) ||
+                 (token.startsWith('\'') && token.endsWith('\''))))
+            {
+                token = token.mid(1, token.size() - 2).trimmed();
+            }
+
+            if (token.startsWith("Authorization:", Qt::CaseInsensitive))
+            {
+                token = token.mid(QString("Authorization:").size()).trimmed();
+            }
+
+            if (token.startsWith("OAuth ", Qt::CaseInsensitive))
+            {
+                token = token.mid(QString("OAuth ").size()).trimmed();
+            }
+
+            if (token.startsWith("Bearer ", Qt::CaseInsensitive))
+            {
+                token = token.mid(QString("Bearer ").size()).trimmed();
+            }
+
+            if (token.startsWith("oauth:", Qt::CaseInsensitive))
+            {
+                token = token.mid(QString("oauth:").size()).trimmed();
+            }
+
+            if (token == previous)
+            {
+                break;
+            }
         }
 
-        if (token.startsWith("Authorization:", Qt::CaseInsensitive))
-        {
-            token = token.mid(QString("Authorization:").size()).trimmed();
-        }
-
-        if (token.startsWith("OAuth ", Qt::CaseInsensitive))
-        {
-            token = token.mid(QString("OAuth ").size()).trimmed();
-        }
-
-        if (token.startsWith("Bearer ", Qt::CaseInsensitive))
-        {
-            token = token.mid(QString("Bearer ").size()).trimmed();
-        }
-
-        if (token.startsWith("oauth:", Qt::CaseInsensitive))
-        {
-            token = token.mid(QString("oauth:").size()).trimmed();
-        }
-
-        if (token == previous)
-        {
-            break;
-        }
+        return token;
     }
 
-    return token;
 }
-
-}  // namespace
 
 PubSubListenMessage::PubSubListenMessage(std::vector<QString> _topics)
     : topics(std::move(_topics))
@@ -95,4 +95,4 @@ QByteArray PubSubListenMessage::toJson() const
     return QJsonDocument(root).toJson();
 }
 
-}  // namespace chatterino
+}

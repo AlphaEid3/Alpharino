@@ -86,4 +86,4 @@ private:
 
 void load(std::shared_ptr<NetworkData> &&data);
 
-}  // namespace chatterino
+}

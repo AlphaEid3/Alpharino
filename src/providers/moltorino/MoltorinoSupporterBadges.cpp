@@ -134,8 +134,7 @@ QString versionedImageUrl(const QString &url, int version)
 
     const auto fragmentIndex = url.indexOf(u'#');
     auto base = fragmentIndex < 0 ? url : url.left(fragmentIndex);
-    const auto fragment =
-        fragmentIndex < 0 ? QString{} : url.mid(fragmentIndex);
+    const auto fragment = fragmentIndex < 0 ? QString{} : url.mid(fragmentIndex);
 
     base += base.contains(u'?') ? u'&' : u'?';
     base += u"mbv="_s + QString::number(version);
@@ -156,14 +155,12 @@ ImagePtr badgeImage(const QString &url, int version, qreal scale,
 }
 
 ImageSet badgeImageSet(const QString &image1, const QString &image2,
-                       const QString &image3, const QString &image4,
-                       int version)
+                       const QString &image3, const QString &image4, int version)
 {
     const auto badge1x = badgeImage(image1, version, 1.0, BADGE_BASE_SIZE);
     const auto badge2x = badgeImage(image2, version, 0.5, BADGE_BASE_SIZE * 2);
     const auto badge3x = badgeImage(image3, version, 0.25, BADGE_BASE_SIZE * 4);
-    const auto badge4x =
-        badgeImage(image4, version, 0.125, BADGE_BASE_SIZE * 8);
+    const auto badge4x = badgeImage(image4, version, 0.125, BADGE_BASE_SIZE * 8);
 
     for (const auto &image : {badge1x, badge2x, badge3x, badge4x})
     {
@@ -258,7 +255,8 @@ void addUserPolicy(ParsedPayload &parsed, const QString &userId,
     }
 }
 
-bool parsePayload(const QByteArray &payload, ParsedPayload &parsed)
+bool parsePayload(const QByteArray &payload,
+                  ParsedPayload &parsed)
 {
     if (payload.size() > MAX_PAYLOAD_BYTES)
     {
@@ -348,9 +346,10 @@ bool parsePayload(const QByteArray &payload, ParsedPayload &parsed)
             parsed.categoryOrder.push_back(categoryId);
         }
         parsed.categoryBadges.insert_or_assign(
-            categoryId, MoltorinoSupporterBadge{
-                            categoryId, std::move(displayName),
-                            std::move(description), emote, listedInVanity});
+            categoryId,
+            MoltorinoSupporterBadge{categoryId, std::move(displayName),
+                                    std::move(description), emote,
+                                    listedInVanity});
 
         const auto usersValue = category.value("users");
         if (usersValue.isArray())
@@ -499,8 +498,9 @@ bool parsePayload(const QByteArray &payload, ParsedPayload &parsed)
         layout.moltorinoBadge =
             layoutObject.value("m").toString().trimmed().toLower();
         layout.moltorinoBadgeSelectionExplicit =
-            layoutObject.contains("x") ? layoutObject.value("x").toBool(false)
-                                       : !layout.moltorinoBadge.isEmpty();
+            layoutObject.contains("x")
+                ? layoutObject.value("x").toBool(false)
+                : !layout.moltorinoBadge.isEmpty();
         parsed.vanityLayouts.insert_or_assign(
             userId, vanity::detail::normalizeLayout(std::move(layout)));
     }
@@ -796,16 +796,16 @@ bool shouldClearLocalLayout(const MoltorinoVanityLayout &local,
     return local == normalizeLayout({});
 }
 
-bool resolveMoltorinoBadgeVanityListing(const QString &categoryId,
-                                        std::optional<bool> serverListing)
+bool resolveMoltorinoBadgeVanityListing(
+    const QString &categoryId, std::optional<bool> serverListing)
 {
     if (serverListing.has_value())
     {
         return *serverListing;
     }
 
-    return categoryId.compare(QStringLiteral("leadmod"), Qt::CaseInsensitive) !=
-           0;
+    return categoryId.compare(QStringLiteral("leadmod"),
+                              Qt::CaseInsensitive) != 0;
 }
 
 bool shouldShowMoltorinoBadge(bool listedInVanity, bool owned)
@@ -813,7 +813,7 @@ bool shouldShowMoltorinoBadge(bool listedInVanity, bool owned)
     return listedInVanity || owned;
 }
 
-}  // namespace vanity::detail
+}
 
 MoltorinoSupporterBadges::MoltorinoSupporterBadges(QObject *parent)
     : QObject(parent)
@@ -938,7 +938,8 @@ std::vector<MoltorinoSupporterBadge> MoltorinoSupporterBadges::getBadges(
         localLayout != this->localVanityLayouts_.end())
     {
         preferred = localLayout->second.moltorinoBadge;
-        selectionExplicit = localLayout->second.moltorinoBadgeSelectionExplicit;
+        selectionExplicit =
+            localLayout->second.moltorinoBadgeSelectionExplicit;
     }
     else if (const auto remoteLayout = this->vanityLayouts_.find(userId);
              remoteLayout != this->vanityLayouts_.end())
@@ -973,8 +974,8 @@ std::vector<MoltorinoSupporterBadge>
                : it->second;
 }
 
-std::vector<MoltorinoSupporterBadge> MoltorinoSupporterBadges::getBadgeCatalog()
-    const
+std::vector<MoltorinoSupporterBadge>
+    MoltorinoSupporterBadges::getBadgeCatalog() const
 {
     std::shared_lock lock(this->mutex_);
     std::vector<MoltorinoSupporterBadge> badges;
@@ -1059,7 +1060,8 @@ void MoltorinoSupporterBadges::setLocalVanityLayout(
         {
             return;
         }
-        this->localVanityLayouts_.insert_or_assign(userId, std::move(layout));
+        this->localVanityLayouts_.insert_or_assign(
+            userId, std::move(layout));
     }
     this->saveLocalVanityLayouts();
 }

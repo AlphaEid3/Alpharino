@@ -58,7 +58,7 @@ bool isDisallowedMentionPrefix(QChar character)
            character == u'&' || character == u'?';
 }
 
-}  // namespace
+}
 
 namespace chatterino {
 
@@ -143,7 +143,8 @@ void HiddenUserController::rebuild()
 }
 
 bool HiddenUserController::isHidden(MessagePlatform platform,
-                                    const QString &userID, const QString &login,
+                                    const QString &userID,
+                                    const QString &login,
                                     const QString &displayName) const
 {
     if (!this->hasUsers_.load(std::memory_order_acquire))
@@ -199,7 +200,8 @@ bool HiddenUserController::setHidden(HiddenUserPlatform platform,
 
 bool HiddenUserController::isHidden(const Cache &cache,
                                     MessagePlatform platform,
-                                    const QString &userID, const QString &login,
+                                    const QString &userID,
+                                    const QString &login,
                                     const QString &displayName) const
 {
     const auto &bucket =
@@ -236,9 +238,9 @@ bool HiddenUserController::hasHiddenMention(const Cache &cache,
     {
         return false;
     }
-    const auto &names =
-        cache.platforms.at(platformIndex(hiddenUserPlatform(platform)))
-            .mentionNames;
+    const auto &names = cache.platforms
+                            .at(platformIndex(hiddenUserPlatform(platform)))
+                            .mentionNames;
     if (names.isEmpty())
     {
         return false;
@@ -257,7 +259,8 @@ bool HiddenUserController::hasHiddenMention(const Cache &cache,
         {
             ++end;
         }
-        auto candidate = normalizeName(text.mid(offset + 1, end - offset - 1));
+        auto candidate = normalizeName(
+            text.mid(offset + 1, end - offset - 1));
         if (names.contains(candidate))
         {
             return true;
@@ -280,14 +283,15 @@ bool HiddenUserController::hasHiddenMention(const Cache &cache,
         ++leadingStart;
     }
     auto leadingEnd = leadingStart;
-    while (leadingEnd < text.size() && isMentionCharacter(text.at(leadingEnd)))
+    while (leadingEnd < text.size() &&
+           isMentionCharacter(text.at(leadingEnd)))
     {
         ++leadingEnd;
     }
     if (leadingEnd > leadingStart && leadingEnd < text.size() &&
         text.at(leadingEnd) == u',' &&
-        names.contains(
-            normalizeName(text.mid(leadingStart, leadingEnd - leadingStart))))
+        names.contains(normalizeName(
+            text.mid(leadingStart, leadingEnd - leadingStart))))
     {
         return true;
     }
@@ -295,10 +299,9 @@ bool HiddenUserController::hasHiddenMention(const Cache &cache,
     return false;
 }
 
-bool HiddenUserController::shouldSuppressHighlights(MessagePlatform platform,
-                                                    const QString &userID,
-                                                    const QString &login,
-                                                    const QString &text) const
+bool HiddenUserController::shouldSuppressHighlights(
+    MessagePlatform platform, const QString &userID, const QString &login,
+    const QString &text) const
 {
     if (!this->hasUsers_.load(std::memory_order_acquire))
     {
@@ -333,9 +336,10 @@ bool HiddenUserController::shouldHideMessage(const Message &message) const
     }
 
     if (message.replyParent &&
-        this->isHidden(
-            *cache, message.replyParent->platform, message.replyParent->userID,
-            message.replyParent->loginName, message.replyParent->displayName))
+        this->isHidden(*cache, message.replyParent->platform,
+                       message.replyParent->userID,
+                       message.replyParent->loginName,
+                       message.replyParent->displayName))
     {
         return true;
     }
@@ -351,8 +355,10 @@ bool HiddenUserController::shouldHideMessage(const Message &message) const
             return false;
         }
         const bool linksByID =
-            link.value.startsWith(QStringLiteral("id:"), Qt::CaseInsensitive) ||
-            link.value.startsWith(QStringLiteral("kick:"), Qt::CaseInsensitive);
+            link.value.startsWith(QStringLiteral("id:"),
+                                  Qt::CaseInsensitive) ||
+            link.value.startsWith(QStringLiteral("kick:"),
+                                  Qt::CaseInsensitive);
         return linksByID
                    ? this->isHidden(*cache, message.platform, link.value, {})
                    : this->isHidden(*cache, message.platform, {}, link.value);
@@ -360,7 +366,8 @@ bool HiddenUserController::shouldHideMessage(const Message &message) const
 
     for (const auto &element : message.elements)
     {
-        if (!element || !element->getFlags().has(MessageElementFlag::Mention))
+        if (!element ||
+            !element->getFlags().has(MessageElementFlag::Mention))
         {
             continue;
         }
@@ -374,8 +381,8 @@ bool HiddenUserController::shouldHideMessage(const Message &message) const
     const bool inspectReplyTarget =
         message.flags.has(MessageFlag::ReplyMessage);
     const bool inspectRelatedUsers = message.flags.hasAny(
-        {MessageFlag::System, MessageFlag::Subscription, MessageFlag::Timeout,
-         MessageFlag::ModerationAction});
+        {MessageFlag::System, MessageFlag::Subscription,
+         MessageFlag::Timeout, MessageFlag::ModerationAction});
     if (!inspectReplyTarget && !inspectRelatedUsers)
     {
         return false;
@@ -401,4 +408,4 @@ bool HiddenUserController::shouldHideMessage(const Message &message) const
     return false;
 }
 
-}  // namespace chatterino
+}

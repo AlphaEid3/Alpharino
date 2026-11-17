@@ -9,8 +9,8 @@
 
 #include <QLabel>
 #include <QPainter>
-#include <QProgressBar>
 #include <QPushButton>
+#include <QProgressBar>
 #include <QVBoxLayout>
 
 namespace chatterino {
@@ -147,14 +147,13 @@ void TikTokLoginPage::start()
     });
     this->login_->setAttribute(Qt::WA_DeleteOnClose);
     installMoltorinoDialogTheme(this->login_);
-    QObject::connect(this->login_, &QDialog::finished, this,
-                     [this](int result) {
-                         this->login_.clear();
-                         if (result == QDialog::Rejected)
-                         {
-                             this->status({}, false);
-                         }
-                     });
+    QObject::connect(this->login_, &QDialog::finished, this, [this](int result) {
+        this->login_.clear();
+        if (result == QDialog::Rejected)
+        {
+            this->status({}, false);
+        }
+    });
     this->login_->open();
 }
 
@@ -194,4 +193,4 @@ void TikTokLoginPage::paintEvent(QPaintEvent *)
     QPainter painter(this);
     painter.fillRect(this->rect(), this->theme->window.background);
 }
-}  // namespace chatterino
+}

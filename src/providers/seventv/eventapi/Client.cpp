@@ -92,6 +92,7 @@ void Client::onMessage(const QByteArray &msg)
         }
         break;
         case Opcode::Ack: {
+
         }
         break;
         default: {
@@ -173,6 +174,7 @@ void Client::handleDispatch(const Dispatch &dispatch)
         }
         break;
         case SubscriptionType::ResetEntitlement: {
+
         }
         break;
         default: {
@@ -187,6 +189,7 @@ void Client::handleDispatch(const Dispatch &dispatch)
 
 void Client::onEmoteSetUpdate(const Dispatch &dispatch)
 {
+
     auto pushedArray = dispatch.body["pushed"].toArray();
     auto pulledArray = dispatch.body["pulled"].toArray();
     auto updatedArray = dispatch.body["updated"].toArray();
@@ -288,6 +291,7 @@ void Client::onEmoteSetUpdate(const Dispatch &dispatch)
 
 void Client::onUserUpdate(const Dispatch &dispatch)
 {
+
     for (const auto updatedRef : dispatch.body["updated"].toArray())
     {
         auto updated = updatedRef.toObject();
@@ -499,4 +503,4 @@ void Client::onEmoteSetCreate(const Dispatch &dispatch)
     }
 }
 
-}  // namespace chatterino::seventv::eventapi
+}

@@ -37,6 +37,7 @@ private:
     friend class chatterino::PluginController;
 
 public:
+
     /**
      * @lua@return string
      * @lua@nodiscard
@@ -66,5 +67,5 @@ public:
     QString to_string();
 };
 
-}  // namespace chatterino::lua::api
+}
 #endif

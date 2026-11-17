@@ -44,4 +44,4 @@ private:
     qreal displayedPixelRatio_ = 0;
 };
 
-}  // namespace chatterino
+}

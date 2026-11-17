@@ -101,4 +101,4 @@ bool isTikTokUserID(QStringView value)
     const auto id = value.toULongLong(&ok);
     return ok && id != 0;
 }
-}  // namespace chatterino
+}

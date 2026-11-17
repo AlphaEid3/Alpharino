@@ -297,8 +297,7 @@ public:
     bool sendSpamMessageViaHelix(
         const QString &message, int duplicateNonce,
         std::function<void(bool sent, QString error)> callback);
-    bool trySendMessageViaHelixForPin(const QString &message,
-                                      int durationSeconds);
+    bool trySendMessageViaHelixForPin(const QString &message, int durationSeconds);
     void showBotBadgeSetup();
     void sendBotMessage(const QString &message);
     void sendReply(const QString &message, const QString &replyId);
@@ -312,8 +311,7 @@ public:
 
     void setKnownModeratorStatus(const QString &login, bool moderator,
                                  const QDateTime &changedAt);
-    std::optional<ModeratorStatus> knownModeratorStatus(
-        const QString &login) const;
+    std::optional<ModeratorStatus> knownModeratorStatus(const QString &login) const;
     bool isVip() const;
     bool isStaff() const;
     bool isFollowing() const;
@@ -340,14 +338,12 @@ public:
     bool isLive() const override;
     bool isRerun() const override;
     QString roomId() const;
-    void markMonitoredMessage(const QString &messageId,
-                              const QString &description);
+    void markMonitoredMessage(const QString &messageId, const QString &description);
     void applyMonitoredStatus(const MessagePtrMut &message) const;
     std::shared_ptr<ChannelAvatarSource> channelAvatar() const;
     SharedAccessGuard<const RoomModes> accessRoomModes() const;
     SharedAccessGuard<const StreamStatus> accessStreamStatus() const;
-    SharedAccessGuard<const std::optional<PinnedMessage>> accessPinnedMessage()
-        const;
+    SharedAccessGuard<const std::optional<PinnedMessage>> accessPinnedMessage() const;
     void setPinnedMessage(std::optional<PinnedMessage> pin);
     void refreshPinnedMessage();
     void refreshPinnedMessageIfStale();
@@ -365,8 +361,7 @@ public:
     void handlePinnedChatUpdate(const QJsonObject &data);
 
     // Predictions & Points
-    SharedAccessGuard<const std::optional<PredictionEvent>> accessPrediction()
-        const;
+    SharedAccessGuard<const std::optional<PredictionEvent>> accessPrediction() const;
     void setActivePrediction(std::optional<PredictionEvent> prediction);
     void handlePredictionUpdate(const QJsonObject &data);
     void handleUserPointsUpdate(const QJsonObject &payload);
@@ -635,7 +630,8 @@ private:
     {
         auto expected = generation;
         this->expectedReconnectToken_.compare_exchange_strong(
-            expected, 0, std::memory_order_acq_rel, std::memory_order_acquire);
+            expected, 0, std::memory_order_acq_rel,
+            std::memory_order_acquire);
     }
 
     struct QueuedRedemption {
@@ -826,13 +822,13 @@ private:
     UniqueAccess<std::map<QString, std::map<QString, EmotePtr>>>
         badgeSets_;  // "subscribers": { "0": ... "3": ... "6": ...
     UniqueAccess<CurrentUserBadgeState> currentUserBadges_;
-    UniqueAccess<std::vector<std::shared_ptr<const CheerEmoteSet>>>
-        cheerEmoteSets_;
+    UniqueAccess<std::vector<std::shared_ptr<const CheerEmoteSet>>> cheerEmoteSets_;
     UniqueAccess<std::map<QString, ChannelPointReward>> channelPointRewards_;
     boost::circular_buffer_space_optimized<QueuedRedemption>
         waitingRedemptions_{MAX_QUEUED_REDEMPTIONS};
     boost::circular_buffer_space_optimized<QString>
-        recentChannelPointRedemptions_{MAX_RECENT_CHANNEL_POINT_REDEMPTIONS};
+        recentChannelPointRedemptions_{
+            MAX_RECENT_CHANNEL_POINT_REDEMPTIONS};
 
     bool mod_ = false;
     std::uint64_t moderatorStatusRevision_ = 0;

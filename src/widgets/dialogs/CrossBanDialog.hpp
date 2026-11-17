@@ -108,6 +108,7 @@ private:
     QPushButton *clear_{};
     QPushButton *cancel_{};
     QPushButton *actionButton_{};
+
 };
 
-}  // namespace chatterino
+}

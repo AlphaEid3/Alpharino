@@ -96,4 +96,4 @@ private:
     friend class AccountController;
 };
 
-}  // namespace chatterino
+}

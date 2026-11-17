@@ -11,7 +11,7 @@
 namespace chatterino {
 class KickChatServer;
 class BoostJsonValue;
-}  // namespace chatterino
+}
 
 namespace chatterino::kick::ws {
 
@@ -38,4 +38,4 @@ void dispatch(KickChatServer *server, std::string_view channel,
 void disconnected(KickChatServer *server,
                   const std::unordered_set<QString> &subscriptions);
 
-}  // namespace chatterino::kick::ws
+}

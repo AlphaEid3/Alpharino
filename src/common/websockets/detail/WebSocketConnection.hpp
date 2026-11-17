@@ -42,6 +42,7 @@ public:
     virtual void sendBinary(const QByteArray &data) = 0;
 
 protected:
+
     void detach();
 
     WebSocketOptions options;
@@ -62,4 +63,4 @@ protected:
     friend QDebug operator<<(QDebug dbg, const WebSocketConnection &conn);
 };
 
-}  // namespace chatterino::ws::detail
+}

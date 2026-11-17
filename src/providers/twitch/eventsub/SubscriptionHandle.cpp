@@ -12,6 +12,7 @@ namespace chatterino::eventsub {
 RawSubscriptionHandle::RawSubscriptionHandle(SubscriptionRequest request_)
     : request(std::move(request_))
 {
+
 }
 
 RawSubscriptionHandle::~RawSubscriptionHandle()
@@ -19,9 +20,10 @@ RawSubscriptionHandle::~RawSubscriptionHandle()
     auto *app = tryGetApp();
     if (app == nullptr || isAppAboutToQuit())
     {
+
         return;
     }
     app->getEventSub()->removeRef(this->request);
 }
 
-}  // namespace chatterino::eventsub
+}

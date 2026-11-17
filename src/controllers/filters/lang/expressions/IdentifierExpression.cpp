@@ -424,7 +424,7 @@ const AccessorMap &accessorMap()
     return map;
 }
 
-}  // namespace
+}
 
 namespace chatterino::filters {
 
@@ -465,4 +465,4 @@ std::unique_ptr<Expression> createIdentifierExpression(const QString &name)
                                                   it->second.second);
 }
 
-}  // namespace chatterino::filters
+}

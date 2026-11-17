@@ -255,6 +255,7 @@ void TwitchAccount::autoModAllow(const QString &msgID, ChannelPtr channel) const
 
         },
         [channel](auto error) {
+
             QString errorMessage("Failed to allow AutoMod message - ");
 
             switch (error)
@@ -299,6 +300,7 @@ void TwitchAccount::autoModDeny(const QString &msgID, ChannelPtr channel) const
 
         },
         [channel](auto error) {
+
             QString errorMessage("Failed to deny AutoMod message - ");
 
             switch (error)
@@ -355,7 +357,8 @@ void TwitchAccount::loadSeventvUserID()
                                        const QString &emoteSetID) {
         SeventvEmotes::getEmoteSet(
             emoteSetID,
-            [twitchUserID, emoteSetID](auto &&emoteMap, const auto &) {
+            [twitchUserID, emoteSetID](auto &&emoteMap,
+                                       const auto & ) {
                 getApp()->getSeventvPersonalEmotes()->addEmoteSetForTwitchUser(
                     emoteSetID, std::forward<decltype(emoteMap)>(emoteMap),
                     twitchUserID);
@@ -473,6 +476,7 @@ void TwitchAccount::reloadEmotes(void *caller)
         auto emotePtr = twitchEmotes->getOrCreateEmote(id, name);
         if (!emoteMap->try_emplace(emotePtr->name, emotePtr).second)
         {
+
             return;
         }
 
@@ -544,4 +548,4 @@ void TwitchAccount::reloadEmotes(void *caller)
         std::move(token));
 }
 
-}  // namespace chatterino
+}

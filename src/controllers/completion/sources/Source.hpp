@@ -31,4 +31,4 @@ public:
         qsizetype index) const = 0;
 };
 
-};  // namespace chatterino::completion
+};

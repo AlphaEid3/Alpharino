@@ -14,6 +14,7 @@ namespace chatterino {
 
 QStringList getXDGBaseDirectories(XDGDirectoryType directory)
 {
+
     static std::unordered_map<XDGDirectoryType,
                               std::pair<const char *, QStringList>>
         baseDirectories = {
@@ -52,6 +53,7 @@ QStringList getXDGBaseDirectories(XDGDirectoryType directory)
 
 QStringList getXDGUserDirectories(XDGDirectoryType directory)
 {
+
     static std::unordered_map<XDGDirectoryType,
                               std::pair<const char *, QString>>
         userDirectories = {
@@ -84,4 +86,4 @@ QStringList getXDGDirectories(XDGDirectoryType directory)
 
 #endif
 
-}  // namespace chatterino
+}

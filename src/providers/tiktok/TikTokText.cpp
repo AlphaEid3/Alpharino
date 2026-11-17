@@ -229,7 +229,7 @@ CountInput countInput(const QString &original, bool countAnsiEscapeCodes)
     appendUntil(original.size());
     return result;
 }
-}  // namespace
+}
 
 TextAnalysis analyzeEditorText(const QString &text, bool countAnsiEscapeCodes)
 {
@@ -258,4 +258,4 @@ std::optional<qsizetype> incomingIndexToUtf16(const QString &content,
     return index - precedingEmotes;
 }
 
-}  // namespace chatterino::tiktok::livetext
+}

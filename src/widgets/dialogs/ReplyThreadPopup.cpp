@@ -307,6 +307,7 @@ void ReplyThreadPopup::fitToScreen()
     const auto maximum =
         (available.size() - frameExtra).expandedTo(QSize(1, 1));
 
+
     const auto chrome =
         (this->minimumSizeHint() - this->ui_.threadView->minimumSize())
             .expandedTo(QSize(0, 0));
@@ -315,10 +316,10 @@ void ReplyThreadPopup::fitToScreen()
     const int maximumChatHeight =
         std::min(std::max(180, qRound(240 * this->scale())),
                  std::max(1, maximum.height() - otherHeight));
-    const int chatHeight =
-        std::clamp(this->ui_.threadView->contentHeight(maximumChatHeight),
-                   std::min(this->minimumChatHeight(), maximumChatHeight),
-                   maximumChatHeight);
+    const int chatHeight = std::clamp(
+        this->ui_.threadView->contentHeight(maximumChatHeight),
+        std::min(this->minimumChatHeight(), maximumChatHeight),
+        maximumChatHeight);
     const QSize minimum(std::min(std::max(320, qRound(400 * this->scale())),
                                  std::max(1, maximum.width() - otherWidth)),
                         std::min(this->minimumChatHeight(), maximumChatHeight));
@@ -395,8 +396,8 @@ void ReplyThreadPopup::addMessagesFromThread()
         return;
     }
 
-    const auto sourceChannel =
-        this->channel_ ? this->channel_ : this->split_->getSelectedChannel();
+    const auto sourceChannel = this->channel_ ? this->channel_
+                                              : this->split_->getSelectedChannel();
     if (!sourceChannel)
     {
         return;
@@ -455,8 +456,8 @@ void ReplyThreadPopup::addMessagesFromThread()
 
 void ReplyThreadPopup::updateInputUI()
 {
-    auto channel =
-        this->channel_ ? this->channel_ : this->split_->getSelectedChannel();
+    auto channel = this->channel_ ? this->channel_
+                                  : this->split_->getSelectedChannel();
     // Bail out if not a twitch channel.
     // Special twitch channels will hide their reply input box.
     if (!channel || !channel->isTwitchOrKickChannel())

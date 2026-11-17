@@ -13,6 +13,7 @@ namespace chatterino::filters {
 class FilterParser
 {
 public:
+
     FilterParser(const QString &text);
 
     bool valid() const;
@@ -42,4 +43,4 @@ private:
     Type returnType_ = Type::Bool;
 };
 
-}  // namespace chatterino::filters
+}

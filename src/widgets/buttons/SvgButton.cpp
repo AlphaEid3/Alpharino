@@ -71,7 +71,7 @@ std::shared_ptr<QSvgRenderer> rendererForPath(const QString &path,
     }
     return renderer;
 }
-}  // namespace
+}
 
 SvgButton::SvgButton(Src source, BaseWidget *parent, QSize padding)
     : Button(parent)
@@ -86,6 +86,7 @@ SvgButton::SvgButton(Src source, BaseWidget *parent, QSize padding)
 
 void SvgButton::setSource(Src source)
 {
+
     this->source_ = std::move(source);
     this->loadSource();
     this->invalidateContent();
@@ -169,4 +170,4 @@ void SvgButton::loadSource()
         this->source_.useAccent ? this->theme->accent : QColor{});
 }
 
-}  // namespace chatterino
+}

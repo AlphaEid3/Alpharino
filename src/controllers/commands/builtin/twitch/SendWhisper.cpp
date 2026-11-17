@@ -70,6 +70,7 @@ QString formatWhisperError(HelixWhisperError error, const QString &message)
         break;
 
         case Error::UserMissingScope: {
+
             errorMessage += "Missing required scope. "
                             "Re-login with your "
                             "account and try again.";
@@ -77,6 +78,7 @@ QString formatWhisperError(HelixWhisperError error, const QString &message)
         break;
 
         case Error::UserNotAuthorized: {
+
             errorMessage += "You don't have permission to "
                             "perform that action.";
         }
@@ -187,7 +189,7 @@ bool appendWhisperMessageWordsLocally(const QStringList &words)
     return true;
 }
 
-}  // namespace
+}
 
 namespace chatterino::commands {
 
@@ -239,4 +241,4 @@ QString sendWhisper(const CommandContext &ctx)
     return "";
 }
 
-}  // namespace chatterino::commands
+}

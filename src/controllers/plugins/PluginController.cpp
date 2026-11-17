@@ -61,6 +61,7 @@ PluginController::PluginController(const Paths &paths_)
 
 void PluginController::initialize(Settings &settings)
 {
+
     settings.pluginsEnabled.connect([this](bool enabled) {
         if (enabled)
         {
@@ -68,6 +69,7 @@ void PluginController::initialize(Settings &settings)
         }
         else
         {
+
             this->plugins_.clear();
             this->queueChangeNotification();
         }
@@ -90,6 +92,7 @@ void PluginController::loadPlugins()
 
 bool PluginController::tryLoadFromDir(const QDir &pluginDir)
 {
+
     auto index = QFileInfo(pluginDir.filePath("init.lua"));
     qCDebug(chatterinoLua) << "Looking for init.lua and info.json in"
                            << pluginDir.path();
@@ -305,6 +308,7 @@ void PluginController::load(const QFileInfo &index, const QDir &pluginDir,
 
     if (getApp()->getArgs().safeMode)
     {
+
         qCWarning(chatterinoLua) << "Skipping loading plugin " << meta.name
                                  << " because safe mode is enabled.";
         return;
@@ -542,5 +546,5 @@ void PluginController::queueChangeNotification()
         },
         Qt::QueuedConnection);
 }
-}  // namespace chatterino
+}
 #endif

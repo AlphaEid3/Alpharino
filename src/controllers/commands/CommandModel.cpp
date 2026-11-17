@@ -42,4 +42,4 @@ void CommandModel::getRowFromItem(const Command &item,
     setBoolItem(row[Column::UsercardInMenu], item.usercardInMenu);
 }
 
-}  // namespace chatterino
+}

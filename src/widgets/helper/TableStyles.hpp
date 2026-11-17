@@ -13,6 +13,7 @@ namespace chatterino {
 class TableRowDragStyle : public QProxyStyle
 {
 public:
+
     static void applyTo(QTableView *view);
 
     void drawPrimitive(QStyle::PrimitiveElement element,
@@ -20,7 +21,8 @@ public:
                        const QWidget *widget = nullptr) const override;
 
 private:
+
     TableRowDragStyle(const QString &name);
 };
 
-}  // namespace chatterino
+}

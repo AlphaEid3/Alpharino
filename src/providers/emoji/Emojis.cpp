@@ -49,6 +49,7 @@ void parseEmoji(const std::shared_ptr<EmojiData> &emojiData,
     }
     else
     {
+
         const auto &shortNames = unparsedEmoji["short_names"];
         for (const auto &shortName : shortNames.GetArray())
         {
@@ -149,7 +150,7 @@ QString getToneNames(const QString &tones)
     return toneNameResults.join('-');
 }
 
-}  // namespace
+}
 
 namespace chatterino {
 
@@ -170,6 +171,7 @@ void Emojis::load()
 
 void Emojis::loadEmojis()
 {
+
     QFile file(":/emoji.json");
     if (!file.open(QFile::ReadOnly))
     {
@@ -303,7 +305,8 @@ EmotePtr Emojis::getEmote(EmojiData *emoji) const
     }
 
     QString code = emoji->unifiedCode.toLower();
-    QString urlPrefix = "https://pajbot.com/static/emoji-v2/img/twitter/64/";
+    QString urlPrefix =
+        "https://pajbot.com/static/emoji-v2/img/twitter/64/";
     auto it = emojiSets.find(emojiSetToUse);
     if (it != emojiSets.end())
     {
@@ -337,6 +340,7 @@ std::vector<std::variant<EmotePtr, QStringView>> Emojis::parse(
         auto it = this->emojiFirstByte_.find(character);
         if (it == this->emojiFirstByte_.end())
         {
+
             continue;
         }
 
@@ -355,6 +359,7 @@ std::vector<std::variant<EmotePtr, QStringView>> Emojis::parse(
             auto emojiExtraCharacters = emoji->value.length() - 1;
             if (remainingCharacters >= emojiExtraCharacters)
             {
+
                 bool match = QStringView{emoji->value}.mid(1) ==
                              text.mid(i + 1, emojiExtraCharacters);
 
@@ -369,6 +374,7 @@ std::vector<std::variant<EmotePtr, QStringView>> Emojis::parse(
             if (!emoji->nonQualified.isNull() &&
                 remainingCharacters >= emojiNonQualifiedExtraCharacters)
             {
+
                 bool match = QStringView{emoji->nonQualified}.mid(1) ==
                              text.mid(i + 1, emojiNonQualifiedExtraCharacters);
 
@@ -395,6 +401,7 @@ std::vector<std::variant<EmotePtr, QStringView>> Emojis::parse(
 
         if (charactersFromLastParsedEmoji > 0)
         {
+
             result.emplace_back(text.mid(lastParsedEmojiEndIndex,
                                          charactersFromLastParsedEmoji));
         }
@@ -408,6 +415,7 @@ std::vector<std::variant<EmotePtr, QStringView>> Emojis::parse(
 
     if (lastParsedEmojiEndIndex < text.length())
     {
+
         result.emplace_back(text.mid(lastParsedEmojiEndIndex));
     }
 
@@ -458,4 +466,4 @@ const std::vector<QString> &Emojis::getShortCodes() const
     return this->shortCodes;
 }
 
-}  // namespace chatterino
+}

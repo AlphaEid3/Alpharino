@@ -39,4 +39,4 @@ QImage themeVideoPoster(const QString &source, int maxDimension);
 QString validateThemeVideo(const QString &source,
                            std::stop_token cancellation = {});
 
-}  // namespace chatterino
+}

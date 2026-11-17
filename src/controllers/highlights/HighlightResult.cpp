@@ -67,8 +67,8 @@ HighlightMatchStyle highlightMatchStyleFromName(const QString &name)
     {
         return HighlightMatchStyle::Fill;
     }
-    if (name.compare(QStringLiteral("Outline and fill"), Qt::CaseInsensitive) ==
-        0)
+    if (name.compare(QStringLiteral("Outline and fill"),
+                     Qt::CaseInsensitive) == 0)
     {
         return HighlightMatchStyle::OutlineAndFill;
     }
@@ -184,4 +184,4 @@ std::ostream &operator<<(std::ostream &os, const HighlightResult &result)
     return os;
 }
 
-}  // namespace chatterino
+}

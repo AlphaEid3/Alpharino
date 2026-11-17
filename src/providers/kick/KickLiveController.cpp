@@ -20,7 +20,7 @@ constexpr auto REFRESH_INTERVAL = 30s;
 
 constexpr size_t CHUNK_SIZE = 50;
 
-}  // namespace
+}
 
 namespace chatterino {
 
@@ -142,4 +142,4 @@ void KickLiveController::refreshList(const std::span<uint64_t> userIDs)
     }
 }
 
-}  // namespace chatterino
+}

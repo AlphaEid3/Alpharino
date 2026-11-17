@@ -50,7 +50,7 @@ private:
     QString displayName_;
 };
 
-}  // namespace chatterino
+}
 
 namespace pajlada {
 
@@ -98,4 +98,4 @@ struct Deserialize<chatterino::HiddenUser> {
     }
 };
 
-}  // namespace pajlada
+}

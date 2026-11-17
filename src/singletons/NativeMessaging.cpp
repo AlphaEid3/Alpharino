@@ -169,7 +169,7 @@ void writeManifestToCustomPath(const QJsonDocument &manifest)
 }
 #endif
 
-}  // namespace
+}
 
 namespace chatterino::nm::detail {
 
@@ -233,7 +233,7 @@ std::optional<QString> parseCustomPath(QString path)
 }
 #endif
 
-}  // namespace chatterino::nm::detail
+}
 
 namespace chatterino {
 
@@ -294,7 +294,7 @@ void writeToCout(const QByteArray &array)
     std::cout.flush();
 }
 
-}  // namespace nm::client
+}
 
 NativeMessagingServer::NativeMessagingServer()
     : thread(new ReceiverThread(*this))
@@ -501,4 +501,4 @@ Atomic<std::optional<QString>> &nmIpcError()
     return x;
 }
 
-}  // namespace chatterino
+}

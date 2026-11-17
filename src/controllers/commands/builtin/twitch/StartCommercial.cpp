@@ -39,8 +39,7 @@ QString startCommercial(const CommandContext &ctx)
     {
         bool parsedLength = false;
         length = ctx.words.at(1).toInt(&parsedLength);
-        if (!parsedLength ||
-            !ChannelManagement::isValidCommercialLength(length))
+        if (!parsedLength || !ChannelManagement::isValidCommercialLength(length))
         {
             ctx.channel->addSystemMessage(usageStr);
             return "";
@@ -72,4 +71,4 @@ QString startCommercial(const CommandContext &ctx)
     return "";
 }
 
-}  // namespace chatterino::commands
+}

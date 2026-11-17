@@ -49,6 +49,7 @@ private:
     };
 
     struct UserCache {
+
         std::optional<Entry> active;
         std::optional<Entry> candidate;
         QVector<SeenMessage> seenMessages;
@@ -77,4 +78,4 @@ private:
     int checksSinceCleanup_ = 0;
 };
 
-}  // namespace chatterino
+}

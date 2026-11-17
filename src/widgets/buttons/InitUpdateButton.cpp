@@ -15,4 +15,4 @@ void initUpdateButton(PixmapButton &button,
     initMoltorinoUpdateButton(button, relayout, signalHolder);
 }
 
-}  // namespace chatterino
+}

@@ -57,6 +57,7 @@ QString formatGetVIPsError(HelixListVIPsError error, const QString &message)
         break;
 
         case Error::UserMissingScope: {
+
             errorMessage += "Missing required scope. "
                             "Re-login with your "
                             "account and try again.";
@@ -64,6 +65,7 @@ QString formatGetVIPsError(HelixListVIPsError error, const QString &message)
         break;
 
         case Error::UserNotAuthorized: {
+
             errorMessage += "You don't have permission to "
                             "perform that action.";
         }
@@ -85,7 +87,7 @@ QString formatGetVIPsError(HelixListVIPsError error, const QString &message)
     return errorMessage;
 }
 
-}  // namespace
+}
 
 namespace chatterino::commands {
 
@@ -106,7 +108,8 @@ QString getVIPs(const CommandContext &ctx)
 
     auto currentUser = getApp()->getAccounts()->twitch.getCurrent();
     if (ctx.words.size() <= 1 && ctx.twitchChannel != nullptr &&
-        ctx.twitchChannel->isBroadcaster() && !currentUser->isAnon())
+        ctx.twitchChannel->isBroadcaster() &&
+        !currentUser->isAnon())
     {
         getHelix()->getChannelVIPs(
             ctx.twitchChannel->roomId(),
@@ -134,8 +137,9 @@ QString getVIPs(const CommandContext &ctx)
 
     getIvr()->getModVip(
         channelLogin,
-        [channel{ctx.channel}](const std::vector<HelixModerator> &,
-                               const std::vector<HelixVip> &vips) {
+        [channel{ctx.channel}](
+            const std::vector<HelixModerator> &,
+            const std::vector<HelixVip> &vips) {
             if (vips.empty())
             {
                 channel->addSystemMessage(
@@ -156,4 +160,4 @@ QString getVIPs(const CommandContext &ctx)
     return "";
 }
 
-}  // namespace chatterino::commands
+}

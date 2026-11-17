@@ -15,6 +15,7 @@ UnifiedSource::UnifiedSource(std::vector<std::unique_ptr<Source>> sources)
 
 void UnifiedSource::update(const QString &query)
 {
+
     for (const auto &source : this->sources_)
     {
         source->update(query);
@@ -43,6 +44,7 @@ void UnifiedSource::addToListModel(GenericListModel &model,
         used = model.rowCount() - startingSize;
         if (used >= static_cast<int>(maxCount))
         {
+
             break;
         }
     }
@@ -70,6 +72,7 @@ void UnifiedSource::addToStringList(QStringList &list, size_t maxCount,
         used = list.size() - startingSize;
         if (used >= static_cast<QStringList::size_type>(maxCount))
         {
+
             break;
         }
     }
@@ -104,4 +107,4 @@ const EmoteItem *UnifiedSource::emoteAtTabCompletionIndex(qsizetype index) const
 
     return nullptr;
 }
-}  // namespace chatterino::completion
+}

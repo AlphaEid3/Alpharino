@@ -11,7 +11,6 @@
 #include "util/CombinePath.hpp"
 #include "util/FilesystemHelpers.hpp"
 #include "util/XDGDirectory.hpp"
-
 #include <QFile>
 #include <QSaveFile>
 
@@ -133,7 +132,7 @@ QString resolveDictionaryPath(const QString &path)
     return combinePath(getApp()->getPaths().dictionariesDirectory, path);
 }
 
-}  // namespace
+}
 
 class SpellCheckerPrivate
 {
@@ -321,6 +320,7 @@ std::vector<DictionaryInfo> SpellChecker::getAvailableDictionaries() const
         {
             if (dict.isSymbolicLink && dict.isSystem)
             {
+
                 continue;
             }
             auto name = [&] -> QString {
@@ -352,4 +352,4 @@ std::vector<DictionaryInfo> SpellChecker::getAvailableDictionaries() const
 #endif
 }
 
-}  // namespace chatterino
+}

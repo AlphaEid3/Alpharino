@@ -156,11 +156,11 @@ void addOrReplaceDeleteAction(TwitchChannel *channel, MessagePtr message)
     }
 
     const auto messages = channel->getMessageSnapshot();
-    auto it =
-        std::find_if(messages.rbegin(), messages.rend(), [&](const auto &m) {
-            const auto existingID = deletedMessageID(m);
-            return existingID && *existingID == *messageID;
-        });
+    auto it = std::find_if(messages.rbegin(), messages.rend(),
+                           [&](const auto &m) {
+                               const auto existingID = deletedMessageID(m);
+                               return existingID && *existingID == *messageID;
+                           });
     if (it != messages.rend())
     {
         channel->replaceMessage(*it, message);
@@ -195,8 +195,9 @@ void Connection::onNotification(const lib::messages::Metadata &metadata,
 void Connection::onRevocation(const lib::messages::Metadata &,
                               const boost::json::value &jv)
 {
-    const auto *subscription =
-        jv.is_object() ? jv.as_object().if_contains("subscription") : nullptr;
+    const auto *subscription = jv.is_object()
+                                   ? jv.as_object().if_contains("subscription")
+                                   : nullptr;
     if (!subscription || !subscription->is_object())
     {
         return;
@@ -318,13 +319,15 @@ void Connection::onChannelModerate(
             if constexpr (std::is_same_v<Action, channel_moderate::Mod> ||
                           std::is_same_v<Action, channel_moderate::Unmod>)
             {
+
+
                 if (!payload.event.isFromSharedChat())
                 {
                     runInGuiThread([channelPtr, channel, now,
                                     login = action.userLogin.qt()] {
                         channel->setKnownModeratorStatus(
-                            login,
-                            std::is_same_v<Action, channel_moderate::Mod>, now);
+                            login, std::is_same_v<Action, channel_moderate::Mod>,
+                            now);
                     });
                 }
             }
@@ -358,8 +361,8 @@ void Connection::onChannelModerate(
                 auto msg = builder.release();
                 if constexpr (std::is_same_v<Action, channel_moderate::Mod>)
                 {
-                    const auto key =
-                        roleEventKey(payload.event, action.userLogin);
+                    const auto key = roleEventKey(payload.event,
+                                                  action.userLogin);
                     runInGuiThread([channelPtr, msg, key] {
                         auto *roleChannel =
                             dynamic_cast<TwitchChannel *>(channelPtr.get());
@@ -373,10 +376,10 @@ void Connection::onChannelModerate(
                     });
                 }
                 else if constexpr (std::is_same_v<Action,
-                                                  channel_moderate::Unvip>)
+                                                   channel_moderate::Unvip>)
                 {
-                    const auto key =
-                        roleEventKey(payload.event, action.userLogin);
+                    const auto key = roleEventKey(payload.event,
+                                                  action.userLogin);
                     runInGuiThread([channelPtr, msg, key] {
                         QTimer::singleShot(1500, [channelPtr, msg, key] {
                             if (hasRecentRoleMod(key))
@@ -385,7 +388,8 @@ void Connection::onChannelModerate(
                             }
 
                             auto *delayedChannel =
-                                dynamic_cast<TwitchChannel *>(channelPtr.get());
+                                dynamic_cast<TwitchChannel *>(
+                                    channelPtr.get());
                             if (delayedChannel == nullptr ||
                                 delayedChannel->isEmpty())
                             {
@@ -400,8 +404,8 @@ void Connection::onChannelModerate(
                 else
                 {
                     runInGuiThread([channelPtr, msg] {
-                        auto *moderateChannel =
-                            dynamic_cast<TwitchChannel *>(channelPtr.get());
+                        auto *moderateChannel = dynamic_cast<TwitchChannel *>(
+                            channelPtr.get());
                         if (moderateChannel == nullptr ||
                             moderateChannel->isEmpty())
                         {
@@ -512,6 +516,8 @@ void Connection::onChannelSuspiciousUserMessage(
                     body] {
         if (status == lib::suspicious_users::Status::ActiveMonitoring)
         {
+
+
             if (!messageID.isEmpty())
             {
                 channel->markMonitoredMessage(messageID, header->messageText);

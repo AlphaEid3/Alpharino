@@ -19,9 +19,9 @@ ExpectedStr<QString> parseYouTubeCredential(const QString &stored)
     }
     if (stored.trimmed().startsWith(u'{'))
     {
-        return makeUnexpected(
-            QStringLiteral("This saved YouTube login is no longer supported. "
-                           "Reconnect the account with Google."));
+        return makeUnexpected(QStringLiteral(
+            "This saved YouTube login is no longer supported. "
+            "Reconnect the account with Google."));
     }
     return stored;
 }
@@ -34,4 +34,4 @@ void writeYouTubeCredential(const QString &channelID,
                                std::move(callback));
 }
 
-}  // namespace chatterino
+}

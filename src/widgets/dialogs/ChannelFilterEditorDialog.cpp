@@ -19,7 +19,7 @@ const QStringList friendlyBinaryOps = {
 const QStringList realBinaryOps = {
     "&&", "||", "+",  "-",  "*",        "/",          "%",        "==", "!=",
     "<",  ">",  "<=", ">=", "contains", "startswith", "endswith", ""};
-}  // namespace
+}
 
 ChannelFilterEditorDialog::ChannelFilterEditorDialog(QWidget *parent)
     : QDialog(parent)
@@ -192,6 +192,7 @@ ChannelFilterEditorDialog::BinaryOperationSpecifier::BinaryOperationSpecifier(
     QObject::connect(
         this->opCombo_, QOverload<int>::of(&QComboBox::currentIndexChanged),
         [this](int index) {
+
             this->right_->setEnabled(!realBinaryOps.at(index).isEmpty());
         });
 }
@@ -229,4 +230,4 @@ QString ChannelFilterEditorDialog::BinaryOperationSpecifier::expressionText()
         .arg(this->right_->expressionText());
 }
 
-}  // namespace chatterino
+}

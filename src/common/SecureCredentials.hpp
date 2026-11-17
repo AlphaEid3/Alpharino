@@ -20,4 +20,4 @@ public:
     static void remove(const QString &key, WriteCallback callback);
 };
 
-}  // namespace chatterino
+}

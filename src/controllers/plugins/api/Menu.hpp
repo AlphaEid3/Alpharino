@@ -29,6 +29,6 @@ function c2.Menu:insert_separator(before) end
 */
 void createUserType(sol::table &c2);
 
-}  // namespace chatterino::lua::api::menu
+}
 
 #endif

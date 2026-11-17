@@ -39,6 +39,7 @@ class SettingWidget : public QWidget
 
 public:
     struct IntInputParams {
+
         std::optional<int> min;
 
         std::optional<int> max;
@@ -114,6 +115,7 @@ public:
     void addToLayout(QLayout *layout);
 
 private:
+
     void registerWidget(GeneralPageView &view);
 
     QWidget *label = nullptr;
@@ -128,4 +130,4 @@ private:
     QStringList keywords;
 };
 
-}  // namespace chatterino
+}

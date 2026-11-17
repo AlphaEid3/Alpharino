@@ -98,6 +98,7 @@ void TwitchLiveController::request(std::optional<QStringList> optChannelIDs)
 
     for (const auto &batch : batches)
     {
+
         getHelix()->fetchStreams(
             batch, {},
             [this, batch{batch}](const auto &streams) {
@@ -192,4 +193,4 @@ void TwitchLiveController::request(std::optional<QStringList> optChannelIDs)
     }
 }
 
-}  // namespace chatterino
+}

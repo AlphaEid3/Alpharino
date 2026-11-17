@@ -73,4 +73,4 @@ qint64 UrlPaint::sourcePixmapCacheKey() const
     return 0;
 }
 
-}  // namespace chatterino
+}

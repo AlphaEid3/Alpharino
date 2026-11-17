@@ -62,7 +62,7 @@ QString highlightMatchSourceName(HighlightMatchSource source)
     return {};
 }
 
-}  // namespace
+}
 
 Message::Message()
     : parseTime(QTime::currentTime())
@@ -383,9 +383,10 @@ Message::ClientDetectionStatus Message::classifyClientNonce(
     }
 
     if (nonce.size() != 36 || nonce.at(8) != QLatin1Char('-') ||
-        nonce.at(13) != QLatin1Char('-') || nonce.at(18) != QLatin1Char('-') ||
-        nonce.at(23) != QLatin1Char('-') || nonce.at(14) != QLatin1Char('4') ||
-        !isUuidVariant(nonce.at(19)))
+        nonce.at(13) != QLatin1Char('-') ||
+        nonce.at(18) != QLatin1Char('-') ||
+        nonce.at(23) != QLatin1Char('-') ||
+        nonce.at(14) != QLatin1Char('4') || !isUuidVariant(nonce.at(19)))
     {
         return Status::Abnormal;
     }
@@ -429,6 +430,7 @@ Message::ReplyStatus Message::isReplyable() const
 {
     if (this->loginName.isEmpty())
     {
+
         return ReplyStatus::NotReplyable;
     }
 
@@ -451,6 +453,7 @@ Message::ReplyStatus Message::isReplyable() const
             assert(this != rootPtr.get());
             if (rootPtr->isReplyable() == ReplyStatus::NotReplyable)
             {
+
                 return ReplyStatus::NotReplyableDueToThread;
             }
 
@@ -463,4 +466,4 @@ Message::ReplyStatus Message::isReplyable() const
                             : ReplyStatus::NotReplyable;
 }
 
-}  // namespace chatterino
+}

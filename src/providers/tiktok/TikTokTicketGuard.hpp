@@ -48,4 +48,4 @@ private:
     QJsonValue tsSign_ = QJsonValue(QJsonValue::Undefined);
     bool hasStorageNamespace_ = false;
 };
-}  // namespace chatterino::tiktok::ticketguard
+}

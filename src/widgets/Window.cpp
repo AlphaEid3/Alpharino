@@ -90,6 +90,7 @@ Window::Window(WindowType type, QWidget *parent)
         auto lastPopup = getSettings()->lastPopupSize.getValue();
         if (lastPopup.isEmpty())
         {
+
             lastPopup = getSettings()->lastPopupSize.getDefaultValue();
         }
         this->resize(lastPopup.width(), lastPopup.height());
@@ -287,6 +288,7 @@ void Window::addCustomTitlebarButtons()
 
 void Window::updateStreamerModeIcon()
 {
+
     if (this->streamerModeTitlebarIcon_ == nullptr)
     {
         return;
@@ -307,8 +309,7 @@ void Window::updateStreamerModeIcon()
         getApp()->getStreamerMode()->isEnabled());
 #else
 
-    assert(false &&
-           "Streamer mode TitleBar icon should not exist on non-Windows OSes");
+    assert(false && "Streamer mode TitleBar icon should not exist on non-Windows OSes");
 
 #endif
 }
@@ -607,7 +608,8 @@ void Window::addShortcuts()
                         "or \"previous\")";
              }
              int newIndex = -1;
-             bool indexIsGenerated = false;
+             bool indexIsGenerated =
+                 false;
 
              auto target = arguments.at(0);
              qCDebug(chatterinoHotkeys) << target;
@@ -737,6 +739,7 @@ void Window::addShortcuts()
              }
              else if (arg == "toggleLiveOnly")
              {
+
                  return "toggleLiveOnly is no longer a valid argument for "
                         "setTabVisibility";
              }
@@ -860,4 +863,4 @@ void Window::onAccountSelected()
     }
 }
 
-}  // namespace chatterino
+}

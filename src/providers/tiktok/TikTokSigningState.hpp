@@ -28,4 +28,4 @@ struct RecoveredSigningState {
 [[nodiscard]] DecodedEnvelope decodeSignatureEnvelope(const QString &signature);
 [[nodiscard]] RecoveredSigningState recoverSigningState(
     const QString &dynosaur, const QString &gnarly, const QString &userAgent);
-}  // namespace chatterino::tiktok
+}

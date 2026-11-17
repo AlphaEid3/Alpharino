@@ -33,4 +33,4 @@ private:
     bool loading_ = false;
 };
 
-}  // namespace chatterino
+}

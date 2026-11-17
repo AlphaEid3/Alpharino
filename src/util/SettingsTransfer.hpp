@@ -76,4 +76,4 @@ bool applyPendingRestore(const QString &settingsDirectory,
 QString recoveryStateText(RecoveryState state);
 QString formatFileSize(qint64 bytes);
 
-}  // namespace chatterino::settingsbackup
+}

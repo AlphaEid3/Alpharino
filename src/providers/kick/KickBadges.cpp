@@ -4,10 +4,10 @@
 #include "util/QStringHash.hpp"
 
 #include <boost/unordered/unordered_flat_map.hpp>
-#include <magic_enum/magic_enum.hpp>
 #include <QCache>
-
 #include <algorithm>
+
+#include <magic_enum/magic_enum.hpp>
 
 namespace {
 
@@ -119,7 +119,7 @@ using CacheData = std::pair<EmotePtr, MessageElementFlag>;
 
 std::array<CacheData, magic_enum::enum_count<BadgeID>()> CACHE{};
 
-}  // namespace
+}
 
 namespace chatterino {
 
@@ -165,7 +165,7 @@ std::pair<EmotePtr, MessageElementFlag> KickBadges::lookup(
     return entry;
 }
 
-}  // namespace chatterino
+}
 
 namespace chatterino {
 
@@ -279,4 +279,4 @@ EmotePtr KickBadges::lookupSubGifter(unsigned amount)
     return badge;
 }
 
-}  // namespace chatterino
+}

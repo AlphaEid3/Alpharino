@@ -20,6 +20,7 @@ public:
     HotkeyModel(QObject *parent);
 
 protected:
+
     std::shared_ptr<Hotkey> getItemFromRow(
         std::vector<QStandardItem *> &row,
         const std::shared_ptr<Hotkey> &original) override;
@@ -43,4 +44,4 @@ private:
     std::unordered_map<QString, int> categoryCount_;
 };
 
-}  // namespace chatterino
+}

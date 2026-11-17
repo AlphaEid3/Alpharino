@@ -77,7 +77,7 @@ public:
     static QString getDebugText();
 };
 
-}  // namespace chatterino
+}
 
 template <>
 constexpr magic_enum::customize::customize_t
@@ -87,6 +87,7 @@ constexpr magic_enum::customize::customize_t
     using chatterino::DebugObject;
     switch (value)
     {
+
         case chatterino::DebugObject::AttachedWindow:
         case chatterino::DebugObject::BaseWindow:
         case chatterino::DebugObject::NetworkData:

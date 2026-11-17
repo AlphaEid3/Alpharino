@@ -56,6 +56,7 @@ void TableRowDragStyle::drawPrimitive(QStyle::PrimitiveElement element,
     auto hovered = view->indexAt(option->rect.center());
     if (!selected.isValid() || !hovered.isValid())
     {
+
         assert(false && "Got bad indices");
         return;
     }
@@ -70,4 +71,4 @@ void TableRowDragStyle::drawPrimitive(QStyle::PrimitiveElement element,
     painter->drawLine(0, y, widget->width(), y);
 }
 
-}  // namespace chatterino
+}

@@ -14,5 +14,5 @@ enum class EventType {
     CompletionRequested,
 };
 
-}  // namespace chatterino::lua::api
+}
 #endif

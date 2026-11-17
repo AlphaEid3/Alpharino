@@ -7,8 +7,8 @@
 #include "messages/Emote.hpp"
 #include "providers/twitch/TwitchBadge.hpp"
 
-#include <IrcTagsRef>
 #include <QString>
+#include <IrcTagsRef>
 
 #include <tuple>
 #include <unordered_map>

@@ -70,7 +70,7 @@ QString commentDateText(const QString &value)
                : QStringLiteral("Unknown time");
 }
 
-}  // namespace
+}
 
 class ModeratorCommentsModel final : public QAbstractListModel
 {
@@ -101,8 +101,8 @@ public:
     QVariant data(const QModelIndex &index,
                   int role = Qt::DisplayRole) const override
     {
-        if (!index.isValid() || this->comments_ == nullptr || index.row() < 0 ||
-            index.row() >= this->comments_->size())
+        if (!index.isValid() || this->comments_ == nullptr ||
+            index.row() < 0 || index.row() >= this->comments_->size())
         {
             return {};
         }
@@ -168,9 +168,10 @@ qreal prepareTextLayout(QTextLayout &layout, qreal width)
     return height;
 }
 
-qreal wrappedTextHeight(const QString &source, const QFont &font, qreal width,
-                        const QVector<QTextLayout::FormatRange> &formats = {},
-                        QPainter *painter = nullptr, const QPointF &origin = {})
+qreal wrappedTextHeight(
+    const QString &source, const QFont &font, qreal width,
+    const QVector<QTextLayout::FormatRange> &formats = {},
+    QPainter *painter = nullptr, const QPointF &origin = {})
 {
     auto text = source;
     text.replace(u'\n', QChar::LineSeparator);
@@ -207,7 +208,8 @@ QString linkAtPosition(const QString &source, const QFont &font, qreal width,
     for (int lineIndex = 0; lineIndex < layout.lineCount(); ++lineIndex)
     {
         const auto line = layout.lineAt(lineIndex);
-        if (position.y() < line.y() || position.y() >= line.y() + line.height())
+        if (position.y() < line.y() ||
+            position.y() >= line.y() + line.height())
         {
             continue;
         }
@@ -258,7 +260,8 @@ protected:
 
     void mouseReleaseEvent(QMouseEvent *event) override
     {
-        if (event->button() == Qt::LeftButton && !this->pressedLink_.isEmpty())
+        if (event->button() == Qt::LeftButton &&
+            !this->pressedLink_.isEmpty())
         {
             const auto pressed = std::exchange(this->pressedLink_, {});
             const auto released = this->linkAt(event->position());
@@ -290,12 +293,14 @@ private:
         const auto rect = this->visualRect(index);
         const auto contentLeft = rect.left() + 8;
         const auto contentTop = rect.top() + 7;
-        const auto contentWidth = std::max(80, rect.right() - contentLeft - 8);
+        const auto contentWidth = std::max(
+            80, rect.right() - contentLeft - 8);
         const auto comment =
             index.data(ModeratorCommentsModel::CommentText).toString();
-        return linkAtPosition(comment, this->font(), contentWidth,
-                              position - QPointF(contentLeft, contentTop),
-                              dialogTextLinks(comment));
+        return linkAtPosition(
+            comment, this->font(), contentWidth,
+            position - QPointF(contentLeft, contentTop),
+            dialogTextLinks(comment));
     }
 
     QString pressedLink_;
@@ -346,15 +351,16 @@ public:
         painter->save();
         painter->setClipRect(option.rect);
 
-        const auto background =
-            option.state & QStyle::State_Selected    ? this->selected_
-            : option.state & QStyle::State_MouseOver ? this->hover_
-                                                     : this->background_;
+        const auto background = option.state & QStyle::State_Selected
+                                    ? this->selected_
+                                : option.state & QStyle::State_MouseOver
+                                    ? this->hover_
+                                    : this->background_;
         painter->fillRect(option.rect, background);
 
         const auto contentLeft = option.rect.left() + 8;
-        const auto contentWidth =
-            std::max(80, option.rect.right() - contentLeft - 8);
+        const auto contentWidth = std::max(80, option.rect.right() -
+                                                  contentLeft - 8);
         const auto contentTop = option.rect.top() + 7;
         painter->setFont(option.font);
         painter->setPen(this->text_);
@@ -371,9 +377,9 @@ public:
             formats.push_back({static_cast<int>(link.start),
                                static_cast<int>(link.length), format});
         }
-        const auto bodyHeight =
-            wrappedTextHeight(comment, option.font, contentWidth, formats,
-                              painter, QPointF(contentLeft, contentTop));
+        const auto bodyHeight = wrappedTextHeight(
+            comment, option.font, contentWidth, formats, painter,
+            QPointF(contentLeft, contentTop));
 
         auto metadataFont = option.font;
         metadataFont.setPointSizeF(
@@ -386,13 +392,15 @@ public:
         auto authorColor = this->text_;
         authorColor.setAlpha(205);
         painter->setPen(authorColor);
-        painter->drawText(
-            QPointF(contentLeft, metadataY + metadataMetrics.ascent()), author);
+        painter->drawText(QPointF(contentLeft,
+                                  metadataY + metadataMetrics.ascent()),
+                          author);
 
         const auto authorWidth = metadataMetrics.horizontalAdvance(author);
         auto details = QStringLiteral(" · %1").arg(
             index.data(ModeratorCommentsModel::Added).toString());
-        const bool shared = index.data(ModeratorCommentsModel::Shared).toBool();
+        const bool shared =
+            index.data(ModeratorCommentsModel::Shared).toBool();
         const bool shareable =
             index.data(ModeratorCommentsModel::Shareable).toBool();
         const auto source =
@@ -409,9 +417,10 @@ public:
             details, Qt::ElideRight,
             std::max<qreal>(0, contentWidth - authorWidth));
         painter->setPen(this->muted_);
-        painter->drawText(QPointF(contentLeft + authorWidth,
-                                  metadataY + metadataMetrics.ascent()),
-                          details);
+        painter->drawText(
+            QPointF(contentLeft + authorWidth,
+                    metadataY + metadataMetrics.ascent()),
+            details);
 
         painter->setPen(this->separator_);
         painter->drawLine(option.rect.bottomLeft(), option.rect.bottomRight());
@@ -429,7 +438,7 @@ private:
     QColor separator_;
 };
 
-}  // namespace
+}
 
 ModeratorCommentsView::ModeratorCommentsView(QWidget *parent)
     : QWidget(parent)
@@ -510,8 +519,8 @@ ModeratorCommentsView::ModeratorCommentsView(QWidget *parent)
     QObject::connect(this->addButton_, &QPushButton::clicked, this, [this] {
         this->submitComment();
     });
-    QObject::connect(this->list_, &QListView::customContextMenuRequested, this,
-                     [this](const QPoint &position) {
+    QObject::connect(this->list_, &QListView::customContextMenuRequested,
+                     this, [this](const QPoint &position) {
                          this->showCommentMenu(position);
                      });
     QObject::connect(this->list_->verticalScrollBar(),
@@ -592,7 +601,8 @@ void ModeratorCommentsView::refreshStyle(float scale)
     auto palette = this->palette();
     palette.setColor(QPalette::Window, theme->window.background);
     palette.setColor(QPalette::WindowText, theme->window.text);
-    palette.setColor(QPalette::Base, theme->tabs.regular.backgrounds.regular);
+    palette.setColor(QPalette::Base,
+                     theme->tabs.regular.backgrounds.regular);
     palette.setColor(QPalette::AlternateBase,
                      theme->tabs.regular.backgrounds.hover);
     palette.setColor(QPalette::Text, theme->window.text);
@@ -639,7 +649,8 @@ void ModeratorCommentsView::refreshStyle(float scale)
                         theme->tabs.regular.backgrounds.hover,
                         theme->tabs.selected.backgrounds.regular,
                         theme->window.text, theme->tabs.regular.text,
-                        theme->accent, theme->tabs.dividerLine);
+                        theme->accent,
+                        theme->tabs.dividerLine);
 
     this->setFont(uiFont);
     this->list_->setFont(uiFont);
@@ -909,8 +920,8 @@ void ModeratorCommentsView::loadSharingSetting()
 void ModeratorCommentsView::appendComments(
     QVector<GqlModeratorComment> comments, bool sharedSource)
 {
-    auto &destination =
-        sharedSource ? this->sharedComments_ : this->localComments_;
+    auto &destination = sharedSource ? this->sharedComments_
+                                     : this->localComments_;
     QSet<QString> knownIds;
     knownIds.reserve(destination.size() + comments.size());
     for (const auto &comment : destination)
@@ -943,7 +954,8 @@ void ModeratorCommentsView::rebuildList(bool preserveScroll)
     const auto oldValue = this->list_->verticalScrollBar()->value();
     const auto generation = this->generation_;
     QVector<GqlModeratorComment> merged;
-    merged.reserve(this->localComments_.size() + this->sharedComments_.size());
+    merged.reserve(this->localComments_.size() +
+                   this->sharedComments_.size());
     QSet<QString> knownIds;
     knownIds.reserve(this->localComments_.size() +
                      this->sharedComments_.size());
@@ -963,10 +975,11 @@ void ModeratorCommentsView::rebuildList(bool preserveScroll)
             merged.push_back(comment);
         }
     }
-    std::stable_sort(
-        merged.begin(), merged.end(), [](const auto &left, const auto &right) {
-            return commentDate(left.timestamp) > commentDate(right.timestamp);
-        });
+    std::stable_sort(merged.begin(), merged.end(),
+                     [](const auto &left, const auto &right) {
+                         return commentDate(left.timestamp) >
+                                commentDate(right.timestamp);
+                     });
     this->listTruncated_ =
         merged.size() > MAX_RENDERED_COMMENTS ||
         (this->localComments_.size() >= MAX_RENDERED_COMMENTS &&
@@ -1042,11 +1055,11 @@ void ModeratorCommentsView::updateState()
     }
     else
     {
-        const auto text =
-            QStringLiteral("%1 comment%2")
-                .arg(this->comments_.size())
-                .arg(this->comments_.size() == 1 ? QString()
-                                                 : QStringLiteral("s"));
+        const auto text = QStringLiteral("%1 comment%2")
+                              .arg(this->comments_.size())
+                              .arg(this->comments_.size() == 1
+                                       ? QString()
+                                       : QStringLiteral("s"));
         if (this->listTruncated_)
         {
             this->statusLabel_->setToolTip(
@@ -1162,11 +1175,11 @@ void ModeratorCommentsView::submitComment()
 
 void ModeratorCommentsView::deleteComment(const QString &commentId)
 {
-    const auto comment =
-        std::find_if(this->comments_.cbegin(), this->comments_.cend(),
-                     [&commentId](const auto &candidate) {
-                         return candidate.id == commentId && !candidate.shared;
-                     });
+    const auto comment = std::find_if(
+        this->comments_.cbegin(), this->comments_.cend(),
+        [&commentId](const auto &candidate) {
+            return candidate.id == commentId && !candidate.shared;
+        });
     if (comment == this->comments_.cend() || this->deleting_ ||
         this->authToken_.isEmpty())
     {
@@ -1177,8 +1190,8 @@ void ModeratorCommentsView::deleteComment(const QString &commentId)
     QPointer<QMessageBox> confirmation = new QMessageBox(
         QMessageBox::Question, "Delete comment",
         "Delete this moderator comment?", QMessageBox::Cancel, this);
-    auto *deleteButton =
-        confirmation->addButton("Delete comment", QMessageBox::DestructiveRole);
+    auto *deleteButton = confirmation->addButton(
+        "Delete comment", QMessageBox::DestructiveRole);
     confirmation->setDefaultButton(QMessageBox::Cancel);
     installMoltorinoDialogTheme(confirmation);
     confirmation->exec();
@@ -1188,8 +1201,9 @@ void ModeratorCommentsView::deleteComment(const QString &commentId)
     }
     const bool confirmed = confirmation->clickedButton() == deleteButton;
     delete confirmation;
-    if (!confirmed || generation != this->generation_ ||
-        this->authToken_.isEmpty() || this->deleting_)
+    if (!confirmed ||
+        generation != this->generation_ || this->authToken_.isEmpty() ||
+        this->deleting_)
     {
         return;
     }
@@ -1263,4 +1277,4 @@ void ModeratorCommentsView::showCommentMenu(const QPoint &position)
     menu->popup(this->list_->viewport()->mapToGlobal(position));
 }
 
-}  // namespace chatterino
+}

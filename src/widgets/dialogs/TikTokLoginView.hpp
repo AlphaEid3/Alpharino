@@ -43,4 +43,4 @@ private:
     struct Impl;
     std::unique_ptr<Impl> impl_;
 };
-}  // namespace chatterino
+}

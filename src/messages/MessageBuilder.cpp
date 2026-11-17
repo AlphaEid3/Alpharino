@@ -33,8 +33,9 @@
 #include "providers/ffz/FfzBadges.hpp"
 #include "providers/ffz/FfzEmotes.hpp"
 #include "providers/ffzap/FfzApBadges.hpp"
-#include "providers/homies/HomiesBadges.hpp"
 #include "providers/jilchat/JilChatBadges.hpp"
+#include "providers/wydios/WydiosBadges.hpp"
+#include "providers/homies/HomiesBadges.hpp"
 #include "providers/links/LinkResolver.hpp"
 #include "providers/moltorino/MoltorinoSupporterBadges.hpp"
 #include "providers/pronouns/Pronouns.hpp"
@@ -53,7 +54,6 @@
 #include "providers/twitch/TwitchIrcServer.hpp"
 #include "providers/twitch/TwitchUsers.hpp"
 #include "providers/twitch/UserColor.hpp"
-#include "providers/wydios/WydiosBadges.hpp"
 #include "singletons/Resources.hpp"
 #include "singletons/Settings.hpp"
 #include "singletons/StreamerMode.hpp"
@@ -216,7 +216,8 @@ bool hasBadge(const QString &badges, const QString &badgeName)
     return false;
 }
 
-char32_t codePointBefore(const QString &text, qsizetype end, qsizetype &start)
+char32_t codePointBefore(const QString &text, qsizetype end,
+                         qsizetype &start)
 {
     start = end - 1;
     const auto last = text.at(start).unicode();
@@ -293,8 +294,8 @@ void appendRepeatedMessageCounter(MessageBuilder &builder, Channel *channel,
         .channelCanModerate = channel->hasModRights(),
         .senderIsModerator = tags.getOrEmpty("user-type") == u"mod"_s ||
                              hasBadge(badges, u"moderator"_s),
-        .senderIsBroadcaster =
-            senderIsBroadcaster || hasBadge(badges, u"broadcaster"_s),
+        .senderIsBroadcaster = senderIsBroadcaster ||
+                               hasBadge(badges, u"broadcaster"_s),
         .senderIsVip = hasBadge(badges, u"vip"_s),
     };
 
@@ -577,7 +578,7 @@ void appendBadges(MessageBuilder *builder,
                 auto infoValue = badgeInfoIt->second;
                 auto predictionText =
                     parseTagString(infoValue)  // standard IRC escapes
-                        .replace("⸝", ",");    // twitch's comma escape
+                        .replace("⸝", ",");  // twitch's comma escape
                 // Careful, the first character is RIGHT LOW PARAPHRASE BRACKET or U+2E1D, which just looks like a comma
 
                 tooltip = QString("Predicted %1").arg(predictionText);
@@ -1465,8 +1466,8 @@ void MessageBuilder::triggerHighlights(const Channel *channel,
         return;
     }
 
-    actuallyTriggerHighlights(channelName, alert.playSound, alert.customSound,
-                              alert.windowAlert);
+    actuallyTriggerHighlights(channelName, alert.playSound,
+                              alert.customSound, alert.windowAlert);
 
     if (alert.playSound)
     {
@@ -3766,8 +3767,8 @@ void MessageBuilder::applyVanityBadgeLayout(const QString &userID,
     const auto customRankCount = requestedRanks.size();
     const auto defaultRank = [](const QString &slot) {
         static constexpr std::array<QStringView, 16> order{
-            u"ta", u"ts", u"tv", u"tp", u"c", u"ff", u"fa", u"bt",
-            u"bl", u"jc", u"wy", u"bh", u"m", u"7",  u"hc", u"hs",
+            u"ta", u"ts", u"tv", u"tp", u"c",  u"ff", u"fa", u"bt",
+            u"bl", u"jc", u"wy", u"bh", u"m",  u"7",  u"hc", u"hs",
         };
         return static_cast<int>(std::ranges::find(order, slot) - order.begin());
     };
@@ -3889,8 +3890,10 @@ void MessageBuilder::appendWydiosBadges(const QString &userID)
     }
     for (const auto &badge : provider->getBadges({userID}))
     {
-        this->emplace<BadgeElement>(badge, MessageElementFlag::BadgeWydios);
-        this->message().externalBadges.emplace_back(badge->name.string);
+        this->emplace<BadgeElement>(
+            badge, MessageElementFlag::BadgeWydios);
+        this->message().externalBadges.emplace_back(
+            badge->name.string);
     }
 }
 

@@ -117,6 +117,7 @@ bool isChatter(TwitchChannel *twitch, KickChannel *kick,
 
 bool isLink(const QString &token)
 {
+
     auto link = linkparser::parse(token);
     return link.has_value();
 }
@@ -134,7 +135,7 @@ bool isIgnoredToken(TwitchChannel *twitch, KickChannel *kick,
     return isEmote(twitch, kick, youtube, token) || isLink(token);
 }
 
-}  // namespace
+}
 
 namespace chatterino {
 
@@ -149,7 +150,7 @@ QRegularExpression wordRegex()
     return regex;
 }
 
-}  // namespace inputhighlight::detail
+}
 
 InputHighlighter::InputHighlighter(SpellChecker &spellChecker, QObject *parent)
     : QSyntaxHighlighter(parent)
@@ -176,7 +177,8 @@ void InputHighlighter::setChannel(const std::shared_ptr<Channel> &channel)
 std::vector<QString> InputHighlighter::getSpellCheckedWords(const QString &text)
 {
     std::vector<QString> words;
-    this->visitWords(text, [&](const QString &word, qsizetype, qsizetype) {
+    this->visitWords(text, [&](const QString &word, qsizetype ,
+                               qsizetype ) {
         words.emplace_back(word);
     });
     return words;
@@ -206,14 +208,14 @@ QStringView InputHighlighter::getWordAt(QStringView text, qsizetype pos)
     }
 
     QStringView word;
-    this->visitWords(token,
-                     [&](const QString &, qsizetype start, qsizetype count) {
-                         if (start <= posInWord && posInWord <= start + count)
-                         {
-                             assert(word.isEmpty());
-                             word = text.sliced(tokenStart + start, count);
-                         }
-                     });
+    this->visitWords(token, [&](const QString & , qsizetype start,
+                                qsizetype count) {
+        if (start <= posInWord && posInWord <= start + count)
+        {
+            assert(word.isEmpty());
+            word = text.sliced(tokenStart + start, count);
+        }
+    });
     return word;
 }
 
@@ -275,4 +277,4 @@ void InputHighlighter::visitWords(
     }
 }
 
-}  // namespace chatterino
+}

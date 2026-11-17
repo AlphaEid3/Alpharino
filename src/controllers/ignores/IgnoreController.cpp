@@ -71,6 +71,7 @@ QString makeRegexReplacement(QStringView source,
     SizeType lastEnd = 0;
     for (const QStringCapture &backReference : std::as_const(backReferences))
     {
+
         len = backReference.pos - lastEnd;
         if (len > 0)
         {
@@ -105,7 +106,7 @@ QString makeRegexReplacement(QStringView source,
     return dst;
 }
 
-}  // namespace
+}
 
 namespace chatterino {
 
@@ -113,6 +114,7 @@ bool isIgnoredMessage(IgnoredMessageParameters &&params)
 {
     if (!params.message.isEmpty())
     {
+
         auto phrases = getSettings()->ignoredMessages.readOnly();
         for (const auto &phrase : *phrases)
         {
@@ -269,7 +271,8 @@ void processIgnorePhrases(const std::vector<IgnorePhrase> &phrases,
             {
                 if (word == emote.first.string)
                 {
-                    if (emote.first.string.isEmpty() || emote.second == nullptr)
+                    if (emote.first.string.isEmpty() ||
+                        emote.second == nullptr)
                     {
                         qCDebug(chatterinoTwitch)
                             << "emote null" << emote.first.string;
@@ -411,4 +414,4 @@ void processIgnorePhrases(const std::vector<IgnorePhrase> &phrases,
     }
 }
 
-}  // namespace chatterino
+}

@@ -417,9 +417,9 @@ void SettingsDialog::showDialog(SettingsDialogPreference preferredTab)
 
     if (instance->isMinimized())
     {
-        instance->setWindowState(
-            (instance->windowState() & ~Qt::WindowMinimized) |
-            Qt::WindowActive);
+        instance->setWindowState((instance->windowState() &
+                                  ~Qt::WindowMinimized) |
+                                 Qt::WindowActive);
     }
     if (instance->width() < 200 || instance->height() < 120)
     {

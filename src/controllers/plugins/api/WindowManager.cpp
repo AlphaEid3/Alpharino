@@ -85,7 +85,7 @@ private:
     std::weak_ptr<SplitContainer::Node> ptr;
 };
 
-}  // namespace
+}
 
 namespace chatterino::lua::api::windowmanager {
 
@@ -208,6 +208,6 @@ void createUserTypes(sol::table &c2)
         });
 }
 
-}  // namespace chatterino::lua::api::windowmanager
+}
 
 #endif

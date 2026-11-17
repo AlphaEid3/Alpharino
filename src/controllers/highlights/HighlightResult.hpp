@@ -10,9 +10,9 @@
 
 #include <cstdint>
 #include <memory>
+#include <vector>
 #include <optional>
 #include <ostream>
-#include <vector>
 
 namespace chatterino {
 
@@ -83,4 +83,4 @@ struct HighlightResult {
                                     const HighlightResult &result);
 };
 
-}  // namespace chatterino
+}

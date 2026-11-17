@@ -83,4 +83,4 @@ private:
     std::vector<pajlada::Signals::ScopedConnection> connections_;
 };
 
-}  // namespace chatterino
+}

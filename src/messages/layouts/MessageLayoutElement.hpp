@@ -385,4 +385,4 @@ private:
     const float neededMargin_;
 };
 
-}  // namespace chatterino
+}

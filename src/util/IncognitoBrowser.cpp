@@ -29,12 +29,14 @@ QString getDefaultBrowserExecutable()
 
     if (command.isNull())
     {
+
         command = getAssociatedExecutable(AssociationQueryType::FileExtension,
                                           L".html");
     }
 
     if (command.isNull())
     {
+
         command = getAssociatedExecutable(AssociationQueryType::FileExtension,
                                           L".htm");
     }
@@ -63,7 +65,7 @@ QString getDefaultBrowserExecutable()
 #endif
 }
 
-}  // namespace
+}
 
 namespace chatterino::incognitobrowser::detail {
 
@@ -114,7 +116,7 @@ QString getPrivateSwitch(const QString &browserExecutable)
     return {};
 }
 
-}  // namespace chatterino::incognitobrowser::detail
+}
 
 namespace chatterino {
 
@@ -133,4 +135,4 @@ bool openLinkIncognito(const QString &link)
                                    {getPrivateSwitch(browserExe), link});
 }
 
-}  // namespace chatterino
+}

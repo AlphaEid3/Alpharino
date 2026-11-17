@@ -218,4 +218,4 @@ void KickLiveUpdates::leaveRoom(uint64_t roomID, uint64_t channelID)
     this->private_->leave(roomID, channelID);
 }
 
-}  // namespace chatterino
+}

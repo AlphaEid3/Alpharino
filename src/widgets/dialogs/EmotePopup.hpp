@@ -97,4 +97,4 @@ private:
     void saveBounds() const;
 };
 
-}  // namespace chatterino
+}

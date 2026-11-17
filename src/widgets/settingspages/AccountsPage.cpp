@@ -68,8 +68,7 @@ AccountsPage::AccountsPage()
                 "<b>YouTube credential cleanup needs attention.</b> "
                 "The account is disconnected, but Moltorino could not finish "
                 "revoking or removing its Google credential. Any token kept "
-                "for a retry remains saved locally. Follow the detail below, "
-                "or "
+                "for a retry remains saved locally. Follow the detail below, or "
                 "remove Moltorino from "
                 "<a href=\"https://myaccount.google.com/connections\">Google "
                 "Account connections</a>."
@@ -129,4 +128,4 @@ AccountsPage::AccountsPage()
         refreshTikTokWarning);
 }
 
-}  // namespace chatterino
+}

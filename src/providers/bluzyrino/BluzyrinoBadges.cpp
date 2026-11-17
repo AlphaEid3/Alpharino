@@ -54,7 +54,7 @@ bool validUserId(const QString &id)
            });
 }
 
-}  // namespace
+}
 
 void BluzyrinoBadges::initialize()
 {
@@ -243,4 +243,4 @@ void BluzyrinoBadges::scheduleRefresh(bool success)
     });
 }
 
-}  // namespace chatterino
+}

@@ -3,15 +3,15 @@
 #include "Application.hpp"
 #include "common/network/NetworkRequest.hpp"
 #include "common/network/NetworkResult.hpp"
-#include "providers/twitch/TwitchNameHistoryCache.hpp"
 #include "singletons/Paths.hpp"
+#include "providers/twitch/TwitchNameHistoryCache.hpp"
 
-#include <QFile>
 #include <QHash>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>
+#include <QFile>
 #include <QSaveFile>
 #include <QUrl>
 
@@ -127,7 +127,7 @@ qsizetype TwitchNameHistoryMemoryCache::size() const
     return static_cast<qsizetype>(this->order_.size());
 }
 
-}  // namespace detail
+}
 
 namespace {
 
@@ -313,8 +313,8 @@ TwitchNameHistory historyFromJson(const QJsonObject &object)
 {
     TwitchNameHistory history;
     history.userId = object.value("userId").toString().trimmed();
-    history.currentLogin = normalizeTwitchNameHistoryLogin(
-        object.value("currentLogin").toString());
+    history.currentLogin =
+        normalizeTwitchNameHistoryLogin(object.value("currentLogin").toString());
     history.fetchedAt =
         parseNameHistoryTimestamp(object.value("fetchedAt").toString());
 
@@ -554,8 +554,8 @@ void fetchTwitchNameHistoryByUserId(
             cacheNameHistory(history);
             successCallback(std::move(history));
         })
-        .onError([failureCallback =
-                      std::move(failureCallback)](const NetworkResult &result) {
+        .onError([failureCallback = std::move(failureCallback)](
+                     const NetworkResult &result) {
             failureCallback(result.formatError());
         })
         .execute();

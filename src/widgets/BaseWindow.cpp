@@ -52,6 +52,7 @@ constexpr UINT HIDDEN_TASKBAR_SIZE = 2;
 bool isWindows11OrGreater()
 {
     static const bool result = [] {
+
         auto version = QOperatingSystemVersion::current();
         return (version.majorVersion() > 10) ||
                (version.microVersion() >= 22000);
@@ -72,11 +73,13 @@ HWND findTaskbarWindow(LPRECT rcMon = nullptr)
     {
         if (!rcMon)
         {
+
             break;
         }
         if (GetWindowRect(taskbar, &taskbarRect) != 0 &&
             IntersectRect(&intersectionRect, &taskbarRect, rcMon) != 0)
         {
+
             break;
         }
     }
@@ -118,6 +121,7 @@ RECT windowBordersFor(HWND hwnd, bool isMaximized)
     auto addBorders = isMaximized || isWindows11OrGreater();
     if (addBorders)
     {
+
 #    if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         auto dpi = GetDpiForWindow(hwnd);
 #    endif
@@ -231,7 +235,7 @@ Qt::WindowFlags windowFlagsFor(FlagsEnum<BaseWindow::Flags> flags)
     return out;
 }
 
-}  // namespace
+}
 
 namespace chatterino {
 
@@ -320,6 +324,7 @@ void BaseWindow::init()
 #ifdef USEWINSDK
     if (this->hasCustomWindowFrame())
     {
+
         auto *layout = new QVBoxLayout(this);
         this->ui_.windowLayout = layout;
         layout->setContentsMargins(0, 0, 0, 0);
@@ -465,6 +470,7 @@ void BaseWindow::tryApplyTopMost()
 
     if (this->parent())
     {
+
         return;
     }
 
@@ -657,6 +663,7 @@ bool BaseWindow::event(QEvent *event)
 #if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
     if (this->flags_.hasAny(DontFocus, Dialog, FramelessDraggable))
     {
+
         if (event->type() == QEvent::ParentWindowChange)
         {
             assert(this->windowHandle() != nullptr);
@@ -673,6 +680,7 @@ bool BaseWindow::event(QEvent *event)
 
 void BaseWindow::wheelEvent(QWheelEvent *event)
 {
+
     if (event->angleDelta().x() != 0)
     {
         return;
@@ -858,6 +866,7 @@ bool BaseWindow::applyLastBoundsCheck()
 
 void BaseWindow::resizeEvent(QResizeEvent *)
 {
+
     if (!this->flags_.has(DisableLayoutSave))
     {
         getApp()->getWindows()->queueSave();
@@ -871,6 +880,7 @@ void BaseWindow::resizeEvent(QResizeEvent *)
 
 void BaseWindow::moveEvent(QMoveEvent *event)
 {
+
 #ifdef CHATTERINO
     if (!this->flags_.has(DisableLayoutSave))
     {
@@ -974,8 +984,10 @@ bool BaseWindow::nativeEvent(const QByteArray &eventType, void *message,
 
         case WM_NCMOUSEHOVER:
         case WM_NCMOUSEMOVE: {
+
             if (!this->ui_.titlebarButtons)
             {
+
                 break;
             }
 
@@ -1011,6 +1023,7 @@ bool BaseWindow::nativeEvent(const QByteArray &eventType, void *message,
             [[fallthrough]];
         }
         case WM_NCMOUSELEAVE: {
+
             if (this->ui_.titlebarButtons)
             {
                 this->ui_.titlebarButtons->leave();
@@ -1033,6 +1046,7 @@ bool BaseWindow::nativeEvent(const QByteArray &eventType, void *message,
 
         case WM_NCLBUTTONDOWN:
         case WM_NCLBUTTONUP: {
+
             if (!this->ui_.titlebarButtons || !isHoveringTitlebarButton())
             {
                 break;
@@ -1123,6 +1137,7 @@ void BaseWindow::applyScaleRecursive(QObject *root, float scale)
             auto *window = dynamic_cast<BaseWindow *>(obj);
             if (window)
             {
+
                 continue;
             }
             base->setScale(scale);
@@ -1185,6 +1200,7 @@ void BaseWindow::drawCustomWindowFrame(QPainter &painter)
         }
         else
         {
+
             auto dpr = this->devicePixelRatio();
             if (dpr != 1)
             {
@@ -1221,6 +1237,7 @@ bool BaseWindow::handleSHOWWINDOW(MSG *msg)
 
         if (this->hasCustomWindowFrame())
         {
+
             const MARGINS margins = {-1};
             DwmExtendFrameIntoClientArea(msg->hwnd, &margins);
         }
@@ -1276,6 +1293,7 @@ bool BaseWindow::handleNCCALCSIZE(MSG *msg, long *result)
     if (borders.left != 0 || borders.top != 0 || borders.right != 0 ||
         borders.bottom != 0)
     {
+
         *result = 0;
         return true;
     }
@@ -1298,6 +1316,7 @@ bool BaseWindow::handleSIZE(MSG *msg)
     {
         if (this->frameless_)
         {
+
         }
         else if (this->hasCustomWindowFrame())
         {
@@ -1316,6 +1335,7 @@ bool BaseWindow::handleSIZE(MSG *msg)
 
             if (msg->wParam == SIZE_MINIMIZED && this->ui_.titlebarButtons)
             {
+
                 this->ui_.titlebarButtons->leave();
             }
 
@@ -1337,6 +1357,7 @@ bool BaseWindow::handleMOVE(MSG *msg)
 #ifdef USEWINSDK
     if (this->isNotMinimizedOrMaximized_)
     {
+
         this->useNextBounds_.start(10);
     }
 #endif
@@ -1374,6 +1395,7 @@ bool BaseWindow::handleNCHITTEST(MSG *msg, long *result)
 
         if (resizeWidth)
         {
+
             if (x < rect.left() + borderWidth)
             {
                 *result = HTLEFT;
@@ -1386,6 +1408,7 @@ bool BaseWindow::handleNCHITTEST(MSG *msg, long *result)
         }
         if (resizeHeight)
         {
+
             if (y >= rect.bottom() - borderWidth)
             {
                 *result = HTBOTTOM;
@@ -1398,6 +1421,7 @@ bool BaseWindow::handleNCHITTEST(MSG *msg, long *result)
         }
         if (resizeWidth && resizeHeight)
         {
+
             if (x >= rect.left() && x < rect.left() + borderWidth &&
                 y < rect.bottom() && y >= rect.bottom() - borderWidth)
             {
@@ -1425,6 +1449,7 @@ bool BaseWindow::handleNCHITTEST(MSG *msg, long *result)
 
         if (*result == 0)
         {
+
             if (this->ui_.layoutBase->geometry().contains(point))
             {
                 *result = HTCLIENT;
@@ -1522,4 +1547,4 @@ std::optional<HWND> BaseWindow::safeHWND() const
 }
 #endif
 
-}  // namespace chatterino
+}

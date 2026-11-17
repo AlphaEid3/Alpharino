@@ -51,4 +51,4 @@ private:
     int selectedWordListIndex() const;
 };
 
-}  // namespace chatterino
+}

@@ -103,7 +103,7 @@ QString generateDateString(const QDateTime &now)
     return now.toString("yyyy-MM-dd");
 }
 
-}  // namespace
+}
 
 namespace chatterino {
 
@@ -140,9 +140,9 @@ LoggingChannel::LoggingChannel(QString _channelName, QString _platform)
 
     getSettings()->logPath.connect(
         [this](const QString &logPath, auto) {
-            this->baseDirectory = logPath.isEmpty()
-                                      ? getApp()->getPaths().messageLogDirectory
-                                      : logPath;
+            this->baseDirectory =
+                logPath.isEmpty() ? getApp()->getPaths().messageLogDirectory
+                                  : logPath;
             this->openLogFile();
             this->currentStreamFileHandle.close();
             this->currentStreamID.clear();
@@ -273,6 +273,7 @@ void LoggingChannel::addMessage(const MessagePtr &message,
     QString messageText;
     if (message->loginName.isEmpty())
     {
+
         messageText = message->messageText;
     }
     else
@@ -302,6 +303,7 @@ void LoggingChannel::addMessage(const MessagePtr &message,
             }
             else if (message->replyThread)
             {
+
                 rootMessageChatter = message->replyThread->root()->loginName;
             }
             if (!rootMessageChatter.isEmpty())
@@ -339,4 +341,4 @@ void LoggingChannel::addMessage(const MessagePtr &message,
     }
 }
 
-}  // namespace chatterino
+}

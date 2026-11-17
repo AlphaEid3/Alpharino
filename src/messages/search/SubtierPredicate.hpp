@@ -14,13 +14,16 @@ namespace chatterino {
 class SubtierPredicate : public MessagePredicate
 {
 public:
+
     SubtierPredicate(const QString &subtiers, bool negate);
 
 protected:
+
     bool appliesToImpl(const Message &message) override;
 
 private:
+
     QStringList subtiers_;
 };
 
-}  // namespace chatterino
+}

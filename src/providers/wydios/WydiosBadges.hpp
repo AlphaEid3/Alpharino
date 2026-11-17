@@ -5,6 +5,7 @@
 
 #include <pajlada/signals/signal.hpp>
 #include <pajlada/signals/signalholder.hpp>
+
 #include <QByteArray>
 #include <QHash>
 #include <QObject>
@@ -26,7 +27,8 @@ public:
     void initialize();
 
     // Returns cached badges and starts a request if the cache is stale.
-    std::vector<std::shared_ptr<const Emote>> getBadges(const UserId &userID);
+    std::vector<std::shared_ptr<const Emote>> getBadges(
+        const UserId &userID);
 
     pajlada::Signals::NoArgSignal badgesUpdated;
 

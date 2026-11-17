@@ -17,6 +17,7 @@ using ImagePtr = std::shared_ptr<Image>;
 class ModerationAction
 {
 public:
+
     enum class Type {
 
         Ban,
@@ -53,7 +54,7 @@ private:
     QUrl iconPath_;
 };
 
-}  // namespace chatterino
+}
 
 namespace pajlada {
 
@@ -92,4 +93,4 @@ struct Deserialize<chatterino::ModerationAction> {
     }
 };
 
-}  // namespace pajlada
+}

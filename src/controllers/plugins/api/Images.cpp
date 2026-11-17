@@ -101,34 +101,38 @@ ImageSet imageSetCtor(sol::variadic_args args)
     return set;
 }
 
-}  // namespace
+}
 
 namespace chatterino::lua::api::images {
 
 void createUserTypes(sol::table &c2)
 {
     c2.new_usertype<Image>(
-        "Image", sol::no_constructor, "from_url", &imageCtor, "empty",
+        "Image", sol::no_constructor,
+        "from_url", &imageCtor,
+        "empty",
         [] {
             return Image::getEmpty();
         },
         "url", sol::property([](const Image &img) {
             return img.url().string;
         }),
-        "is_loaded", sol::property(&Image::loaded), "is_empty",
-        sol::property(&Image::isEmpty), "width", sol::property(&Image::width),
-        "height", sol::property(&Image::height), "scale",
-        sol::property(&Image::scale), "size", sol::property(&Image::size),
+        "is_loaded", sol::property(&Image::loaded),
+        "is_empty", sol::property(&Image::isEmpty),
+        "width", sol::property(&Image::width),
+        "height", sol::property(&Image::height),
+        "scale", sol::property(&Image::scale),
+        "size", sol::property(&Image::size),
         "animated", sol::property(&Image::animated));
 
     c2.new_usertype<ImageSet>(
-        "ImageSet", sol::factories(&imageSetCtor), "image1",
-        sol::property(&ImageSet::getImage1, &ImageSet::setImage1), "image2",
-        sol::property(&ImageSet::getImage2, &ImageSet::setImage2), "image3",
-        sol::property(&ImageSet::getImage3, &ImageSet::setImage3), "image4",
-        sol::property(&ImageSet::getImage4, &ImageSet::setImage4));
+        "ImageSet", sol::factories(&imageSetCtor),
+        "image1", sol::property(&ImageSet::getImage1, &ImageSet::setImage1),
+        "image2", sol::property(&ImageSet::getImage2, &ImageSet::setImage2),
+        "image3", sol::property(&ImageSet::getImage3, &ImageSet::setImage3),
+        "image4", sol::property(&ImageSet::getImage4, &ImageSet::setImage4));
 }
 
-}  // namespace chatterino::lua::api::images
+}
 
 #endif

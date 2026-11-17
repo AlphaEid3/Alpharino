@@ -74,7 +74,7 @@ private:
     QRegularExpression regex_;
 };
 
-}  // namespace chatterino
+}
 
 namespace pajlada {
 
@@ -113,4 +113,4 @@ struct Deserialize<chatterino::HighlightBlacklistUser> {
     }
 };
 
-}  // namespace pajlada
+}

@@ -98,4 +98,4 @@ const QList<QUuid> &SelectChannelFiltersDialog::getSelection() const
     return this->currentSelection_;
 }
 
-}  // namespace chatterino
+}

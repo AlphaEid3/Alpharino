@@ -70,6 +70,6 @@ void createUserTypes(sol::table &c2)
         });
 }
 
-}  // namespace chatterino::lua::api::datetime
+}
 
 #endif

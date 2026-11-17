@@ -22,6 +22,7 @@ namespace chatterino::lua::api {
 class WebSocket
 {
 public:
+
     /**
      * @lua@param url string The URL to connect to. Must start with `wss://` or `ws://`.
      * @lua@param options? { headers?: table<string, string>, on_close?: fun(), on_text?: fun(data: string), on_binary?: fun(data: string), on_open?: fun() } Additional options for the connection.
@@ -51,6 +52,7 @@ public:
     void sendBinary(const QByteArray &data);
 
 private:
+
     /**
      * @lua@field on_close fun()|nil Handler called when the socket is closed.
      */
@@ -77,6 +79,6 @@ private:
     friend class WebSocketListenerProxy;
 };
 
-}  // namespace chatterino::lua::api
+}
 
 #endif

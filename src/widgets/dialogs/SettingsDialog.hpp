@@ -90,4 +90,4 @@ private:
     friend class SettingsDialogTab;
 };
 
-}  // namespace chatterino
+}

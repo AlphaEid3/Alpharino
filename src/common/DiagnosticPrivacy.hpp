@@ -22,4 +22,4 @@ inline bool mayLogUrl(const QUrl &url)
                         Qt::CaseInsensitive) != 0;
 }
 
-}  // namespace chatterino::diagnostics
+}

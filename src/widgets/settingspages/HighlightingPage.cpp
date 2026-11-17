@@ -1941,14 +1941,13 @@ public:
         this->channel_ = new QLineEdit(this);
         this->channel_->setPlaceholderText("Optional channel name");
         this->platform_ = new QComboBox(this);
-        this->platform_->addItem(
-            "Twitch", static_cast<int>(MessagePlatform::AnyOrTwitch));
+        this->platform_->addItem("Twitch",
+                                static_cast<int>(MessagePlatform::AnyOrTwitch));
         this->platform_->addItem("YouTube",
-                                 static_cast<int>(MessagePlatform::YouTube));
-        this->platform_->addItem("Kick",
-                                 static_cast<int>(MessagePlatform::Kick));
+                                static_cast<int>(MessagePlatform::YouTube));
+        this->platform_->addItem("Kick", static_cast<int>(MessagePlatform::Kick));
         this->platform_->addItem("TikTok",
-                                 static_cast<int>(MessagePlatform::TikTok));
+                                static_cast<int>(MessagePlatform::TikTok));
         form->addRow("Sender:", this->sender_);
         form->addRow("Channel:", this->channel_);
         form->addRow("Platform:", this->platform_);
@@ -2167,7 +2166,7 @@ private:
     QPlainTextEdit *explanation_{};
 };
 
-}  // namespace
+}
 
 HighlightingPage::HighlightingPage()
 {
@@ -2177,8 +2176,10 @@ HighlightingPage::HighlightingPage()
 
     auto layout = layoutCreator.emplace<QVBoxLayout>().withoutMargin();
     {
+
         auto tabs = layout.emplace<QTabWidget>();
         {
+
             auto highlights = tabs.appendTab(new QVBoxLayout, "Messages");
             {
                 highlights.emplace<QLabel>(
@@ -2391,10 +2392,11 @@ HighlightingPage::HighlightingPage()
                 view->getTableView()->horizontalHeader()->hideSection(
                     HighlightModel::Column::MatchAppearance);
 
-                view->setTitles(
-                    {"Username", "Show in\nMentions", "Flash\ntaskbar",
-                     "Enable\nregex", "Case-\nsensitive", "Play\nsound",
-                     "Custom\nsound", "Color", "Matched\ntext", "Applies\nin"});
+                view->setTitles({"Username", "Show in\nMentions",
+                                 "Flash\ntaskbar", "Enable\nregex",
+                                 "Case-\nsensitive", "Play\nsound",
+                                 "Custom\nsound", "Color", "Matched\ntext",
+                                 "Applies\nin"});
                 view->getTableView()->horizontalHeader()->setSectionResizeMode(
                     QHeaderView::Fixed);
                 view->getTableView()->horizontalHeader()->setSectionResizeMode(
@@ -2925,7 +2927,7 @@ void HighlightingPage::importWordList()
     if (imported->chattySyntax)
     {
         this->importChattyHighlights(std::move(imported->text),
-                                     std::move(imported->suggestedName));
+                                    std::move(imported->suggestedName));
         return;
     }
     QPointer<WordListEditorDialog> dialog = new WordListEditorDialog(
@@ -2946,11 +2948,11 @@ void HighlightingPage::importWordList()
 }
 
 void HighlightingPage::importChattyHighlights(QString source,
-                                              QString suggestedName)
+                                            QString suggestedName)
 {
     QPointer<ChattyHighlightImportDialog> dialog =
         new ChattyHighlightImportDialog(this, std::move(source),
-                                        std::move(suggestedName));
+                                       std::move(suggestedName));
     const auto cleanup = qScopeGuard([dialog] {
         delete dialog;
     });
@@ -3061,4 +3063,4 @@ void HighlightingPage::removeSelectedWordList()
     this->refreshWordLists();
 }
 
-}  // namespace chatterino
+}

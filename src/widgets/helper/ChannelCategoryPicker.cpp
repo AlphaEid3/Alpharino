@@ -23,7 +23,7 @@ QString searchKey(const QString &text)
     return text.trimmed().toCaseFolded();
 }
 
-}  // namespace
+}
 
 ChannelCategoryPicker::ChannelCategoryPicker(QWidget *parent)
     : QLineEdit(parent)
@@ -358,4 +358,4 @@ void ChannelCategoryPicker::keyPressEvent(QKeyEvent *event)
     QLineEdit::keyPressEvent(event);
 }
 
-}  // namespace chatterino
+}

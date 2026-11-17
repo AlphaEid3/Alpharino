@@ -9,8 +9,8 @@
 #include "common/QLogging.hpp"
 #include "controllers/accounts/AccountController.hpp"
 #include "controllers/automod/AutoModReviewController.hpp"
-#include "controllers/commands/builtin/twitch/Pin.hpp"
 #include "controllers/commands/Command.hpp"
+#include "controllers/commands/builtin/twitch/Pin.hpp"
 #include "controllers/commands/CommandController.hpp"
 #include "controllers/emotes/EmoteController.hpp"
 #include "controllers/filters/FilterSet.hpp"
@@ -38,10 +38,10 @@
 #include "providers/tiktok/TikTokChannel.hpp"
 #include "providers/tiktok/TikTokChatServer.hpp"
 #include "providers/tiktok/TikTokMessageBuilder.hpp"
-#include "providers/translation/Translator.hpp"
 #include "providers/twitch/TwitchAccount.hpp"
 #include "providers/twitch/TwitchChannel.hpp"
 #include "providers/twitch/TwitchIrcServer.hpp"
+#include "providers/translation/Translator.hpp"
 #include "providers/youtube/YouTubeAccount.hpp"
 #include "providers/youtube/YouTubeChannel.hpp"
 #include "providers/youtube/YouTubeMessageBuilder.hpp"
@@ -97,8 +97,8 @@
 #include <QPainter>
 #include <QPainterPath>
 #include <QPointer>
-#include <QScopeGuard>
 #include <QScreen>
+#include <QScopeGuard>
 #include <QSet>
 #include <QStringBuilder>
 #include <QTimer>
@@ -620,7 +620,8 @@ bool isTranslatableContentElement(const MessageElement &element,
                       MessageElementFlag::RepeatedMessageCounter,
                       MessageElementFlag::ReplyButton,
                       MessageElementFlag::ModeratorTools,
-                      MessageElementFlag::Timestamp, MessageElementFlag::Badges,
+                      MessageElementFlag::Timestamp,
+                      MessageElementFlag::Badges,
                       MessageElementFlag::Username,
                       MessageElementFlag::KickUsername,
                       MessageElementFlag::ChannelName}))
@@ -633,11 +634,12 @@ bool isTranslatableContentElement(const MessageElement &element,
         return false;
     }
 
-    return flags.hasAny(
-        {MessageElementFlag::Text, MessageElementFlag::Emote,
-         MessageElementFlag::EmojiAll, MessageElementFlag::BitsStatic,
-         MessageElementFlag::BitsAnimated, MessageElementFlag::BitsAmount,
-         MessageElementFlag::Mention});
+    return flags.hasAny({MessageElementFlag::Text, MessageElementFlag::Emote,
+                         MessageElementFlag::EmojiAll,
+                         MessageElementFlag::BitsStatic,
+                         MessageElementFlag::BitsAnimated,
+                         MessageElementFlag::BitsAmount,
+                         MessageElementFlag::Mention});
 }
 
 bool shouldPreserveAfterTranslatedContent(const MessageElement &element)
@@ -716,9 +718,8 @@ TranslationRequestText prepareTranslationRequestText(
             continue;
         }
 
-        const auto placeholder =
-            QStringLiteral("MOLTOEMOTE%1")
-                .arg(placeholderIndex++, 4, 10, QLatin1Char('0'));
+        const auto placeholder = QStringLiteral("MOLTOEMOTE%1").arg(
+            placeholderIndex++, 4, 10, QLatin1Char('0'));
         placeholderEmotes.insert(placeholder, *emoteIt);
         word = placeholder;
     }
@@ -791,18 +792,19 @@ void appendTranslatedContent(std::vector<std::unique_ptr<MessageElement>> &out,
         for (const auto &variant :
              getApp()->getEmotes()->getEmojis()->parse(word))
         {
-            std::visit(variant::Overloaded{
-                           [&](const EmotePtr &emote) {
-                               builder.emplace<EmoteElement>(
-                                   emote, MessageElementFlag::EmojiAll);
-                           },
-                           [&](QStringView text) {
-                               appendTranslatedTextPart(builder, text, channel,
-                                                        placeholderEmotes,
-                                                        originalEmotes);
-                           },
-                       },
-                       variant);
+            std::visit(
+                variant::Overloaded{
+                    [&](const EmotePtr &emote) {
+                        builder.emplace<EmoteElement>(
+                            emote, MessageElementFlag::EmojiAll);
+                    },
+                    [&](QStringView text) {
+                        appendTranslatedTextPart(builder, text, channel,
+                                                 placeholderEmotes,
+                                                 originalEmotes);
+                    },
+                },
+                variant);
         }
     }
 
@@ -822,10 +824,13 @@ void appendTranslatedContent(std::vector<std::unique_ptr<MessageElement>> &out,
     }
 }
 
-MessagePtrMut makeTranslatedMessage(
-    const MessagePtr &message, const TranslationResult &translation,
-    const QString &targetLanguage, const QString &targetLanguageName,
-    Channel *channel, const QHash<QString, EmotePtr> &placeholderEmotes)
+MessagePtrMut makeTranslatedMessage(const MessagePtr &message,
+                                    const TranslationResult &translation,
+                                    const QString &targetLanguage,
+                                    const QString &targetLanguageName,
+                                    Channel *channel,
+                                    const QHash<QString, EmotePtr>
+                                        &placeholderEmotes)
 {
     auto sourceMessage = originalMessageForTranslation(message);
     if (sourceMessage == nullptr)
@@ -838,11 +843,11 @@ MessagePtrMut makeTranslatedMessage(
         translation.translatedText, placeholderEmotes);
     translated->translatedFrom = sourceMessage;
     translated->messageText = translatedText;
-    translated->searchText =
-        sourceMessage->searchText + QStringLiteral(" ") + translatedText;
+    translated->searchText = sourceMessage->searchText + QStringLiteral(" ") +
+                             translatedText;
 
-    const auto contentStart =
-        std::ranges::find_if(sourceMessage->elements, [&](const auto &element) {
+    const auto contentStart = std::ranges::find_if(
+        sourceMessage->elements, [&](const auto &element) {
             return isTranslatableContentElement(*element, *sourceMessage);
         });
     if (contentStart == sourceMessage->elements.end())
@@ -989,10 +994,11 @@ QHash<QString, int> &autoTranslationInFlightByChannel()
     return requests;
 }
 
-bool shouldApplyAutomaticTranslation(
-    const MessagePtr &message, const TranslationResult &translation,
-    const QString &targetLanguage,
-    const QHash<QString, EmotePtr> &placeholderEmotes)
+bool shouldApplyAutomaticTranslation(const MessagePtr &message,
+                                     const TranslationResult &translation,
+                                     const QString &targetLanguage,
+                                     const QHash<QString, EmotePtr>
+                                         &placeholderEmotes)
 {
     const auto detectedLanguage =
         normalizedLanguageCode(translation.detectedLanguage);
@@ -1010,7 +1016,8 @@ bool shouldApplyAutomaticTranslation(
 
 void translateMessageForChannel(const ChannelPtr &channel,
                                 const MessagePtr &message, QObject *caller,
-                                bool showErrors, bool skipSameLanguage,
+                                bool showErrors,
+                                bool skipSameLanguage,
                                 std::function<void()> onFinished = {})
 {
     if (channel == nullptr)
@@ -1030,7 +1037,8 @@ void translateMessageForChannel(const ChannelPtr &channel,
     {
         if (showErrors)
         {
-            channel->addSystemMessage("There is no message text to translate.");
+            channel->addSystemMessage(
+                "There is no message text to translate.");
         }
         if (onFinished)
         {
@@ -1046,11 +1054,13 @@ void translateMessageForChannel(const ChannelPtr &channel,
     requestTextTranslation(
         requestText.text, targetLanguage, caller,
         [channel, message, targetLanguage, targetLanguageName, showErrors,
-         skipSameLanguage, placeholderEmotes = requestText.placeholderEmotes](
+         skipSameLanguage,
+         placeholderEmotes = requestText.placeholderEmotes](
             const TranslationResult &translation) {
             if (skipSameLanguage &&
-                !shouldApplyAutomaticTranslation(
-                    message, translation, targetLanguage, placeholderEmotes))
+                !shouldApplyAutomaticTranslation(message, translation,
+                                                 targetLanguage,
+                                                 placeholderEmotes))
             {
                 return;
             }
@@ -5128,8 +5138,8 @@ void ChannelView::messageReplaced(size_t hint, const MessagePtr &prev,
         this->highlightedMessage_ == oldItem.get();
 
     this->scrollBar_->replaceHighlight(
-        index, scrollbarHighlightForMessage(replacement,
-                                            this->nukePreviewMessageIds_));
+        index,
+        scrollbarHighlightForMessage(replacement, this->nukePreviewMessageIds_));
 
     this->messages_.replaceItem(index, newItem);
     if (replacesLastRead || replacesPendingLastRead)
@@ -7419,7 +7429,8 @@ void ChannelView::addMessageContextMenuItems(QMenu *menu,
     }
 
     // Pin / Unpin action (outside Moderate submenu)
-    if (auto *twitchChannel = dynamic_cast<TwitchChannel *>(chan.get()))
+    if (auto *twitchChannel =
+            dynamic_cast<TwitchChannel *>(chan.get()))
     {
         const bool canUseModerateMenu = twitchChannel->hasModRights();
         if (!layout->getMessage()->id.isEmpty() &&
@@ -7554,23 +7565,23 @@ void ChannelView::addMessageContextMenuItems(QMenu *menu,
             }
         }
 
-        auto *deleteAction = moderateMenu->addAction("&Delete message", [chan,
-                                                                         id] {
-            auto *twitchChannel = dynamic_cast<TwitchChannel *>(chan.get());
-            if (twitchChannel)
-            {
-                twitchChannel->deleteMessagesAs(
-                    id, getApp()->getAccounts()->twitch.getCurrent().get());
-            }
-            else if (auto *kc = dynamic_cast<KickChannel *>(chan.get()))
-            {
-                kc->deleteMessage(id);
-            }
-            else if (auto *youtube = dynamic_cast<YouTubeChannel *>(chan.get()))
-            {
-                youtube->deleteMessage(id);
-            }
-        });
+        auto *deleteAction = moderateMenu->addAction(
+            "&Delete message", [chan, id] {
+                auto *twitchChannel = dynamic_cast<TwitchChannel *>(chan.get());
+                if (twitchChannel)
+                {
+                    twitchChannel->deleteMessagesAs(
+                        id, getApp()->getAccounts()->twitch.getCurrent().get());
+                }
+                else if (auto *kc = dynamic_cast<KickChannel *>(chan.get()))
+                {
+                    kc->deleteMessage(id);
+                }
+                else if (auto *youtube = dynamic_cast<YouTubeChannel *>(chan.get()))
+                {
+                    youtube->deleteMessage(id);
+                }
+            });
         deleteAction->setEnabled(!id.isEmpty());
 
         if (youtubeChannel != nullptr)
@@ -8348,8 +8359,7 @@ void ChannelView::handleLinkClick(QMouseEvent *event, const Link &link,
                 }
             }
 
-            if (value.startsWith("/pin") &&
-                (value == "/pin" || value.startsWith("/pin ")))
+            if (value.startsWith("/pin") && (value == "/pin" || value.startsWith("/pin ")))
             {
                 auto *tc = dynamic_cast<TwitchChannel *>(channel.get());
                 if (tc)
@@ -8473,8 +8483,9 @@ void ChannelView::handleLinkClick(QMouseEvent *event, const Link &link,
         break;
 
         case Link::AcknowledgeChatWarning: {
-            auto channel = std::dynamic_pointer_cast<TwitchChannel>(
-                getApp()->getTwitch()->getChannelOrEmptyByID(link.value));
+            auto channel =
+                std::dynamic_pointer_cast<TwitchChannel>(
+                    getApp()->getTwitch()->getChannelOrEmptyByID(link.value));
 
             if (channel == nullptr)
             {
@@ -8532,9 +8543,8 @@ void ChannelView::handleLinkClick(QMouseEvent *event, const Link &link,
             }
 
             const auto caseSensitivity =
-                searchPlatform == MessagePlatform::YouTube
-                    ? Qt::CaseSensitive
-                    : Qt::CaseInsensitive;
+                searchPlatform == MessagePlatform::YouTube ? Qt::CaseSensitive
+                                                          : Qt::CaseInsensitive;
             for (auto *page : openPages)
             {
                 auto splits = page->getSplits();

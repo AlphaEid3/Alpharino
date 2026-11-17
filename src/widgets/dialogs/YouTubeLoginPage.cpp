@@ -77,7 +77,8 @@ YouTubeLoginPage::YouTubeLoginPage(QWidget *parent)
         this);
     this->disconnectLabel_->setWordWrap(true);
     this->disconnectLabel_->setOpenExternalLinks(true);
-    this->disconnectLabel_->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    this->disconnectLabel_->setTextInteractionFlags(
+        Qt::TextBrowserInteraction);
     layout->addWidget(this->disconnectLabel_);
     layout->addStretch(1);
 
@@ -150,9 +151,9 @@ void YouTubeLoginPage::startLogin()
             const auto identity = account->handle().isEmpty()
                                       ? account->displayName()
                                       : QStringLiteral("@") + account->handle();
-            self->setStatus(
-                QStringLiteral("\u2713 Connected as ") + identity + ".",
-                StatusKind::Success);
+            self->setStatus(QStringLiteral("\u2713 Connected as ") + identity +
+                                ".",
+                            StatusKind::Success);
             self->setBusy(false);
         },
         [self](const QString &error) {
@@ -262,8 +263,9 @@ void YouTubeLoginPage::themeChangedEvent()
     auto track = regular;
     track.setAlphaF(0.14F);
     this->statusProgress_->setStyleSheet(
-        QStringLiteral("QProgressBar { border: 0; background: %1; }"
-                       "QProgressBar::chunk { background: %2; }")
+        QStringLiteral(
+            "QProgressBar { border: 0; background: %1; }"
+            "QProgressBar::chunk { background: %2; }")
             .arg(track.name(QColor::HexArgb), this->theme->accent.name()));
     this->update();
 }
@@ -276,4 +278,4 @@ void YouTubeLoginPage::paintEvent(QPaintEvent *)
     painter.drawRect(this->rect());
 }
 
-}  // namespace chatterino
+}

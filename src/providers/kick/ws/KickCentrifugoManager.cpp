@@ -495,7 +495,7 @@ void KickCentrifugoClient::checkHeartbeat()
     }
 }
 
-}  // namespace
+}
 
 namespace chatterino {
 
@@ -572,4 +572,4 @@ void KickCentrifugoManager::partChannel(const QString &name)
     this->private_->unsubscribe(name);
 }
 
-}  // namespace chatterino
+}

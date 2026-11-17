@@ -80,4 +80,4 @@ private:
     QVector<settingsbackup::RecoveryFile> recoveryFiles_;
 };
 
-}  // namespace chatterino
+}

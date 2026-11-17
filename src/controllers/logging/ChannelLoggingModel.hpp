@@ -21,6 +21,7 @@ class ChannelLoggingModel : public SignalVectorModel<ChannelLog>
     };
 
 protected:
+
     ChannelLog getItemFromRow(std::vector<QStandardItem *> &row,
                               const ChannelLog &original) override;
 
@@ -30,4 +31,4 @@ protected:
     friend class ModerationPage;
 };
 
-}  // namespace chatterino
+}

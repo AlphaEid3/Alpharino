@@ -159,7 +159,8 @@ void DrawnButton::paintContent(QPainter &painter)
             auto inner = this->rect().marginsRemoved(
                 {padding, padding, padding, padding});
             const auto lineWidth = std::max(1, thickness);
-            QPen pen(fg, lineWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+            QPen pen(fg, lineWidth, Qt::SolidLine, Qt::RoundCap,
+                     Qt::RoundJoin);
             painter.setPen(pen);
             painter.setBrush(Qt::NoBrush);
 
@@ -178,9 +179,9 @@ void DrawnButton::paintContent(QPainter &painter)
             folder.closeSubpath();
             painter.drawPath(folder);
 
-            const auto plusCenter =
-                QPointF(inner.left() + inner.width() * 0.69,
-                        inner.top() + inner.height() * 0.60);
+            const auto plusCenter = QPointF(
+                inner.left() + inner.width() * 0.69,
+                inner.top() + inner.height() * 0.60);
             const auto arm = inner.width() * 0.16;
             painter.drawLine(QPointF(plusCenter.x() - arm, plusCenter.y()),
                              QPointF(plusCenter.x() + arm, plusCenter.y()));
@@ -244,4 +245,4 @@ QColor DrawnButton::getForegroundHover() const
     return v;
 }
 
-}  // namespace chatterino
+}

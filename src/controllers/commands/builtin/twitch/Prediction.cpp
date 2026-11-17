@@ -5,20 +5,20 @@
 #include "controllers/accounts/AccountController.hpp"
 #include "controllers/commands/CommandContext.hpp"
 #include "controllers/commands/common/ChannelAction.hpp"
-#include "providers/moltorino/MoltorinoAuth.hpp"
 #include "providers/twitch/api/Helix.hpp"
 #include "providers/twitch/api/TwitchGql.hpp"
+#include "providers/moltorino/MoltorinoAuth.hpp"
 #include "providers/twitch/TwitchAccount.hpp"
 #include "providers/twitch/TwitchChannel.hpp"
 #include "singletons/Settings.hpp"
 #include "singletons/WindowManager.hpp"
 #include "util/Helpers.hpp"
 #include "util/PostToThread.hpp"
-#include "widgets/dialogs/PredictionDialog.hpp"
 #include "widgets/Notebook.hpp"
+#include "widgets/dialogs/PredictionDialog.hpp"
+#include "widgets/Window.hpp"
 #include "widgets/splits/Split.hpp"
 #include "widgets/splits/SplitContainer.hpp"
-#include "widgets/Window.hpp"
 
 #include <QCommandLineParser>
 #include <QCursor>
@@ -70,8 +70,8 @@ Split *findOpenSplitForChannel(const ChannelPtr &channel)
         return nullptr;
     }
 
-    auto *currentPage =
-        dynamic_cast<SplitContainer *>(window->getNotebook().getSelectedPage());
+    auto *currentPage = dynamic_cast<SplitContainer *>(
+        window->getNotebook().getSelectedPage());
     if (currentPage != nullptr)
     {
         if (auto *selectedSplit = currentPage->getSelectedSplit())
@@ -267,23 +267,24 @@ WinnerResolution resolveWinnerSelector(
 
     if (selector.byIndex)
     {
-        const bool indexInRange =
-            selector.index > 0 && selector.index <= prediction.outcomes.size();
+        const bool indexInRange = selector.index > 0 &&
+                                  selector.index <= prediction.outcomes.size();
         if (selector.positionalNumeric)
         {
             auto titleMatch = std::find_if(
                 prediction.outcomes.begin(), prediction.outcomes.end(),
-                [&selector](const TwitchChannel::PredictionOutcome &outcome) {
+                [&selector](
+                    const TwitchChannel::PredictionOutcome &outcome) {
                     return outcome.title.compare(selector.title,
                                                  Qt::CaseInsensitive) == 0;
                 });
 
             if (titleMatch != prediction.outcomes.end())
             {
-                const auto titleIndex =
-                    size_t(std::distance(prediction.outcomes.begin(),
-                                         titleMatch)) +
-                    1;
+                const auto titleIndex = size_t(std::distance(
+                                            prediction.outcomes.begin(),
+                                            titleMatch)) +
+                                        1;
                 if (!indexInRange)
                 {
                     resolution.outcomeId = titleMatch->id;
@@ -300,10 +301,10 @@ WinnerResolution resolveWinnerSelector(
                                 "titled \"%5\". Use "
                                 "/completeprediction --index %2 or "
                                 "/completeprediction --choice \"%1\".")
-                            .arg(
-                                selector.title, QString::number(selector.index),
-                                indexedOutcome.title,
-                                QString::number(titleIndex), titleMatch->title);
+                            .arg(selector.title, QString::number(selector.index),
+                                 indexedOutcome.title,
+                                 QString::number(titleIndex),
+                                 titleMatch->title);
                     return resolution;
                 }
             }
@@ -367,13 +368,14 @@ WinnerResolution resolveWinnerSelector(
         return resolution;
     }
 
-    resolution.error = "Could not find that winner. Outcomes: " + options;
+    resolution.error =
+        "Could not find that winner. Outcomes: " + options;
     return resolution;
 }
 
-using PredictionCallback =
-    std::function<void(ChannelPtr, std::shared_ptr<TwitchChannel>,
-                       TwitchChannel::PredictionEvent, QString)>;
+using PredictionCallback = std::function<void(
+    ChannelPtr, std::shared_ptr<TwitchChannel>,
+    TwitchChannel::PredictionEvent, QString)>;
 
 void withActivePrediction(const CommandContext &ctx, const QString &action,
                           PredictionCallback callback)
@@ -405,44 +407,47 @@ void withActivePrediction(const CommandContext &ctx, const QString &action,
 
     TwitchGql::getActivePrediction(
         channelLogin, ctx.twitchChannel->roomId(), *token,
-        [channel, weak, action, token = *token, callback = std::move(callback)](
+        [channel, weak, action, token = *token,
+         callback = std::move(callback)](
             std::optional<TwitchChannel::PredictionEvent> prediction) mutable {
-            runInGuiThread([channel, weak, action, token,
-                            prediction = std::move(prediction),
-                            callback = std::move(callback)]() mutable {
-                auto shared =
-                    std::dynamic_pointer_cast<TwitchChannel>(weak.lock());
-                if (!shared)
-                {
-                    return;
-                }
-
-                if (!prediction)
-                {
-                    if (channel != nullptr)
+            runInGuiThread(
+                [channel, weak, action, token,
+                 prediction = std::move(prediction),
+                 callback = std::move(callback)]() mutable {
+                    auto shared =
+                        std::dynamic_pointer_cast<TwitchChannel>(weak.lock());
+                    if (!shared)
                     {
-                        channel->addSystemMessage(
-                            "Could not find an open prediction.");
+                        return;
                     }
-                    return;
-                }
 
-                callback(channel, std::move(shared), std::move(*prediction),
-                         token);
-            });
+                    if (!prediction)
+                    {
+                        if (channel != nullptr)
+                        {
+                            channel->addSystemMessage(
+                                "Could not find an open prediction.");
+                        }
+                        return;
+                    }
+
+                    callback(channel, std::move(shared), std::move(*prediction),
+                             token);
+                });
         },
         [channel, action](const QString &error) {
             runInGuiThread([channel, action, error] {
                 if (channel != nullptr)
                 {
-                    channel->addSystemMessage("Failed to query predictions: " +
-                                              authErrorText(action, error));
+                    channel->addSystemMessage(
+                        "Failed to query predictions: " +
+                        authErrorText(action, error));
                 }
             });
         });
 }
 
-}  // namespace
+}
 
 namespace chatterino::commands {
 
@@ -783,8 +788,7 @@ QString completePredictionHelix(const CommandContext &ctx)
                     if (result.outcomes.empty())
                     {
                         channel->addSystemMessage(
-                            "Prediction completed, but Twitch returned no "
-                            "outcomes.");
+                            "Prediction completed, but Twitch returned no outcomes.");
                         return;
                     }
                     HelixPredictionOutcome winner = result.outcomes.front();
@@ -852,7 +856,8 @@ QString lockPrediction(const CommandContext &ctx)
             }
 
             TwitchGql::lockPrediction(
-                prediction.id, token, [] {},
+                prediction.id, token,
+                [] {},
                 [channel](const QString &error) {
                     runInGuiThread([channel, error] {
                         if (channel != nullptr)
@@ -890,7 +895,8 @@ QString cancelPrediction(const CommandContext &ctx)
             }
 
             TwitchGql::cancelPrediction(
-                prediction.id, token, [] {},
+                prediction.id, token,
+                [] {},
                 [channel](const QString &error) {
                     runInGuiThread([channel, error] {
                         if (channel != nullptr)
@@ -924,7 +930,8 @@ QString completePrediction(const CommandContext &ctx)
 
     withActivePrediction(
         ctx, "completing predictions",
-        [selector](ChannelPtr channel, std::shared_ptr<TwitchChannel>,
+        [selector](ChannelPtr channel,
+                   std::shared_ptr<TwitchChannel>,
                    TwitchChannel::PredictionEvent prediction,
                    const QString &token) {
             if (prediction.status.compare("ACTIVE", Qt::CaseInsensitive) != 0 &&
@@ -949,7 +956,8 @@ QString completePrediction(const CommandContext &ctx)
             }
 
             TwitchGql::resolvePrediction(
-                prediction.id, winner.outcomeId, token, [] {},
+                prediction.id, winner.outcomeId, token,
+                [] {},
                 [channel](const QString &error) {
                     runInGuiThread([channel, error] {
                         if (channel != nullptr)
@@ -985,4 +993,4 @@ QString showPredictions(const CommandContext &ctx)
     return "";
 }
 
-}  // namespace chatterino::commands
+}

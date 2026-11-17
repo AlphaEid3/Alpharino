@@ -45,6 +45,7 @@ bool Hotkey::validAction() const
     auto categoryActionsIt = actionNames.find(this->category_);
     if (categoryActionsIt == actionNames.end())
     {
+
         return false;
     }
 
@@ -92,4 +93,4 @@ QString Hotkey::toPortableString() const
     return this->keySequence().toString(QKeySequence::PortableText);
 }
 
-}  // namespace chatterino
+}

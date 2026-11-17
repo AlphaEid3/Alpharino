@@ -23,4 +23,4 @@ private:
     int maximum_;
 };
 
-}  // namespace chatterino
+}

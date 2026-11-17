@@ -113,6 +113,7 @@ struct MessageLayoutContainer {
 
 private:
     struct Line {
+
         size_t startIndex{};
 
         size_t endIndex{};
@@ -201,4 +202,4 @@ private:
 #endif
 };
 
-}  // namespace chatterino
+}

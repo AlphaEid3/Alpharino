@@ -61,4 +61,4 @@ private:
     QString cacheDirectory_;
 };
 
-}  // namespace chatterino
+}

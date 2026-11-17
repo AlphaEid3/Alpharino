@@ -532,8 +532,9 @@ SplitHeader::SplitHeader(Split *split)
 
     this->managedConnections_.managedConnect(
         getApp()->getAccounts()->twitch.currentUserChanged, [this] {
-            if (auto *twitchChannel = dynamic_cast<TwitchChannel *>(
-                    this->split_->getSelectedChannel().get());
+            if (auto *twitchChannel =
+                    dynamic_cast<TwitchChannel *>(
+                        this->split_->getSelectedChannel().get());
                 twitchChannel != nullptr && !twitchChannel->isEmpty() &&
                 getSettings()->showFollowButtonInSplitHeader &&
                 canUseFollowButtonForChannel(*twitchChannel))
@@ -565,8 +566,9 @@ SplitHeader::SplitHeader(Split *split)
         [this](bool enabled, auto) {
             if (enabled)
             {
-                if (auto *twitchChannel = dynamic_cast<TwitchChannel *>(
-                        this->split_->getSelectedChannel().get()))
+                if (auto *twitchChannel =
+                        dynamic_cast<TwitchChannel *>(
+                            this->split_->getSelectedChannel().get()))
                 {
                     if (canUseFollowButtonForChannel(*twitchChannel))
                     {
@@ -599,8 +601,9 @@ SplitHeader::SplitHeader(Split *split)
         this->managedConnections_);
     getSettings()->moltorinoAuthAccounts.connect(
         [this](const QString &, auto) {
-            if (auto *twitchChannel = dynamic_cast<TwitchChannel *>(
-                    this->split_->getSelectedChannel().get());
+            if (auto *twitchChannel =
+                    dynamic_cast<TwitchChannel *>(
+                        this->split_->getSelectedChannel().get());
                 twitchChannel != nullptr && !twitchChannel->isEmpty() &&
                 getSettings()->showFollowButtonInSplitHeader &&
                 canUseFollowButtonForChannel(*twitchChannel))
@@ -838,9 +841,10 @@ void SplitHeader::initializeLayout()
                          this->split_->openChatterList();
                      });
 
-    QObject::connect(this->followButton_, &Button::leftClicked, this, [this]() {
-        this->toggleFollow();
-    });
+    QObject::connect(this->followButton_, &Button::leftClicked, this,
+                     [this]() {
+                         this->toggleFollow();
+                     });
 
     QObject::connect(
         this->sharedChatButton_, &Button::leftMousePress, this, [this] {
@@ -911,12 +915,12 @@ std::unique_ptr<QMenu> SplitHeader::createMainMenu()
                     this->split_, [this] {
                         this->split_->showSearch(true);
                     });
-    menu->addAction(
-        "Search all open tabs",
-        h->getDisplaySequence(HotkeyCategory::Split, "showGlobalSearch"),
-        this->split_, [this] {
-            this->split_->showSearch(false);
-        });
+    menu->addAction("Search all open tabs",
+                    h->getDisplaySequence(HotkeyCategory::Split,
+                                          "showGlobalSearch"),
+                    this->split_, [this] {
+                        this->split_->showSearch(false);
+                    });
     menu->addAction("Set filters",
                     h->getDisplaySequence(HotkeyCategory::Split, "pickFilters"),
                     this->split_, &Split::setFiltersDialog);
@@ -1074,17 +1078,17 @@ std::unique_ptr<QMenu> SplitHeader::createMainMenu()
             "rate limits, fail, or skip messages.");
         autoTranslateAction->setStatusTip(autoTranslateAction->toolTip());
 
-        QObject::connect(
-            menu.get(), &QMenu::aboutToShow, this,
-            [autoTranslateAction, selectedChannelName]() {
-                autoTranslateAction->setChecked(
-                    getSettings()->isAutoTranslateChannel(selectedChannelName));
-            });
+        QObject::connect(menu.get(), &QMenu::aboutToShow, this,
+                         [autoTranslateAction, selectedChannelName]() {
+                             autoTranslateAction->setChecked(
+                                getSettings()->isAutoTranslateChannel(
+                                    selectedChannelName));
+                         });
         QObject::connect(autoTranslateAction, &QAction::triggered, this,
                          [autoTranslateAction, selectedChannelName]() {
                              autoTranslateAction->setChecked(
-                                 getSettings()->toggleAutoTranslateChannel(
-                                     selectedChannelName));
+                                getSettings()->toggleAutoTranslateChannel(
+                                    selectedChannelName));
                          });
 
         menu->addAction(autoTranslateAction);
@@ -1294,8 +1298,8 @@ std::unique_ptr<QMenu> SplitHeader::createChatModeMenu()
 
     auto execCommand = [this](const QString &command) {
         auto channel = this->split_->getSelectedChannel();
-        auto text =
-            getApp()->getCommands()->execCommand(command, channel, false);
+        auto text = getApp()->getCommands()->execCommand(
+            command, channel, false);
         channel->sendMessage(text);
     };
     auto toggle = [execCommand](const QString &command,
@@ -2323,8 +2327,11 @@ void SplitHeader::updateIcons()
                                              : channel->getLocalizedName();
                 this->followButton_->setSource(followButtonSource(following));
                 this->followButton_->setToolTip(
-                    following ? QString("Unfollow %1").arg(displayName)
-                              : QString("Follow %1").arg(displayName));
+                    following
+                        ? QString("Unfollow %1")
+                              .arg(displayName)
+                        : QString("Follow %1")
+                              .arg(displayName));
                 this->followButton_->show();
             }
         }
@@ -2358,8 +2365,9 @@ void SplitHeader::updateIcons()
         const bool modRights = hasAnyModRights(rootChannel);
         const bool showModerationButton =
             modRights ||
-            (moderationMode && (isMulti || (!channel->isYouTubeChannel() &&
-                                            !channel->isTikTokChannel())));
+            (moderationMode &&
+             (isMulti || (!channel->isYouTubeChannel() &&
+                          !channel->isTikTokChannel())));
         if (showModerationButton)
         {
             this->moderationButton_->show();

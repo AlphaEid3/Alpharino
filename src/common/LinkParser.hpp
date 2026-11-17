@@ -11,6 +11,7 @@
 namespace chatterino::linkparser {
 
 struct Parsed {
+
     QStringView protocol;
 
     QStringView host;
@@ -45,4 +46,4 @@ struct Parsed {
 
 std::optional<Parsed> parse(QStringView source) noexcept;
 
-}  // namespace chatterino::linkparser
+}

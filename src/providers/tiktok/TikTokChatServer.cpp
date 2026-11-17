@@ -95,7 +95,7 @@ private:
         std::make_shared<std::atomic<int>>(0);
     std::atomic<bool> overflowed_{false};
 };
-}  // namespace
+}
 
 TikTokChatServer::TikTokChatServer()
 {
@@ -626,4 +626,4 @@ void TikTokChatServer::send(const std::shared_ptr<TikTokChannel> &channel,
         });
 }
 
-}  // namespace chatterino
+}

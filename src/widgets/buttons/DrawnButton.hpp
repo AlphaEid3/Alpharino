@@ -26,6 +26,7 @@ public:
     };
 
     struct Options {
+
         std::optional<int> padding;
 
         std::optional<int> thickness;
@@ -49,6 +50,7 @@ protected:
     void paintContent(QPainter &painter) override;
 
 private:
+
     int getPadding() const;
 
     int getThickness() const;
@@ -68,4 +70,4 @@ private:
     const Symbol symbol;
 };
 
-}  // namespace chatterino
+}

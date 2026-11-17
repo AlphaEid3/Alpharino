@@ -60,7 +60,7 @@ void miniaudioLogCallback(void *userData, ma_uint32 level, const char *pMessage)
     }
 }
 
-}  // namespace
+}
 
 namespace chatterino {
 
@@ -140,6 +140,7 @@ MiniaudioBackend::MiniaudioBackend(bool keepEngineAlive_)
 
         if (this->keepEngineAlive)
         {
+
             result = ma_engine_start(this->engine.get());
             if (result != MA_SUCCESS)
             {
@@ -149,6 +150,7 @@ MiniaudioBackend::MiniaudioBackend(bool keepEngineAlive_)
         }
 
         {
+
             BenchmarkGuard b("init sounds");
 
             ma_uint32 soundFlags = 0;
@@ -292,6 +294,7 @@ void MiniaudioBackend::play(const QUrl &sound)
                 qCWarning(chatterinoSound) << "Failed to play sound" << sound
                                            << soundPath << ":" << result;
             }
+
         }
         else
         {
@@ -311,6 +314,7 @@ void MiniaudioBackend::play(const QUrl &sound)
             this->sleepTimer.async_wait([this](const auto &ec) {
                 if (ec || this->state != State::Initialized)
                 {
+
                     return;
                 }
 
@@ -326,4 +330,4 @@ void MiniaudioBackend::play(const QUrl &sound)
     });
 }
 
-}  // namespace chatterino
+}

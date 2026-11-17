@@ -23,4 +23,4 @@ public:
                                 AuthorizationAcceptedCallback accepted = {});
 };
 
-}  // namespace chatterino
+}

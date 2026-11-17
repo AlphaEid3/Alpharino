@@ -20,6 +20,7 @@ public:
     explicit NicknamesModel(QObject *parent);
 
 protected:
+
     Nickname getItemFromRow(std::vector<QStandardItem *> &row,
                             const Nickname &original) override;
 
@@ -27,4 +28,4 @@ protected:
                         std::vector<QStandardItem *> &row) override;
 };
 
-}  // namespace chatterino
+}

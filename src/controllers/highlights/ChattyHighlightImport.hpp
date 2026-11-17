@@ -38,4 +38,4 @@ ChattyHighlightImportResult importChattyHighlightRules(const QString &text);
 bool looksLikeChattyHighlightRules(const QString &text);
 bool looksLikeRegularExpressionList(const QString &text);
 
-}  // namespace chatterino
+}

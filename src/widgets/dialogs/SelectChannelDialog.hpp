@@ -7,8 +7,8 @@
 #include "widgets/BaseWindow.hpp"
 
 #include <pajlada/signals/signal.hpp>
-#include <QCheckBox>
 #include <QComboBox>
+#include <QCheckBox>
 #include <QFocusEvent>
 #include <QLabel>
 #include <QLineEdit>
