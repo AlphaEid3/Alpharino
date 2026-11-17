@@ -92,9 +92,6 @@ jobs:
         uses: Chatterino/msvc-dev-cmd@v2.0.5
         with:
           arch: x64
-          # Qt 6.9's official binaries are built with MSVC 2022 (14.44).
-          # Linking them with the image default 14.51 aborts at startup.
-          toolset: "14.44"
 
       - name: Setup sccache (Windows)
         # A transient GitHub download failure should not fail the build.
@@ -135,12 +132,8 @@ jobs:
           mkdir build
           cd build
           conan install .. \
-              -s compiler.version=194 \
-              -s:b compiler.version=194 \
               -s build_type=RelWithDebInfo \
               -c tools.cmake.cmaketoolchain:generator="Ninja" \
-              -c tools.microsoft.msbuild:vs_version=18 \
-              -c tools.microsoft:msvc_update=4.35207 \
               -b missing \
               -c tools.build:jobs=4 \
               --output-folder=. \
