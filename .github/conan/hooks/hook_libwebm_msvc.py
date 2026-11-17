@@ -93,9 +93,55 @@ def _patch(conanfile, required):
         )
 
 
+_PC_MARKER = "Alpharino: keep Conan's generated .pc files visible"
+
+
+def _pin_ffmpeg_pkgconfig(conanfile):
+    """The MSYS login shell used to configure FFmpeg rewrites PKG_CONFIG_PATH.
+
+    Windows pkgconf then cannot see dav1d.pc (and the other Conan .pc files)
+    in the generators folder, so configure stops with
+    "dav1d >= 0.5.0 not found using pkg-config".
+    """
+    if getattr(conanfile, "name", None) != "ffmpeg":
+        return
+    generators = getattr(conanfile, "generators_folder", None)
+    if not generators or not os.path.isdir(generators):
+        raise RuntimeError("ffmpeg generators folder is missing; cannot set PKG_CONFIG_PATH")
+
+    pc_dir = generators.replace("\\", "/")
+    snippet = (
+        "\n# Alpharino: keep Conan's generated .pc files visible to Windows pkgconf.\n"
+        f'_alpharino_pc="{pc_dir}"\n'
+        "if command -v cygpath >/dev/null 2>&1; then\n"
+        '  _alpharino_pc="$(cygpath -m "$_alpharino_pc")"\n'
+        "fi\n"
+        'export PKG_CONFIG_PATH="$_alpharino_pc"\n'
+    )
+    patched = False
+    for name in os.listdir(generators):
+        if not name.endswith(".sh"):
+            continue
+        path = os.path.join(generators, name)
+        if not os.path.isfile(path):
+            continue
+        with open(path, "r", encoding="utf-8", newline="") as handle:
+            text = handle.read().replace("\r\n", "\n")
+        if _PC_MARKER in text:
+            patched = True
+            continue
+        with open(path, "a", encoding="utf-8", newline="\n") as handle:
+            handle.write(snippet)
+        conanfile.output.info(f"Pinned FFmpeg PKG_CONFIG_PATH in {path}")
+        patched = True
+    if not patched:
+        raise RuntimeError(f"no shell env scripts found in {generators}")
+
+
 def post_source(conanfile):
     _patch(conanfile, required=False)
 
 
 def pre_build(conanfile):
     _patch(conanfile, required=True)
+    _pin_ffmpeg_pkgconfig(conanfile)
