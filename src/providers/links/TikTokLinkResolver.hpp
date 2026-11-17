@@ -36,4 +36,4 @@ QString makeTooltip(const QString &displayUrl, const Preview &preview);
 
 QString makeUnavailableTooltip(const QString &displayUrl);
 
-}
+}  // namespace chatterino::tiktok

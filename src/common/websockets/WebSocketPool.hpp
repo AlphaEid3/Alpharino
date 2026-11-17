@@ -14,7 +14,7 @@
 namespace chatterino::ws::detail {
 class WebSocketPoolImpl;
 class WebSocketConnection;
-}
+}  // namespace chatterino::ws::detail
 
 namespace chatterino {
 
@@ -71,4 +71,4 @@ private:
     QString shortName;
 };
 
-}
+}  // namespace chatterino

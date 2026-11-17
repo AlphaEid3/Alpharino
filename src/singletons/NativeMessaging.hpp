@@ -29,7 +29,7 @@ Expected<void, WriteManifestError> writeManifestTo(QString directory,
 std::optional<QString> parseCustomPath(QString path);
 #endif
 
-}
+}  // namespace chatterino::nm::detail
 
 namespace chatterino {
 
@@ -50,7 +50,7 @@ namespace nm::client {
 void sendMessage(const QByteArray &array);
 void writeToCout(const QByteArray &array);
 
-}
+}  // namespace nm::client
 
 class NativeMessagingServer final
 {
@@ -97,4 +97,4 @@ enum class BrowserManifestFormat {
     Firefox,
 };
 
-}
+}  // namespace chatterino

@@ -94,15 +94,15 @@ std::optional<Args::Channel> parseActivateOption(QString input)
     };
 }
 
-}
+}  // namespace
 
 namespace chatterino {
 
 std::optional<QString> validatedMigrationReadyFilePath(const QString &path)
 {
     const auto trimmedPath = path.trimmed();
-    const auto tempPath = QStandardPaths::writableLocation(
-        QStandardPaths::TempLocation);
+    const auto tempPath =
+        QStandardPaths::writableLocation(QStandardPaths::TempLocation);
     if (trimmedPath.isEmpty() || tempPath.isEmpty())
     {
         return std::nullopt;
@@ -187,8 +187,7 @@ Args::Args(const QApplication &app, const Paths &paths)
         "t:channel");
 
     QCommandLineOption useOldScalingOption(
-        "use-old-scaling",
-        "Use legacy 96 DPI scaling for this launch.");
+        "use-old-scaling", "Use legacy 96 DPI scaling for this launch.");
 
 #ifndef NDEBUG
     QCommandLineOption useLocalEventsubOption(
@@ -247,7 +246,8 @@ Args::Args(const QApplication &app, const Paths &paths)
     this->remoteRestart = parser.isSet(remoteRestartOption);
     if (parser.isSet(migrationReadyFileOption))
     {
-        const auto markerPath = parser.value(migrationReadyFileOption).trimmed();
+        const auto markerPath =
+            parser.value(migrationReadyFileOption).trimmed();
         this->migrationReadyFile = validatedMigrationReadyFilePath(markerPath);
         if (!markerPath.isEmpty() && !this->migrationReadyFile.has_value())
         {
@@ -386,4 +386,4 @@ void Args::applyCustomChannelLayout(const QString &argValue, const Paths &paths)
     }
 }
 
-}
+}  // namespace chatterino

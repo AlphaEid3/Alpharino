@@ -30,6 +30,6 @@ function c2.current_account() end
 */
 void createAccounts(sol::table &c2);
 
-}
+}  // namespace chatterino::lua::api
 
 #endif

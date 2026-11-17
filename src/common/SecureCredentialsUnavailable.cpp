@@ -12,7 +12,7 @@ QString unavailableMessage()
         "Secure credentials are not available in this build.");
 }
 
-}
+}  // namespace
 
 void SecureCredentials::read(const QString &, ReadCallback callback)
 {
@@ -45,4 +45,4 @@ void SecureCredentials::remove(const QString &, WriteCallback callback)
     });
 }
 
-}
+}  // namespace chatterino

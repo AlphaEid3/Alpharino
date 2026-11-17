@@ -55,4 +55,4 @@ void send(const QString &channelId, const QString &token, const Gif &gif,
           const QString &search, const QObject *caller,
           std::function<void(SendResult)> callback);
 
-}
+}  // namespace chatterino::twitchgifs

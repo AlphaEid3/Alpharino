@@ -352,6 +352,8 @@
               "properties": {
                 "background": { "$ref": "#/definitions/qt-color" },
                 "backgroundPulse": { "$ref": "#/definitions/qt-color" },
+                "searchFailText": { "$ref": "#/definitions/qt-color" },
+                "searchHighlightBackground": { "$ref": "#/definitions/qt-color" },
                 "text": { "$ref": "#/definitions/qt-color" }
               },
               "required": ["background", "text"]

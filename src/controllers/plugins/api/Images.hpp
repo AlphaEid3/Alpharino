@@ -43,6 +43,6 @@ function c2.ImageSet.new(image1, image2, image3, image4) end
 */
 void createUserTypes(sol::table &c2);
 
-}
+}  // namespace chatterino::lua::api::images
 
 #endif

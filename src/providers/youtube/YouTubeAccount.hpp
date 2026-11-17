@@ -62,4 +62,4 @@ private:
     QDateTime expiresAt_;
 };
 
-}
+}  // namespace chatterino

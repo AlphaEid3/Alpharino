@@ -5,6 +5,6 @@
 namespace chatterino {
 
 QImage renderTikTokLoginQr(const QImage &source, const QImage &logo,
-                          int pixelSize);
+                           int pixelSize);
 
 }

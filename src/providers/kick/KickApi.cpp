@@ -55,7 +55,7 @@ void callDeserialize(auto &&cb, BoostJsonValue data)
 }
 
 template <std::same_as<void> T>
-void callDeserialize(auto &&cb, BoostJsonValue )
+void callDeserialize(auto &&cb, BoostJsonValue)
 {
     cb(ExpectedStr<void>{});
 }
@@ -194,7 +194,7 @@ QString makePublicV1Url(QStringView endpoint)
     return u"https://api.kick.com/public/v1/" % endpoint;
 }
 
-}
+}  // namespace
 
 namespace chatterino {
 
@@ -436,8 +436,7 @@ void KickApi::getChannels(std::span<uint64_t> userIDs,
 void KickApi::getChannelByName(const QString &usernameOrSlug,
                                Callback<KickChannelInfo> cb)
 {
-    QString path =
-        u"channels?slug=" % QUrl::toPercentEncoding(usernameOrSlug);
+    QString path = u"channels?slug=" % QUrl::toPercentEncoding(usernameOrSlug);
     this->getJson(path, std::move(cb));
 }
 
@@ -575,4 +574,4 @@ KickApi *getKickApi()
     return KickApi::instance();
 }
 
-}
+}  // namespace chatterino

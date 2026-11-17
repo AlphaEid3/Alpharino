@@ -1,10 +1,10 @@
 #include "providers/moltorino/MoltorinoPresence.hpp"
 
 #include "Application.hpp"
-#include "common/QLogging.hpp"
-#include "common/Version.hpp"
 #include "common/network/NetworkRequest.hpp"
 #include "common/network/NetworkResult.hpp"
+#include "common/QLogging.hpp"
+#include "common/Version.hpp"
 #include "controllers/accounts/AccountController.hpp"
 #include "providers/moltorino/MoltorinoSupporterBadges.hpp"
 #include "providers/twitch/TwitchAccount.hpp"
@@ -26,8 +26,8 @@
 
 namespace chatterino {
 
-Q_LOGGING_CATEGORY(chatterinoMoltorinoPresence,
-                   "chatterino.moltorino.presence", QtWarningMsg)
+Q_LOGGING_CATEGORY(chatterinoMoltorinoPresence, "chatterino.moltorino.presence",
+                   QtWarningMsg)
 
 namespace {
 
@@ -43,8 +43,8 @@ QUrl configuredUrl(const char *name, bool socket)
     const bool local = (url.host() == "localhost" ||
                         url.host() == "127.0.0.1" || url.host() == "::1") &&
                        scheme == (socket ? "ws" : "http");
-    if (!url.isValid() || url.host().isEmpty() ||
-        !url.userInfo().isEmpty() || url.hasFragment() || (!secure && !local))
+    if (!url.isValid() || url.host().isEmpty() || !url.userInfo().isEmpty() ||
+        url.hasFragment() || (!secure && !local))
     {
         return {};
     }
@@ -66,7 +66,8 @@ QString platformKey()
 
 QString savedClientId()
 {
-    QSettings settings(QStringLiteral("Alpharino"), QStringLiteral("Alpharino"));
+    QSettings settings(QStringLiteral("Alpharino"),
+                       QStringLiteral("Alpharino"));
     auto id = settings.value(QStringLiteral("presence/clientInstanceId"))
                   .toString()
                   .trimmed();
@@ -107,7 +108,7 @@ QString heartbeatMode()
     return QStringLiteral("normal");
 }
 
-}
+}  // namespace
 
 class MoltorinoBadgeSocketListener : public WebSocketListener
 {
@@ -120,13 +121,13 @@ public:
 
     void onOpen() override
     {
-        runInGuiThread([presence = this->presence_,
-                        generation = this->generation_] {
-            if (presence != nullptr)
-            {
-                presence->handleBadgeSocketOpen(generation);
-            }
-        });
+        runInGuiThread(
+            [presence = this->presence_, generation = this->generation_] {
+                if (presence != nullptr)
+                {
+                    presence->handleBadgeSocketOpen(generation);
+                }
+            });
     }
 
     void onTextMessage(QByteArray data) override
@@ -140,8 +141,7 @@ public:
                         data = std::move(data)]() mutable {
             if (presence != nullptr)
             {
-                presence->handleBadgeSocketMessage(generation,
-                                                   std::move(data));
+                presence->handleBadgeSocketMessage(generation, std::move(data));
             }
         });
     }
@@ -153,13 +153,13 @@ public:
 
     void onClose(std::unique_ptr<WebSocketListener>) override
     {
-        runInGuiThread([presence = this->presence_,
-                        generation = this->generation_] {
-            if (presence != nullptr)
-            {
-                presence->handleBadgeSocketClosed(generation);
-            }
-        });
+        runInGuiThread(
+            [presence = this->presence_, generation = this->generation_] {
+                if (presence != nullptr)
+                {
+                    presence->handleBadgeSocketClosed(generation);
+                }
+            });
     }
 
 private:
@@ -516,4 +516,4 @@ MoltorinoPresence *getMoltorinoPresence()
     return &MoltorinoPresence::instance();
 }
 
-}
+}  // namespace chatterino

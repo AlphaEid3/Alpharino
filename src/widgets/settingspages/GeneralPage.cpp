@@ -93,7 +93,7 @@ void addKeyboardModifierSetting(GeneralPageView &layout, const QString &title,
         },
         false);
 }
-}
+}  // namespace
 
 namespace chatterino {
 
@@ -229,7 +229,6 @@ void GeneralPage::initLayout(GeneralPageView &layout)
                 }
                 else
                 {
-
                     return NotebookTabLocation::Top;
                 }
             },
@@ -952,8 +951,11 @@ void GeneralPage::initLayout(GeneralPageView &layout)
     if (Version::instance().isSupportedOS())
     {
         layout.addDescription(
-            "Windows builds are published on <a href='https://github.com/AlphaEid3/Alpharino/releases'>GitHub releases</a>. "
-            "Report issues <a href='https://github.com/AlphaEid3/Alpharino/issues'>here</a>.");
+            "Windows builds are published on <a "
+            "href='https://github.com/AlphaEid3/Alpharino/releases'>GitHub "
+            "releases</a>. "
+            "Report issues <a "
+            "href='https://github.com/AlphaEid3/Alpharino/issues'>here</a>.");
 
         SettingWidget::checkbox("Receive beta updates", s.betaUpdates)
             ->addTo(layout);
@@ -1071,16 +1073,18 @@ void GeneralPage::initLayout(GeneralPageView &layout)
         "reduce bandwidth usage and to speed up loading.");
 
     auto *cachePathLabel = layout.addDescription("placeholder :D");
-    getSettings()->cachePath.connect([cachePathLabel](const auto &,
-                                                      auto) mutable {
-        QString newPath = getApp()->getPaths().cacheDirectory();
+    getSettings()->cachePath.connect(
+        [cachePathLabel](const auto &, auto) mutable {
+            QString newPath = getApp()->getPaths().cacheDirectory();
 
-        QString pathShortened = "Cache saved at <a href=\"file:///" + newPath +
-                                R"("><span style="color: white;">)" +
-                                shortenString(newPath, 50) + "</span></a>";
-        cachePathLabel->setText(pathShortened);
-        cachePathLabel->setToolTip(newPath);
-    }, this->managedConnections_);
+            QString pathShortened = "Cache saved at <a href=\"file:///" +
+                                    newPath +
+                                    R"("><span style="color: white;">)" +
+                                    shortenString(newPath, 50) + "</span></a>";
+            cachePathLabel->setText(pathShortened);
+            cachePathLabel->setToolTip(newPath);
+        },
+        this->managedConnections_);
 
     {
         auto *box = new QHBoxLayout;
@@ -1288,9 +1292,8 @@ void GeneralPage::initLayout(GeneralPageView &layout)
                      "while this is off.")
         ->addTo(layout);
     SettingWidget::checkbox("Bluzyrino", s.showBadgesBluzyrino)
-        ->setTooltip(
-            "Applies to everyone's badges on this device. Manage your "
-            "own badge visibility in Vanity.")
+        ->setTooltip("Applies to everyone's badges on this device. Manage your "
+                     "own badge visibility in Vanity.")
         ->addTo(layout);
     SettingWidget::checkbox("Wydios", s.showBadgesWydios)
         ->addKeywords({"wydios", "wy"})
@@ -1424,8 +1427,7 @@ void GeneralPage::initLayout(GeneralPageView &layout)
         presetCombo->setCurrentIndex(-1);
 
         QPalette palette = presetCombo->palette();
-        palette.setColor(QPalette::PlaceholderText,
-                         QColor(255, 255, 255));
+        palette.setColor(QPalette::PlaceholderText, QColor(255, 255, 255));
         presetCombo->setPalette(palette);
         s.searchEnabled.connect(
             [presetCombo](bool value) {
@@ -1847,4 +1849,4 @@ void GeneralPage::onShow()
     getTheme()->reloadAvailableThemes();
 }
 
-}
+}  // namespace chatterino

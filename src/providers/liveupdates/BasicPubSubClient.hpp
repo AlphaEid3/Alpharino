@@ -38,7 +38,7 @@ public:
         this->open_ = true;
     }
 
-    void onMessage(const QByteArray & )
+    void onMessage(const QByteArray &)
     {
     }
 
@@ -133,4 +133,4 @@ private:
     friend class BasicPubSubManager;
 };
 
-}
+}  // namespace chatterino

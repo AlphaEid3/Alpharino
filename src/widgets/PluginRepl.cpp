@@ -52,13 +52,12 @@ public:
     }
 
 Q_SIGNALS:
-    void onSend(const QString & );
+    void onSend(const QString &);
 
 protected:
     bool event(QEvent *e) override;
 
 private:
-
     std::optional<QString> nextHistoryItem(qsizetype diff);
 
     QStringList history;
@@ -189,7 +188,6 @@ QString stringifyValue(lua_State *L, int idx)
         case LUA_TNIL:
             return u"nil"_s;
         case LUA_TSTRING: {
-
             auto sv = sol::stack::unqualified_get<std::string_view>(L, idx);
             return QString::fromUtf8(sv.data(),
                                      static_cast<qsizetype>(sv.size()));
@@ -379,7 +377,7 @@ void stringify(sol::stack_proxy it, QString &s, size_t maxItems = 10,
     }
 }
 
-}
+}  // namespace
 
 namespace chatterino {
 
@@ -580,8 +578,8 @@ void PluginRepl::tryRun(QString code)
 
         sol::protected_function_result evalRes = (*fn)();
         this->logResult(evalRes, {
-                                 .maxItems = maxItems,
-                             });
+                                     .maxItems = maxItems,
+                                 });
     }
     catch (const sol::error &err)
     {
@@ -751,7 +749,7 @@ void PluginRepl::updatePinned()
     }
 }
 
-}
+}  // namespace chatterino
 
 #    include "PluginRepl.moc"
 

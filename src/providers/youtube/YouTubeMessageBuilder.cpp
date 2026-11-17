@@ -115,8 +115,7 @@ void mergeAuthor(YouTubeAuthor &existing, const YouTubeAuthor &author)
         updated.membershipBadgeUrl = existing.membershipBadgeUrl;
         if (updated.membershipBadgeTooltip.isEmpty())
         {
-            updated.membershipBadgeTooltip =
-                existing.membershipBadgeTooltip;
+            updated.membershipBadgeTooltip = existing.membershipBadgeTooltip;
         }
     }
     if (!updated.roleMetadataKnown)
@@ -153,10 +152,8 @@ EmotePtr makeYouTubeRoleBadge(QStringView resource1x, QStringView resource2x,
         .name = EmoteName{name},
         .images =
             ImageSet{
-                Image::fromUrl(Url{resource1x.toString()}, 1.0,
-                               QSize{18, 18}),
-                Image::fromUrl(Url{resource2x.toString()}, 0.5,
-                               QSize{36, 36}),
+                Image::fromUrl(Url{resource1x.toString()}, 1.0, QSize{18, 18}),
+                Image::fromUrl(Url{resource2x.toString()}, 0.5, QSize{36, 36}),
             },
         .tooltip = Tooltip{name},
     });
@@ -173,16 +170,16 @@ const EmotePtr &youtubeOwnerBadge()
 const EmotePtr &youtubeModeratorBadge()
 {
     static const auto badge = makeYouTubeRoleBadge(
-        u":/badges/youtube-moderator.svg",
-        u":/badges/youtube-moderator-36.svg", u"YouTube moderator");
+        u":/badges/youtube-moderator.svg", u":/badges/youtube-moderator-36.svg",
+        u"YouTube moderator");
     return badge;
 }
 
 const EmotePtr &youtubeVerifiedBadge()
 {
     static const auto badge = makeYouTubeRoleBadge(
-        u":/badges/youtube-verified.svg",
-        u":/badges/youtube-verified-36.svg", u"Verified YouTube channel");
+        u":/badges/youtube-verified.svg", u":/badges/youtube-verified-36.svg",
+        u"Verified YouTube channel");
     return badge;
 }
 
@@ -192,8 +189,8 @@ EmotePtr youtubeMemberBadge(const YouTubeAuthor &author)
     if (badgeUrl.isEmpty())
     {
         static const auto fallback = makeYouTubeRoleBadge(
-            u":/badges/youtube-member.svg",
-            u":/badges/youtube-member-36.svg", u"YouTube member");
+            u":/badges/youtube-member.svg", u":/badges/youtube-member-36.svg",
+            u"YouTube member");
         return fallback;
     }
 
@@ -212,8 +209,7 @@ EmotePtr youtubeMemberBadge(const YouTubeAuthor &author)
     locker.unlock();
     auto badge = std::make_shared<const Emote>(Emote{
         .name = EmoteName{u"youtube:member"_s},
-        .images = ImageSet(
-            Image::fromAutoscaledUrl(Url{badgeUrl}, 18)),
+        .images = ImageSet(Image::fromAutoscaledUrl(Url{badgeUrl}, 18)),
         .tooltip = Tooltip{tooltip},
         .id = EmoteId{badgeUrl},
     });
@@ -227,8 +223,7 @@ EmotePtr youtubeMemberBadge(const YouTubeAuthor &author)
     cache.memberBadgeInsertionOrder.enqueue(cacheKey);
     while (cache.memberBadges.size() > MAX_CACHED_YOUTUBE_MEMBER_BADGES)
     {
-        cache.memberBadges.remove(
-            cache.memberBadgeInsertionOrder.dequeue());
+        cache.memberBadges.remove(cache.memberBadgeInsertionOrder.dequeue());
     }
     return badge;
 }
@@ -286,7 +281,7 @@ HighlightAlert processHighlights(YouTubeMessageBuilder &builder,
     return alert;
 }
 
-}
+}  // namespace
 
 namespace chatterino {
 
@@ -432,13 +427,11 @@ void YouTubeMessageBuilder::rememberAuthor(const QString &sourceChannel,
 
     while (cache.authorsByMessageID.size() > MAX_CACHED_YOUTUBE_AUTHORS)
     {
-        cache.authorsByMessageID.remove(
-            cache.messageInsertionOrder.dequeue());
+        cache.authorsByMessageID.remove(cache.messageInsertionOrder.dequeue());
     }
     while (cache.authorsByChannelID.size() > MAX_CACHED_YOUTUBE_AUTHORS)
     {
-        cache.authorsByChannelID.remove(
-            cache.channelInsertionOrder.dequeue());
+        cache.authorsByChannelID.remove(cache.channelInsertionOrder.dequeue());
     }
 }
 
@@ -619,10 +612,11 @@ MessagePtrMut YouTubeMessageBuilder::makeSystemEvent(
                                                        : ban.targetChannelId;
             }
             builder->timeoutUser = target;
-            rememberAuthor(channel->getName(), {}, YouTubeAuthor{
-                                   .channelId = ban.targetChannelId,
-                                   .displayName = target,
-                               });
+            rememberAuthor(channel->getName(), {},
+                           YouTubeAuthor{
+                               .channelId = ban.targetChannelId,
+                               .displayName = target,
+                           });
 
             if (ban.kind == YouTubeBanKind::Temporary)
             {
@@ -668,17 +662,17 @@ MessagePtrMut YouTubeMessageBuilder::makeSystemEvent(
             }
             builder->flags.set(MessageFlag::ModerationAction);
             builder->userID = source.targetAuthorChannelID;
-            auto target =
-                visibleYouTubeName(source.targetAuthorDisplayName);
+            auto target = visibleYouTubeName(source.targetAuthorDisplayName);
             if (target.isEmpty())
             {
                 target = u"a user"_s;
             }
             builder->timeoutUser = target;
-            rememberAuthor(channel->getName(), {}, YouTubeAuthor{
-                                   .channelId = source.targetAuthorChannelID,
-                                   .displayName = target,
-                               });
+            rememberAuthor(channel->getName(), {},
+                           YouTubeAuthor{
+                               .channelId = source.targetAuthorChannelID,
+                               .displayName = target,
+                           });
             builder.emplaceSystemTextAndUpdate(
                 u"A moderator removed messages from"_s, text);
             builder.appendLinkedUser(target, source.targetAuthorChannelID,
@@ -797,9 +791,8 @@ void YouTubeMessageBuilder::appendUsername(const YouTubeAuthor &author)
     auto *element = this->emplace<TextElement>(
         name + u':', MessageElementFlag::Username,
         this->message().usernameColor, FontStyle::ChatMediumBold);
-    element->setLink(
-        {Link::UserInfo,
-         handle.isEmpty() ? u"id:"_s + author.channelId : handle});
+    element->setLink({Link::UserInfo,
+                      handle.isEmpty() ? u"id:"_s + author.channelId : handle});
 }
 
 void YouTubeMessageBuilder::appendUserText(const QString &text)
@@ -896,15 +889,14 @@ void YouTubeMessageBuilder::appendUserRuns(
             continue;
         }
 
-        if (previousRun &&
-            shouldJoinYouTubeMessageRuns(*previousRun, run) &&
+        if (previousRun && shouldJoinYouTubeMessageRuns(*previousRun, run) &&
             !this->message().elements.empty())
         {
             this->message().elements.back()->setTrailingSpace(false);
         }
 
-        if (run.kind == YouTubeMessageRun::Kind::Text ||
-            !run.customEmoji || run.emojiImageUrl.isEmpty())
+        if (run.kind == YouTubeMessageRun::Kind::Text || !run.customEmoji ||
+            run.emojiImageUrl.isEmpty())
         {
             this->appendUserText(run.text);
         }
@@ -924,12 +916,12 @@ void YouTubeMessageBuilder::appendUserRuns(
                 const auto name = run.emojiShortcuts.isEmpty()
                                       ? run.text
                                       : run.emojiShortcuts.front();
-                emote = YouTubeEmotes::makeCustomEmoji(
-                    name, run.emojiImageUrl, run.emojiID);
+                emote = YouTubeEmotes::makeCustomEmoji(name, run.emojiImageUrl,
+                                                       run.emojiID);
             }
-            this->emplace<EmoteElement>(emote, MessageElementFlag::Emote,
-                                        this->textColor(), false,
-                                        youtube::CUSTOM_EMOJI_HORIZONTAL_PADDING);
+            this->emplace<EmoteElement>(
+                emote, MessageElementFlag::Emote, this->textColor(), false,
+                youtube::CUSTOM_EMOJI_HORIZONTAL_PADDING);
         }
 
         previousRun = &run;
@@ -951,4 +943,4 @@ void YouTubeMessageBuilder::appendLinkedUser(const QString &displayName,
     plainText.append(u' ');
 }
 
-}
+}  // namespace chatterino

@@ -39,7 +39,7 @@ QJsonObject responseObject(const NetworkResult &result)
     return json.toObject();
 }
 
-}
+}  // namespace
 
 bool validId(const QString &id)
 {
@@ -312,4 +312,4 @@ void send(const QString &channelId, const QString &token, const Gif &gif,
         .execute();
 }
 
-}
+}  // namespace chatterino::twitchgifs

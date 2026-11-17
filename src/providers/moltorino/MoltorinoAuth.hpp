@@ -1,11 +1,11 @@
 #pragma once
 
-#include <functional>
-#include <optional>
 #include <QString>
 #include <QStringList>
 #include <QVector>
 
+#include <functional>
+#include <optional>
 #include <vector>
 
 namespace chatterino {
@@ -77,31 +77,29 @@ MoltorinoAuthSummary summary();
 QString legacyToken();
 bool hasConfiguredAuth();
 
-void addOrUpdateToken(
-    const QString &token,
-    std::function<void(MoltorinoAuthAccount)> successCallback,
-    std::function<void(const QString &)> failureCallback);
+void addOrUpdateToken(const QString &token,
+                      std::function<void(MoltorinoAuthAccount)> successCallback,
+                      std::function<void(const QString &)> failureCallback);
 bool setAccountEnabled(const QString &userId, const QString &token,
                        bool enabled);
 void removeAccount(const QString &userId, const QString &token);
-void refreshAccounts(
-    MoltorinoAuthRefreshMode mode,
-    std::function<void(MoltorinoAuthRefreshResult)> callback);
+void refreshAccounts(MoltorinoAuthRefreshMode mode,
+                     std::function<void(MoltorinoAuthRefreshResult)> callback);
 void rememberEditorChannel(const QString &token,
                            const MoltorinoAuthChannel &channel);
 void forgetEditorChannel(const QString &token, const QString &channelId,
                          const QString &channelLogin);
 void scheduleStartupRefresh();
 
-MoltorinoAuthToken resolveModerationToken(
-    const QString &channelId, const QString &channelLogin,
-    QString *errorMessage = nullptr);
+MoltorinoAuthToken resolveModerationToken(const QString &channelId,
+                                          const QString &channelLogin,
+                                          QString *errorMessage = nullptr);
 MoltorinoAuthToken resolveSavedBroadcasterToken(
     const QString &channelId, const QString &channelLogin,
     QString *errorMessage = nullptr);
-MoltorinoAuthToken resolveBroadcasterToken(
-    const QString &channelId, const QString &channelLogin,
-    QString *errorMessage = nullptr);
+MoltorinoAuthToken resolveBroadcasterToken(const QString &channelId,
+                                           const QString &channelLogin,
+                                           QString *errorMessage = nullptr);
 MoltorinoAuthToken resolveSelectedUserToken(QString *errorMessage = nullptr);
 MoltorinoAuthToken resolveCurrentUserToken(QString *errorMessage = nullptr);
 MoltorinoAuthToken resolveReadToken(QString *errorMessage = nullptr);

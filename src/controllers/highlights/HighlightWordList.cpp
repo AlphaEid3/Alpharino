@@ -47,7 +47,7 @@ bool requiresIndividualRegex(const QString &pattern,
            pattern.contains(QStringLiteral("(?0"));
 }
 
-}
+}  // namespace
 
 QString highlightWordListPlatformKey(HighlightWordListPlatform platform)
 {
@@ -127,16 +127,12 @@ struct HighlightWordList::CompiledData {
     std::vector<size_t> individualRegexIndices;
 };
 
-HighlightWordList::HighlightWordList(QString name, bool enabled,
-                                     std::vector<QString> terms,
-                                     std::vector<QString> channels,
-                                     bool caseSensitive, bool showInMentions,
-                                     bool hasAlert, bool hasSound,
-                                     QString soundUrl, QColor color,
-                                     bool isRegex, QColor matchColor,
-                                     HighlightMatchStyle matchStyle,
-                                     QString matchPaintID,
-                                     HighlightWordListPlatform platform)
+HighlightWordList::HighlightWordList(
+    QString name, bool enabled, std::vector<QString> terms,
+    std::vector<QString> channels, bool caseSensitive, bool showInMentions,
+    bool hasAlert, bool hasSound, QString soundUrl, QColor color, bool isRegex,
+    QColor matchColor, HighlightMatchStyle matchStyle, QString matchPaintID,
+    HighlightWordListPlatform platform)
     : name_(std::move(name))
     , enabled_(enabled)
     , terms_(std::move(terms))
@@ -149,8 +145,7 @@ HighlightWordList::HighlightWordList(QString name, bool enabled,
     , color_(std::make_shared<QColor>(color))
     , isRegex_(isRegex)
     , matchColor_(std::make_shared<QColor>(
-          matchColor.isValid() ? matchColor
-                               : defaultNewHighlightMatchColor()))
+          matchColor.isValid() ? matchColor : defaultNewHighlightMatchColor()))
     , matchStyle_(matchStyle)
     , matchPaintID_(std::move(matchPaintID))
     , platform_(platform)
@@ -174,10 +169,10 @@ bool HighlightWordList::operator==(const HighlightWordList &other) const
                     *this->color_, this->isRegex_, *this->matchColor_,
                     this->matchStyle_, this->matchPaintID_, this->platform_) ==
            std::tie(other.name_, other.enabled_, other.terms_, other.channels_,
-                     other.caseSensitive_, other.showInMentions_,
-                     other.hasAlert_, other.hasSound_, other.soundUrl_,
-                     *other.color_, other.isRegex_, *other.matchColor_,
-                     other.matchStyle_, other.matchPaintID_, other.platform_);
+                    other.caseSensitive_, other.showInMentions_,
+                    other.hasAlert_, other.hasSound_, other.soundUrl_,
+                    *other.color_, other.isRegex_, *other.matchColor_,
+                    other.matchStyle_, other.matchPaintID_, other.platform_);
 }
 
 const QString &HighlightWordList::name() const
@@ -312,23 +307,20 @@ std::shared_ptr<const HighlightWordList::CompiledData>
         {
             continue;
         }
-        if ((isRegex &&
-             (data->originalTerms.size() >=
-                  HIGHLIGHT_WORD_LIST_MAX_REGEX_RULES ||
-              static_cast<size_t>(term.size()) >
-                  HIGHLIGHT_WORD_LIST_MAX_REGEX_RULE_LENGTH ||
-              regexCharacters + static_cast<size_t>(term.size()) >
-                  HIGHLIGHT_WORD_LIST_MAX_RULE_CHARACTERS)) ||
-            (!isRegex &&
-             (data->originalTerms.size() >=
-                  HIGHLIGHT_WORD_LIST_MAX_LITERAL_RULES ||
-              static_cast<size_t>(term.size()) >
-                  HIGHLIGHT_WORD_LIST_MAX_LITERAL_RULE_LENGTH)))
+        if ((isRegex && (data->originalTerms.size() >=
+                             HIGHLIGHT_WORD_LIST_MAX_REGEX_RULES ||
+                         static_cast<size_t>(term.size()) >
+                             HIGHLIGHT_WORD_LIST_MAX_REGEX_RULE_LENGTH ||
+                         regexCharacters + static_cast<size_t>(term.size()) >
+                             HIGHLIGHT_WORD_LIST_MAX_RULE_CHARACTERS)) ||
+            (!isRegex && (data->originalTerms.size() >=
+                              HIGHLIGHT_WORD_LIST_MAX_LITERAL_RULES ||
+                          static_cast<size_t>(term.size()) >
+                              HIGHLIGHT_WORD_LIST_MAX_LITERAL_RULE_LENGTH)))
         {
             continue;
         }
-        const auto key =
-            isRegex ? term : normalizeText(term, caseSensitive);
+        const auto key = isRegex ? term : normalizeText(term, caseSensitive);
         if (seen.contains(key))
         {
             continue;
@@ -356,8 +348,7 @@ std::shared_ptr<const HighlightWordList::CompiledData>
             const auto wrapped = u"(?:" % term % u')';
             if (!batchPatterns.isEmpty() &&
                 (batchPatterns.size() >= MAX_REGEX_BATCH_RULES ||
-                 batchCharacters + wrapped.size() >
-                     MAX_REGEX_BATCH_CHARACTERS))
+                 batchCharacters + wrapped.size() > MAX_REGEX_BATCH_CHARACTERS))
             {
                 flushRegexBatch();
             }
@@ -526,8 +517,7 @@ HighlightWordListMatchResult HighlightWordList::matchSubject(
                 return;
             }
 
-            auto it =
-                this->compiled_->regexes[termIndex].globalMatch(subject);
+            auto it = this->compiled_->regexes[termIndex].globalMatch(subject);
             while (it.hasNext())
             {
                 const auto match = it.next();
@@ -563,8 +553,7 @@ HighlightWordListMatchResult HighlightWordList::matchSubject(
                     return result;
                 }
             }
-            for (const auto termIndex :
-                 this->compiled_->individualRegexIndices)
+            for (const auto termIndex : this->compiled_->individualRegexIndices)
             {
                 collectRegex(termIndex);
                 if (result.matched)
@@ -667,4 +656,4 @@ HighlightWordListMatchResult HighlightWordList::matchSubject(
     return result;
 }
 
-}
+}  // namespace chatterino

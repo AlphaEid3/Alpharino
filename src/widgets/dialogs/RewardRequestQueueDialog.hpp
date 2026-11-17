@@ -98,6 +98,6 @@ private:
     static std::vector<QPointer<RewardRequestQueueDialog>> activeDialogs_;
 };
 
-}
+}  // namespace chatterino
 
 #endif

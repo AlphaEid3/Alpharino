@@ -56,4 +56,4 @@ private Q_SLOTS:
     void finished();
 };
 
-}
+}  // namespace chatterino::network::detail

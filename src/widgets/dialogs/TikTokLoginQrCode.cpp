@@ -57,7 +57,7 @@ std::optional<QByteArray> decode(const QImage &source)
     return QByteArray(reinterpret_cast<const char *>(data.payload),
                       data.payload_len);
 }
-}
+}  // namespace
 
 QImage renderTikTokLoginQr(const QImage &source, const QImage &logo,
                            int pixelSize)
@@ -96,8 +96,8 @@ QImage renderTikTokLoginQr(const QImage &source, const QImage &logo,
             {
                 if (code.getModule(x, y))
                 {
-                    painter.fillRect(offset + x * unit, offset + y * unit,
-                                     unit, unit, Qt::black);
+                    painter.fillRect(offset + x * unit, offset + y * unit, unit,
+                                     unit, Qt::black);
                 }
             }
         }
@@ -120,4 +120,4 @@ QImage renderTikTokLoginQr(const QImage &source, const QImage &logo,
     }
     return fallback();
 }
-}
+}  // namespace chatterino

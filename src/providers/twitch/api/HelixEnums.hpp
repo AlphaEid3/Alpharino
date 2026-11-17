@@ -292,4 +292,4 @@ enum class HelixGetSharedChatSessionError : std::uint8_t {
     // The error message is forwarded directly from the Twitch API
     Forwarded,
 };
-}
+}  // namespace chatterino

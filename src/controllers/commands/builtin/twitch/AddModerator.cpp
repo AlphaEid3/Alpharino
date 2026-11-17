@@ -2,8 +2,8 @@
 
 #include "Application.hpp"
 #include "controllers/accounts/AccountController.hpp"
-#include "controllers/commands/CommandContext.hpp"
 #include "controllers/commands/builtin/twitch/ModVipActions.hpp"
+#include "controllers/commands/CommandContext.hpp"
 #include "providers/twitch/api/Helix.hpp"
 #include "providers/twitch/TwitchAccount.hpp"
 #include "providers/twitch/TwitchChannel.hpp"
@@ -58,7 +58,8 @@ QString addModerator(const CommandContext &ctx)
                 twitchChannel->roomId(), targetUser.id,
                 [channel, twitchChannel, targetUser] {
                     twitchChannel->setKnownModeratorStatus(
-                        targetUser.login, true, QDateTime::currentDateTimeUtc());
+                        targetUser.login, true,
+                        QDateTime::currentDateTimeUtc());
                 },
                 [channel, targetUser](auto error, auto message) {
                     QString errorMessage =
@@ -69,7 +70,6 @@ QString addModerator(const CommandContext &ctx)
                     switch (error)
                     {
                         case Error::UserMissingScope: {
-
                             errorMessage += "Missing required scope. "
                                             "Re-login with your "
                                             "account and try again.";
@@ -77,7 +77,6 @@ QString addModerator(const CommandContext &ctx)
                         break;
 
                         case Error::UserNotAuthorized: {
-
                             errorMessage += "You don't have permission to "
                                             "perform that action.";
                         }
@@ -100,7 +99,6 @@ QString addModerator(const CommandContext &ctx)
                         break;
 
                         case Error::TargetAlreadyModded: {
-
                             errorMessage =
                                 QString("%1 is already a moderator of this "
                                         "channel.")
@@ -124,11 +122,12 @@ QString addModerator(const CommandContext &ctx)
         },
         [channel{ctx.channel}, target] {
             channel->addSystemMessage(
-                QString("Could not look up user: %1. Check the username or log in again.")
+                QString("Could not look up user: %1. Check the username or log "
+                        "in again.")
                     .arg(target));
         });
 
     return "";
 }
 
-}
+}  // namespace chatterino::commands

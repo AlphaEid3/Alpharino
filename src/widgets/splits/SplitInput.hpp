@@ -14,8 +14,8 @@
 #include <QLineEdit>
 #include <QPaintEvent>
 #include <QPointer>
-#include <QPropertyAnimation>
 #include <QProgressBar>
+#include <QPropertyAnimation>
 #include <QTextEdit>
 #include <QTimer>
 #include <QVBoxLayout>
@@ -158,9 +158,9 @@ protected:
     void updateRaidStatus();
     bool trySendMessageAsWarning(const QString &message,
                                  const ChannelPtr &channel);
-    bool maybeSendMessageAsWarning(
-        const QString &message, const std::vector<QString> &arguments,
-        const ChannelPtr &channel);
+    bool maybeSendMessageAsWarning(const QString &message,
+                                   const std::vector<QString> &arguments,
+                                   const ChannelPtr &channel);
     void updateEmoteButton();
     void bindChannelPoints(TwitchChannel *channel);
     void clearChannelPointsDisplay();
@@ -181,9 +181,9 @@ protected:
     QString outgoingTranslationTargetLanguage() const;
     bool shouldTranslateOutgoingMessage(const QString &message) const;
     QString currentOutgoingMessageBody() const;
-    bool maybeSendTranslatedMessage(
-        const QString &message, const std::vector<QString> &arguments,
-        const ChannelPtr &channel);
+    bool maybeSendTranslatedMessage(const QString &message,
+                                    const std::vector<QString> &arguments,
+                                    const ChannelPtr &channel);
     void postTranslatedMessageSend(const QString &message,
                                    const std::vector<QString> &arguments,
                                    uint64_t draftRevision);
@@ -198,8 +198,7 @@ protected:
     void hideCompletionPopup();
     void insertCompletionText(const QString &input_);
     bool handleCommandCompletionKey(QKeyEvent *event);
-    void insertCommandCompletionText(const QString &completion,
-                                     bool keepPopup);
+    void insertCommandCompletionText(const QString &completion, bool keepPopup);
     void resetCommandCompletionSession();
     void openEmotePopup();
     void clearReplyTarget();

@@ -84,7 +84,7 @@ QJsonObject asset(const Emote &emote, const QJsonObject &source,
                                  static_cast<double>(emote.modifierFlags)}}));
     return result;
 }
-}
+}  // namespace
 
 QString stableKey(const QJsonObject &object)
 {
@@ -627,4 +627,4 @@ void publicEvent(const Channel &channel, QJsonObject event)
         }
     }
 }
-}
+}  // namespace chatterino::recording

@@ -93,4 +93,4 @@ private:
     QCheckBox *shareComment_{};
 };
 
-}
+}  // namespace chatterino

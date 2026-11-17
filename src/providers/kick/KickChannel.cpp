@@ -218,7 +218,6 @@ void KickChannel::updateSeventvUser(
 {
     if (dispatch.connectionIndex != this->seventvKickConnectionIndex_)
     {
-
         return;
     }
 
@@ -391,17 +390,16 @@ bool KickChannel::updateLiveStatus(bool live, const QString &title)
 
         if (this->streamData_.isLive)
         {
-            this->addMessage(
-                MessageBuilder::makeLiveMessage(
-                    HelixMinimalUser{
-                        .id = QString::number(this->userID()),
-                        .login = this->getName(),
-                        .displayName = this->getDisplayName(),
-                    },
-                    title,
-                    {MessageFlag::System,
-                     MessageFlag::DoNotTriggerNotification}),
-                MessageContext::Original);
+            this->addMessage(MessageBuilder::makeLiveMessage(
+                                 HelixMinimalUser{
+                                     .id = QString::number(this->userID()),
+                                     .login = this->getName(),
+                                     .displayName = this->getDisplayName(),
+                                 },
+                                 title,
+                                 {MessageFlag::System,
+                                  MessageFlag::DoNotTriggerNotification}),
+                             MessageContext::Original);
         }
         else
         {
@@ -510,7 +508,7 @@ EmotePtr KickChannel::getSubBadge(unsigned months)
     --baseIt;
 
     const auto name = months == 1 ? u"Subscriber for 1 month"_s
-                                 : u"Subscriber for %1 months"_s.arg(months);
+                                  : u"Subscriber for %1 months"_s.arg(months);
     auto emote = std::make_shared<const Emote>(Emote{
         .name = {name},
         .images = ImageSet{baseIt->second},
@@ -619,7 +617,6 @@ void KickChannel::setUserInfo(UserInit init)
 
 size_t KickChannel::maxBurstMessages() const
 {
-
     if (this->hasHighRateLimit())
     {
         return 20;
@@ -629,7 +626,6 @@ size_t KickChannel::maxBurstMessages() const
 
 std::chrono::milliseconds KickChannel::minMessageOffset() const
 {
-
     if (this->hasHighRateLimit())
     {
         return 50ms;
@@ -722,7 +718,6 @@ QString KickChannel::prepareMessage(const QString &message) const
     }
     else
     {
-
         outMessage = baseMessage;
     }
     return outMessage;
@@ -816,7 +811,6 @@ void KickChannel::updateSeventvData(const QString &newUserID,
 
             if (oldUserID || oldEmoteSetID)
             {
-
                 getApp()->getTwitch()->dropSeventvChannel(
                     oldUserID.value_or(QString()),
                     oldEmoteSetID.value_or(QString()));
@@ -877,20 +871,14 @@ bool KickChannel::tryReplaceLastSeventvAddOrRemove(MessageFlag op,
         if (op == MessageFlag::LiveUpdatesAdd)
         {
             return {
-                liveUpdatesAddEmoteMessage,
-                "7TV",
-                last->loginName,
-                this->lastSeventvEmoteNames_,
-                now,
+                liveUpdatesAddEmoteMessage,   "7TV", last->loginName,
+                this->lastSeventvEmoteNames_, now,
             };
         }
 
         return {
-            liveUpdatesRemoveEmoteMessage,
-            "7TV",
-            last->loginName,
-            this->lastSeventvEmoteNames_,
-            now,
+            liveUpdatesRemoveEmoteMessage, "7TV", last->loginName,
+            this->lastSeventvEmoteNames_,  now,
         };
     };
 
@@ -989,4 +977,4 @@ QDebug operator<<(QDebug dbg, const KickChannel &chan)
     return dbg;
 }
 
-}
+}  // namespace chatterino

@@ -51,7 +51,7 @@ QDateTime calculateMessageTimeBase(const Communi::IrcMessage *message)
     return QDateTime::currentDateTime();
 }
 
-}
+}  // namespace
 
 namespace chatterino {
 
@@ -69,4 +69,4 @@ QDateTime calculateMessageTime(const Communi::IrcMessage *message)
     return dt;
 }
 
-}
+}  // namespace chatterino

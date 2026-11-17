@@ -44,4 +44,4 @@ void _registerSetting(std::weak_ptr<pajlada::Settings::SettingData> setting,
                              validate);
 }
 
-}
+}  // namespace chatterino

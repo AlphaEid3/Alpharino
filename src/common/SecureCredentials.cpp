@@ -102,7 +102,7 @@ void runOrdered(const QString &key, std::function<void()> operation)
     }
 }
 
-}
+}  // namespace
 
 namespace chatterino {
 
@@ -118,8 +118,8 @@ void SecureCredentials::read(const QString &key, ReadCallback callback)
             auto secret = keychain::getPassword(PACKAGE, SERVICE, key, error);
             if (error.type == keychain::ErrorType::NotFound)
             {
-                result = makeUnexpected(
-                    QStringLiteral("Credential was not found."));
+                result =
+                    makeUnexpected(QStringLiteral("Credential was not found."));
             }
             else if (error)
             {
@@ -214,4 +214,4 @@ void SecureCredentials::remove(const QString &key, WriteCallback callback)
     });
 }
 
-}
+}  // namespace chatterino

@@ -52,4 +52,4 @@ private:
 QWidget *makeChatRecordingSettings(QWidget *parent = nullptr);
 SplitContainer *recordingTabFor(Split *pane);
 
-}
+}  // namespace chatterino

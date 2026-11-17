@@ -10,7 +10,7 @@ using namespace chatterino;
 
 QCache<QString, EmotePtr> CACHE(4096);
 
-}
+}  // namespace
 
 namespace chatterino {
 
@@ -35,4 +35,4 @@ EmotePtr KickEmotes::emoteForID(QStringView id, QStringView name)
     return emote;
 }
 
-}
+}  // namespace chatterino

@@ -25,7 +25,6 @@ bool looselyCompareVariants(QVariant &lhs, QVariant &rhs)
         }
         else
         {
-
             qSwap(lhs, rhs);
             if (!rhs.convert(lhs.metaType()))
             {
@@ -38,7 +37,7 @@ bool looselyCompareVariants(QVariant &lhs, QVariant &rhs)
     return lhs == rhs;
 }
 
-}
+}  // namespace
 
 namespace chatterino::filters {
 
@@ -445,4 +444,4 @@ QString BinaryOperation::filterString() const
         .arg(this->right_->filterString());
 }
 
-}
+}  // namespace chatterino::filters

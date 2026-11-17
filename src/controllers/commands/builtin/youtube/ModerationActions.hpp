@@ -18,4 +18,4 @@ QString doYouTubeUnban(const CommandContext &ctx);
 
 QString doYouTubeDelete(const CommandContext &ctx);
 
-}
+}  // namespace chatterino::commands

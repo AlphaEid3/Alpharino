@@ -20,7 +20,7 @@ int cacheKey(TranslationProvider provider)
     return static_cast<int>(provider);
 }
 
-}
+}  // namespace
 
 QString translationProviderCredentialKey(TranslationProvider provider)
 {
@@ -152,22 +152,21 @@ void removeTranslationProviderCredential(
         return;
     }
 
-    SecureCredentials::remove(
-        credentialKey,
-        [provider, callback = std::move(callback)](
-            ExpectedStr<void> result) mutable {
-            if (result)
-            {
-                const auto key = cacheKey(provider);
-                ++credentialRevisions[key];
-                loadedCredentials.insert(key);
-                credentialCache.insert(key, QString{});
-            }
-            if (callback)
-            {
-                callback(std::move(result));
-            }
-        });
+    SecureCredentials::remove(credentialKey,
+                              [provider, callback = std::move(callback)](
+                                  ExpectedStr<void> result) mutable {
+                                  if (result)
+                                  {
+                                      const auto key = cacheKey(provider);
+                                      ++credentialRevisions[key];
+                                      loadedCredentials.insert(key);
+                                      credentialCache.insert(key, QString{});
+                                  }
+                                  if (callback)
+                                  {
+                                      callback(std::move(result));
+                                  }
+                              });
 }
 
-}
+}  // namespace chatterino

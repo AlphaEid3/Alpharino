@@ -825,7 +825,7 @@ void runCompositeUpdate(std::vector<CompositeUpdateStep> steps,
     (*state->advance)();
 }
 
-}
+}  // namespace
 
 namespace ChannelManagement {
 
@@ -1659,6 +1659,6 @@ void startCommercial(
         });
 }
 
-}
+}  // namespace ChannelManagement
 
-}
+}  // namespace chatterino

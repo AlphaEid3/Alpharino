@@ -38,4 +38,4 @@ private:
     } ui_;
 };
 
-}
+}  // namespace chatterino

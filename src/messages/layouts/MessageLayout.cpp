@@ -86,7 +86,7 @@ std::optional<ClientDetectionMarker> clientDetectionMarker(
 
     return std::nullopt;
 }
-}
+}  // namespace
 
 MessageLayout::MessageLayout(MessagePtr message)
     : message_(std::move(message))
@@ -308,7 +308,6 @@ void MessageLayout::actuallyLayout(const MessageLayoutContext &ctx)
         if (hideBlockedTermAutomodMessages &&
             this->message_->flags.has(MessageFlag::AutoModBlockedTerm))
         {
-
             continue;
         }
 
@@ -316,7 +315,6 @@ void MessageLayout::actuallyLayout(const MessageLayoutContext &ctx)
         {
             if (getApp()->getStreamerMode()->shouldHideRestrictedUsers())
             {
-
                 continue;
             }
         }
@@ -326,7 +324,6 @@ void MessageLayout::actuallyLayout(const MessageLayoutContext &ctx)
             if (hideModerationActions ||
                 getApp()->getStreamerMode()->shouldHideModActions())
             {
-
                 continue;
             }
         }
@@ -460,8 +457,8 @@ MessagePaintResult MessageLayout::paint(const MessagePaintContext &ctx)
 
     if (!ctx.selection.isEmpty())
     {
-        container.paintSelection(ctx.painter, ctx.messageIndex,
-                                 ctx.selection, ctx.y);
+        container.paintSelection(ctx.painter, ctx.messageIndex, ctx.selection,
+                                 ctx.y);
     }
 
     if (ctx.preferences.separateMessages)
@@ -818,14 +815,12 @@ bool MessageLayout::hasCache() const
 
 const MessageLayoutElement *MessageLayout::getElementAt(QPointF point) const
 {
-
     return this->container_ ? this->container_->getElementAt(point) : nullptr;
 }
 
 std::pair<int, int> MessageLayout::getWordBounds(
     const MessageLayoutElement *hoveredElement, QPointF relativePos) const
 {
-
     if (hoveredElement->getWordId() != -1)
     {
         assert(this->container_);
@@ -865,4 +860,4 @@ void MessageLayout::addSelectionText(QString &str, uint32_t from, uint32_t to,
     }
 }
 
-}
+}  // namespace chatterino

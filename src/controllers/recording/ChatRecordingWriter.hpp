@@ -39,4 +39,4 @@ private:
 QString recordingFileName(const QJsonObject &metadata,
                           const QJsonArray &sources);
 
-}
+}  // namespace chatterino::recording

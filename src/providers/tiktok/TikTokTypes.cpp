@@ -79,4 +79,4 @@ bool isTikTokImageUrl(const QUrl &url)
     return false;
 }
 
-}
+}  // namespace chatterino

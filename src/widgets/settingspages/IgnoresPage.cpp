@@ -131,7 +131,6 @@ void addUsersTab(IgnoresPage &page, LayoutCreator<QVBoxLayout> users,
         anyways->addStretch(1);
     }
 
-
     users.emplace<QLabel>("Blocked on Twitch");
     users.emplace<QListView>()->setModel(&blockedModel);
 
@@ -212,4 +211,4 @@ void IgnoresPage::onShow()
     this->hiddenUserListModel_.setStringList(hiddenLabels);
 }
 
-}
+}  // namespace chatterino

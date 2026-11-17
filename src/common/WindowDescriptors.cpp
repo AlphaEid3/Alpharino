@@ -469,8 +469,7 @@ WindowLayout WindowLayout::loadFromFile(const QString &path)
 
             const auto storedColor =
                 groupObj.value("color").toString().left(32);
-            auto colorMode =
-                groupObj.value("colorMode").toString().toLower();
+            auto colorMode = groupObj.value("colorMode").toString().toLower();
             if (colorMode != "theme" && colorMode != "none" &&
                 colorMode != "custom")
             {

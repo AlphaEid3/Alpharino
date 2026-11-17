@@ -179,7 +179,7 @@ gboolean readCommands(gint fd, GIOCondition condition, gpointer)
     }
     return browser ? G_SOURCE_CONTINUE : G_SOURCE_REMOVE;
 }
-}
+}  // namespace
 
 int main()
 {

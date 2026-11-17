@@ -9,18 +9,17 @@
 #include "common/QLogging.hpp"
 #include "controllers/emotes/EmoteController.hpp"
 #include "providers/twitch/TwitchEmotes.hpp"
+#include "util/Helpers.hpp"
 #include "util/IrcHelpers.hpp"
 
-#include "util/Helpers.hpp"
-
 #include <QCache>
-#include <span>
-#include <utility>
 #include <QUrl>
 
 #include <algorithm>
 #include <chrono>
 #include <mutex>
+#include <span>
+#include <utility>
 
 namespace {
 
@@ -267,7 +266,7 @@ void appendTwitchGifOccurrences(const QString &gifToken,
     });
 }
 
-}
+}  // namespace
 
 namespace chatterino {
 
@@ -322,7 +321,6 @@ std::vector<TwitchEmoteOccurrence> parseTwitchEmotes(Communi::TagsRef tags,
                                                      QStringView content,
                                                      int messageOffset)
 {
-
     std::vector<TwitchEmoteOccurrence> twitchEmotes;
 
     auto emotesTag = tags.get("emotes");
@@ -391,4 +389,4 @@ std::vector<TwitchGifOccurrence> parseTwitchGifs(Communi::TagsRef tags,
     return twitchGifs;
 }
 
-}
+}  // namespace chatterino

@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: MIT
 
 #include "singletons/Updates.hpp"
-#include "Application.hpp"
 
+#include "Application.hpp"
 #include "common/Literals.hpp"
 #include "common/Modes.hpp"
 #include "common/network/NetworkRequest.hpp"
@@ -36,41 +36,41 @@ QString currentBranch()
     return getSettings()->betaUpdates ? "beta" : "stable";
 }
 
-#if defined(Q_OS_WIN)
+#    if defined(Q_OS_WIN)
 const QString CHATTERINO_OS = u"win"_s;
-#elif defined(Q_OS_MACOS)
+#    elif defined(Q_OS_MACOS)
 const QString CHATTERINO_OS = u"macos"_s;
-#elif defined(Q_OS_LINUX)
+#    elif defined(Q_OS_LINUX)
 const QString CHATTERINO_OS = u"linux"_s;
-#elif defined(Q_OS_FREEBSD)
+#    elif defined(Q_OS_FREEBSD)
 const QString CHATTERINO_OS = u"freebsd"_s;
-#else
+#    else
 const QString CHATTERINO_OS = u"unknown"_s;
-#endif
+#    endif
 
 QJsonValue getForArchitecture(const QJsonObject &obj, const QString &key)
 {
     auto val = obj[key];
 
-#ifdef Q_PROCESSOR_ARM
+#    ifdef Q_PROCESSOR_ARM
     QString armKey = key % u"_arm";
     if (obj[armKey].isString())
     {
         val = obj[armKey];
     }
-#elifdef Q_PROCESSOR_X86
+#    elifdef Q_PROCESSOR_X86
     QString x86Key = key % u"_x86";
     if (obj[x86Key].isString())
     {
         val = obj[x86Key];
     }
-#endif
+#    endif
 
     return val;
 }
 #endif
 
-}
+}  // namespace
 
 namespace chatterino {
 
@@ -159,14 +159,14 @@ void Updates::installUpdates()
         return;
     }
 
-#ifdef Q_OS_MACOS
+#    ifdef Q_OS_MACOS
     QMessageBox *box = new QMessageBox(
         QMessageBox::Information, "Chatterino Update",
         "A link will open in your browser. Download and install to update.");
     box->setAttribute(Qt::WA_DeleteOnClose);
     box->open();
     QDesktopServices::openUrl(this->updateExe_);
-#elif defined Q_OS_LINUX
+#    elif defined Q_OS_LINUX
     QMessageBox *box =
         new QMessageBox(QMessageBox::Information, "Chatterino Update",
                         "Automatic updates are currently not available on "
@@ -174,7 +174,7 @@ void Updates::installUpdates()
     box->setAttribute(Qt::WA_DeleteOnClose);
     box->open();
     QDesktopServices::openUrl(this->updateGuideLink_);
-#elif defined Q_OS_WIN
+#    elif defined Q_OS_WIN
     if (Modes::instance().isPortable)
     {
         QMessageBox *box =
@@ -338,7 +338,7 @@ void Updates::installUpdates()
             .execute();
         this->setStatus_(Downloading);
     }
-#endif
+#    endif
 #endif
 }
 
@@ -438,8 +438,7 @@ void Updates::checkForUpdates()
     };
 
     auto apiVersion = std::make_shared<uint8_t>(3);
-    constexpr auto maxApiVersion =
-        3;
+    constexpr auto maxApiVersion = 3;
     auto fmtUrl = [apiVersion]() -> QString {
         return u"https://7tv.io/v" % QString::number(*apiVersion) %
                "/chatterino/version/" % CHATTERINO_OS % "/" % currentBranch();
@@ -537,4 +536,4 @@ void Updates::setStatus_(Status status)
     }
 }
 
-}
+}  // namespace chatterino

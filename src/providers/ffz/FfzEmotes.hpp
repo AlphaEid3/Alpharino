@@ -35,7 +35,7 @@ EmoteMap parseChannelEmotes(const QJsonObject &jsonRoot);
 
 FfzChannelBadgeMap parseChannelBadges(const QJsonObject &badgeRoot);
 
-}
+}  // namespace ffz::detail
 
 class FfzEmotes final
 {
@@ -61,4 +61,4 @@ private:
         managedConnections;
 };
 
-}
+}  // namespace chatterino

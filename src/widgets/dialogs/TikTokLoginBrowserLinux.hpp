@@ -33,4 +33,4 @@ struct TikTokGtkApi {
     void (*setVisible)(void *, bool);
 };
 
-}
+}  // namespace chatterino

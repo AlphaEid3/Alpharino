@@ -298,7 +298,7 @@ private:
     QMap<quint64, ScriptCallback> scripts_;
     QMap<quint64, CookiesCallback> cookies_;
 };
-}
+}  // namespace
 #endif
 
 #if defined(MOLTORINO_TIKTOK_WEBVIEW2) || defined(MOLTORINO_TIKTOK_WEBKIT)
@@ -328,4 +328,4 @@ std::unique_ptr<TikTokLoginBrowser> TikTokLoginBrowser::create(QObject *parent)
 #endif
 }
 
-}
+}  // namespace chatterino

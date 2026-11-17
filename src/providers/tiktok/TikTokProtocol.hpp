@@ -23,4 +23,4 @@ QByteArray enterRoom(quint64 roomID);
 QUrl socketUrl(QStringView roomID);
 QByteArray userAgent();
 
-}
+}  // namespace chatterino::tiktok

@@ -85,7 +85,8 @@ const std::vector<AutomationExample> &automationExamples()
         {
             auto &rule = add(
                 "Greeting",
-                "Replies to !hello, !hi or !hey with a greeting. Avoids repeats "
+                "Replies to !hello, !hi or !hey with a greeting. Avoids "
+                "repeats "
                 "per channel, with a five minute cooldown per person. Edit the "
                 "replies to suit your chat.",
                 "!hi");
@@ -118,12 +119,12 @@ const std::vector<AutomationExample> &automationExamples()
             rule.userCooldownSeconds = 60;
         }
         {
-            auto &rule =
-                add("Magic eight ball",
-                    "Replies with a random answer to the question after !8ball. "
-                    "Avoids repeats per channel, with a one minute cooldown per "
-                    "person. Questions are limited to 240 characters.",
-                    "!8ball Will we win this round?");
+            auto &rule = add(
+                "Magic eight ball",
+                "Replies with a random answer to the question after !8ball. "
+                "Avoids repeats per channel, with a one minute cooldown per "
+                "person. Questions are limited to 240 characters.",
+                "!8ball Will we win this round?");
             rule.trigger = "!8ball";
             rule.arguments = ChatAutomationArguments::Required;
             rule.action = ChatAutomationAction::ReplyToMessage;
@@ -143,7 +144,8 @@ const std::vector<AutomationExample> &automationExamples()
                 "Shoutout announcement",
                 "A moderator can use !so @username to post a purple "
                 "announcement linking to that channel. Your selected account "
-                "needs moderator access too. Change /announcepurple for another "
+                "needs moderator access too. Change /announcepurple for "
+                "another "
                 "color; usernames aren't verified.",
                 "!so @viewer42");
             rule.trigger = "!shoutout";
@@ -157,12 +159,12 @@ const std::vector<AutomationExample> &automationExamples()
             rule.cooldownSeconds = 60;
         }
         {
-            auto &rule =
-                add("Choose between two",
-                    "Picks between two options separated by | and replies to the "
-                    "viewer. The pattern names them first and second. Each person "
-                    "can use it every 30 seconds.",
-                    "!choose pizza | sushi");
+            auto &rule = add(
+                "Choose between two",
+                "Picks between two options separated by | and replies to the "
+                "viewer. The pattern names them first and second. Each person "
+                "can use it every 30 seconds.",
+                "!choose pizza | sushi");
             rule.trigger =
                 R"(^!choose\s+(?<first>[^|]*[^\s|])\s*\|\s*(?<second>[^|]*[^\s|])\s*$)";
             rule.match = ChatAutomationMatch::RegularExpression;
@@ -175,12 +177,12 @@ const std::vector<AutomationExample> &automationExamples()
             rule.userCooldownSeconds = 30;
         }
         {
-            auto &rule =
-                add("Personal timeout",
-                    "Use !to @username for a 60 second timeout, or add a duration "
-                    "such as 10m and an optional reason. Only responds to your "
-                    "selected account in channels where it can moderate.",
-                    "!to @viewer42 10m Repeated links");
+            auto &rule = add(
+                "Personal timeout",
+                "Use !to @username for a 60 second timeout, or add a duration "
+                "such as 10m and an optional reason. Only responds to your "
+                "selected account in channels where it can moderate.",
+                "!to @viewer42 10m Repeated links");
             rule.trigger = "!timeout";
             rule.aliases = {"!to"};
             rule.arguments = ChatAutomationArguments::Required;
@@ -192,13 +194,13 @@ const std::vector<AutomationExample> &automationExamples()
             rule.cooldownSeconds = 5;
         }
         {
-            auto &rule =
-                add("Rotating reminders",
-                    "Posts the next orange announcement with !reminder, cycling "
-                    "through the lines per channel. Both the selected account and "
-                    "sender need moderator access. Replace the reminders with your "
-                    "own rules; this runs on request, not a timer.",
-                    "!reminder");
+            auto &rule = add(
+                "Rotating reminders",
+                "Posts the next orange announcement with !reminder, cycling "
+                "through the lines per channel. Both the selected account and "
+                "sender need moderator access. Replace the reminders with your "
+                "own rules; this runs on request, not a timer.",
+                "!reminder");
             rule.trigger = "!reminder";
             rule.aliases = {"!remind"};
             rule.arguments = ChatAutomationArguments::None;
@@ -215,13 +217,14 @@ const std::vector<AutomationExample> &automationExamples()
             rule.cooldownSeconds = 60;
         }
         {
-            auto &rule =
-                add("Chat check in",
-                    "Viewers can use !checkin once an hour while your channel is "
-                    "live. The counter counts uses across streams and restarts, not "
-                    "unique viewers. Counter value in Test rule changes only the "
-                    "preview.",
-                    "!checkin");
+            auto &rule = add(
+                "Chat check in",
+                "Viewers can use !checkin once an hour while your channel is "
+                "live. The counter counts uses across streams and restarts, "
+                "not "
+                "unique viewers. Counter value in Test rule changes only the "
+                "preview.",
+                "!checkin");
             rule.trigger = "!checkin";
             rule.arguments = ChatAutomationArguments::None;
             rule.action = ChatAutomationAction::ReplyToMessage;
@@ -234,13 +237,13 @@ const std::vector<AutomationExample> &automationExamples()
             rule.userCooldownSeconds = 3600;
         }
         {
-            auto &rule =
-                add("Offline schedule help",
-                    "Replies with your Twitch schedule when someone mentions "
-                    "schedule while your channel is offline. Ignores your own "
-                    "messages, with a one minute channel cooldown and five minutes "
-                    "per person. Keep your Twitch schedule up to date.",
-                    "Where can I find the schedule?");
+            auto &rule = add(
+                "Offline schedule help",
+                "Replies with your Twitch schedule when someone mentions "
+                "schedule while your channel is offline. Ignores your own "
+                "messages, with a one minute channel cooldown and five minutes "
+                "per person. Keep your Twitch schedule up to date.",
+                "Where can I find the schedule?");
             rule.trigger = "schedule";
             rule.match = ChatAutomationMatch::ContainsWords;
             rule.action = ChatAutomationAction::ReplyToMessage;
@@ -468,9 +471,9 @@ public:
         const auto summaryTop =
             option.rect.top() + 7 +
             std::max(titleMetrics.height(), statusMetrics.height());
-        painter->drawText(QRect(contentLeft, summaryTop, rowWidth,
-                                summaryMetrics.height()),
-                          Qt::AlignLeft | Qt::AlignVCenter, summary);
+        painter->drawText(
+            QRect(contentLeft, summaryTop, rowWidth, summaryMetrics.height()),
+            Qt::AlignLeft | Qt::AlignVCenter, summary);
 
         const auto scope = summaryMetrics.elidedText(
             index.data(RULE_SCOPE_ROLE).toString(), Qt::ElideRight, rowWidth);
@@ -835,7 +838,7 @@ QString channelRoleText(ChatAutomationChannelRole role)
     }
 }
 
-}
+}  // namespace
 
 namespace chatterino {
 
@@ -1791,7 +1794,8 @@ ChatAutomationDialog::ChatAutomationDialog(QString initialChannel,
     this->save_ = buttons->addButton(QStringLiteral("Save automations"),
                                      QDialogButtonBox::AcceptRole);
     this->save_->setObjectName(QStringLiteral("saveAutomations"));
-    for (auto *button : {this->save_, buttons->button(QDialogButtonBox::Cancel)})
+    for (auto *button :
+         {this->save_, buttons->button(QDialogButtonBox::Cancel)})
     {
         button->setAutoDefault(false);
         button->setDefault(false);
@@ -3358,4 +3362,4 @@ void ChatAutomationDialog::keyPressEvent(QKeyEvent *event)
     QDialog::keyPressEvent(event);
 }
 
-}
+}  // namespace chatterino

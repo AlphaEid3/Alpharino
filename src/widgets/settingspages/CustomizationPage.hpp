@@ -184,4 +184,4 @@ private:
     QCheckBox *shareWallpaper_{};
 };
 
-}
+}  // namespace chatterino

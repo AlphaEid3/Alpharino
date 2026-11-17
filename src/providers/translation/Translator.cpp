@@ -5,11 +5,11 @@
 #include "providers/translation/TranslationRequest.hpp"
 #include "singletons/Settings.hpp"
 
+#include <QHash>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>
-#include <QHash>
 #include <QPointer>
 #include <QRegularExpression>
 #include <QSet>

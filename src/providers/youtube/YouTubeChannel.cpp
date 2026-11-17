@@ -48,8 +48,7 @@ QString moderationEventKey(const YouTubeMessage &message)
 
 QString moderationPurgeKey(QStringView channelID)
 {
-    return channelID.isEmpty() ? QString{}
-                               : u"purge:"_s + channelID.toString();
+    return channelID.isEmpty() ? QString{} : u"purge:"_s + channelID.toString();
 }
 
 bool containsPotentialCustomEmoji(QStringView text)
@@ -104,7 +103,7 @@ QString initialDisplayName(QStringView stableSource)
     return stableSource.toString();
 }
 
-}
+}  // namespace
 
 YouTubeChannel::YouTubeChannel(QString stableSource, YouTubeChatServer &server)
     : Channel(stableSource, Type::YouTube)
@@ -300,8 +299,8 @@ void YouTubeChannel::sendMessage(const QString &message)
         });
 }
 
-void YouTubeChannel::receiveAcknowledgedMessage(
-    YouTubeMessage message, QStringView localMessageID)
+void YouTubeChannel::receiveAcknowledgedMessage(YouTubeMessage message,
+                                                QStringView localMessageID)
 {
     if (message.id.isEmpty() || message.liveChatId != this->liveChatID_)
     {
@@ -338,9 +337,9 @@ void YouTubeChannel::failPendingMessage(QStringView localMessageID,
         return;
     }
 
-    auto failure = std::const_pointer_cast<Message>(makeSystemMessage(
-        u"Failed to send YouTube message: "_s + error,
-        existing->serverReceivedTime.time()));
+    auto failure = std::const_pointer_cast<Message>(
+        makeSystemMessage(u"Failed to send YouTube message: "_s + error,
+                          existing->serverReceivedTime.time()));
     failure->id = existing->id;
     failure->channelName = this->getName();
     failure->platform = MessagePlatform::YouTube;
@@ -578,7 +577,8 @@ void YouTubeChannel::applyResolved(const YouTubeResolvedChannel &resolved)
                 .platform = Platform::YouTube,
                 .url = this->browserUrl(),
                 .resolvedChannelId = this->channelID_,
-                .isDuplicateBroadcast = this->server_.hasLiveNotificationSibling(*this),
+                .isDuplicateBroadcast =
+                    this->server_.hasLiveNotificationSibling(*this),
             });
         }
         else
@@ -621,11 +621,10 @@ void YouTubeChannel::receiveMessages(
     this->learnMessageEmotes(messages);
 
     const auto moderationNow = std::chrono::steady_clock::now();
-    std::erase_if(this->pendingModerationEchoes_,
-                  [moderationNow](const auto &entry) {
-                      return moderationNow - entry.receivedAt >
-                             MODERATION_ECHO_WINDOW;
-                  });
+    std::erase_if(
+        this->pendingModerationEchoes_, [moderationNow](const auto &entry) {
+            return moderationNow - entry.receivedAt > MODERATION_ECHO_WINDOW;
+        });
 
     const auto takePendingModerationEcho =
         [this](const QString &key) -> MessagePtr {
@@ -655,9 +654,10 @@ void YouTubeChannel::receiveMessages(
         return {};
     };
 
-    const auto rememberModerationEcho =
-        [this, moderationNow](const QString &key, const QString &targetChannelID,
-                              const MessagePtr &message) {
+    const auto rememberModerationEcho = [this, moderationNow](
+                                            const QString &key,
+                                            const QString &targetChannelID,
+                                            const MessagePtr &message) {
         if (key.isEmpty() || targetChannelID.isEmpty() || !message)
         {
             return;
@@ -667,20 +667,19 @@ void YouTubeChannel::receiveMessages(
         {
             this->pendingModerationEchoes_.pop_front();
         }
-        this->pendingModerationEchoes_.push_back(
-            PendingModerationEcho{key, targetChannelID, message,
-                                  moderationNow});
+        this->pendingModerationEchoes_.push_back(PendingModerationEcho{
+            key, targetChannelID, message, moderationNow});
     };
 
     const auto hasPendingModerationEchoForTarget =
         [this](const QString &targetChannelID) {
-        return !targetChannelID.isEmpty() &&
-               std::ranges::any_of(
-                   this->pendingModerationEchoes_,
-                   [&targetChannelID](const auto &entry) {
-                       return entry.targetChannelID == targetChannelID;
-                   });
-    };
+            return !targetChannelID.isEmpty() &&
+                   std::ranges::any_of(this->pendingModerationEchoes_,
+                                       [&targetChannelID](const auto &entry) {
+                                           return entry.targetChannelID ==
+                                                  targetChannelID;
+                                       });
+        };
 
     std::vector<MessagePtr> history;
     std::unordered_map<QString, std::size_t> stagedIndexByID;
@@ -692,57 +691,54 @@ void YouTubeChannel::receiveMessages(
         stagedIndexByID.reserve(messages.size());
     }
 
-    const auto replaceStaged =
-        [&history, &stagedIndexByID](std::size_t index,
-                                    MessagePtr replacement) {
-            const auto previousID = history[index]->id;
-            const auto replacementID = replacement->id;
-            history[index] = std::move(replacement);
-            if (previousID == replacementID)
-            {
-                return;
-            }
+    const auto replaceStaged = [&history, &stagedIndexByID](
+                                   std::size_t index, MessagePtr replacement) {
+        const auto previousID = history[index]->id;
+        const auto replacementID = replacement->id;
+        history[index] = std::move(replacement);
+        if (previousID == replacementID)
+        {
+            return;
+        }
 
-            const auto previous = stagedIndexByID.find(previousID);
-            if (previous != stagedIndexByID.end() &&
-                previous->second == index)
+        const auto previous = stagedIndexByID.find(previousID);
+        if (previous != stagedIndexByID.end() && previous->second == index)
+        {
+            stagedIndexByID.erase(previous);
+        }
+        if (!replacementID.isEmpty())
+        {
+            auto [current, inserted] =
+                stagedIndexByID.try_emplace(replacementID, index);
+            if (!inserted && index < current->second)
             {
-                stagedIndexByID.erase(previous);
+                current->second = index;
             }
-            if (!replacementID.isEmpty())
-            {
-                auto [current, inserted] =
-                    stagedIndexByID.try_emplace(replacementID, index);
-                if (!inserted && index < current->second)
-                {
-                    current->second = index;
-                }
-            }
-        };
+        }
+    };
 
-    const auto replaceVisible =
-        [this, historical](const MessagePtr &existing,
-                           const MessagePtr &message,
-                           const YouTubeMessage &source) {
-            if (!historical && !source.localEcho)
-            {
-                recording::deliverLive(
-                    message,
-                    [&] {
-                        return recording::normalizeYouTube(*this, *message,
-                                                           source);
-                    },
-                    [&] {
-                        this->replaceMessage(existing, message);
-                    });
-            }
-            else
-            {
-                this->replaceMessage(existing, message);
-            }
-            getApp()->getTwitch()->getMentionsChannel()->replaceMessage(
-                existing, message);
-        };
+    const auto replaceVisible = [this, historical](
+                                    const MessagePtr &existing,
+                                    const MessagePtr &message,
+                                    const YouTubeMessage &source) {
+        if (!historical && !source.localEcho)
+        {
+            recording::deliverLive(
+                message,
+                [&] {
+                    return recording::normalizeYouTube(*this, *message, source);
+                },
+                [&] {
+                    this->replaceMessage(existing, message);
+                });
+        }
+        else
+        {
+            this->replaceMessage(existing, message);
+        }
+        getApp()->getTwitch()->getMentionsChannel()->replaceMessage(existing,
+                                                                    message);
+    };
 
     for (const auto &source : messages)
     {
@@ -830,9 +826,9 @@ void YouTubeChannel::receiveMessages(
                     if (!candidate->flags.has(MessageFlag::Disabled) &&
                         !candidate->id.isEmpty())
                     {
-                        this->restorableBanMessageIDs_[
-                                source.targetAuthorChannelID]
-                            .insert(candidate->id);
+                        this->restorableBanMessageIDs_
+                            [source.targetAuthorChannelID]
+                                .insert(candidate->id);
                     }
 
                     candidate->flags.set(MessageFlag::Disabled);
@@ -852,19 +848,17 @@ void YouTubeChannel::receiveMessages(
                     if (!candidate->flags.has(MessageFlag::Disabled) &&
                         !candidate->id.isEmpty())
                     {
-                        this->restorableBanMessageIDs_[
-                                source.targetAuthorChannelID]
-                            .insert(candidate->id);
+                        this->restorableBanMessageIDs_
+                            [source.targetAuthorChannelID]
+                                .insert(candidate->id);
                     }
                     candidate->flags.set(MessageFlag::Disabled);
                 }
             }
-            moderationKey =
-                moderationPurgeKey(source.targetAuthorChannelID);
+            moderationKey = moderationPurgeKey(source.targetAuthorChannelID);
             if (historical ||
                 bannedAuthors.contains(source.targetAuthorChannelID) ||
-                hasPendingModerationEchoForTarget(
-                    source.targetAuthorChannelID))
+                hasPendingModerationEchoForTarget(source.targetAuthorChannelID))
             {
                 continue;
             }
@@ -892,11 +886,9 @@ void YouTubeChannel::receiveMessages(
         if (source.kind == YouTubeMessageKind::Text &&
             !source.replacesExisting && !source.localEcho)
         {
-            if (const auto pending =
-                    this->pendingSends_.takeMatching(source))
+            if (const auto pending = this->pendingSends_.takeMatching(source))
             {
-                this->pendingEmojiUpgrades_.erase(
-                    pending->visibleMessageID);
+                this->pendingEmojiUpgrades_.erase(pending->visibleMessageID);
                 source.replacesExisting = true;
                 source.targetMessageID = pending->visibleMessageID;
 
@@ -910,8 +902,7 @@ void YouTubeChannel::receiveMessages(
                 if ((sourceDisplayName.isEmpty() || sourceOnlyHasHandle) &&
                     !pending->author.displayName.trimmed().isEmpty())
                 {
-                    source.author.displayName =
-                        pending->author.displayName;
+                    source.author.displayName = pending->author.displayName;
                 }
                 if (source.author.avatarUrl.isEmpty())
                 {
@@ -929,13 +920,12 @@ void YouTubeChannel::receiveMessages(
             }
         }
 
-        const auto lookupID = source.replacesExisting &&
-                                      !source.targetMessageID.isEmpty()
-                                  ? source.targetMessageID
-                                  : source.id;
-        const auto existing = lookupID.isEmpty()
-                                  ? MessagePtr{}
-                                  : this->findMessageByID(lookupID);
+        const auto lookupID =
+            source.replacesExisting && !source.targetMessageID.isEmpty()
+                ? source.targetMessageID
+                : source.id;
+        const auto existing =
+            lookupID.isEmpty() ? MessagePtr{} : this->findMessageByID(lookupID);
         if (source.kind == YouTubeMessageKind::Tombstone)
         {
             std::ignore = this->pendingSends_.takeByMessageID(lookupID);
@@ -996,8 +986,8 @@ void YouTubeChannel::receiveMessages(
             staged != stagedIndexByID.end())
         {
             const auto &stagedMessage = history[staged->second];
-            if (const auto hidden = this->restorableBanMessageIDs_.find(
-                    stagedMessage->userID);
+            if (const auto hidden =
+                    this->restorableBanMessageIDs_.find(stagedMessage->userID);
                 hidden != this->restorableBanMessageIDs_.end())
             {
                 hidden->second.erase(stagedMessage->id);
@@ -1015,18 +1005,14 @@ void YouTubeChannel::receiveMessages(
             const auto replacementHighlightColor = message->highlightColor;
             message->flags = existing->flags;
 
-            message->flags.set(
-                MessageFlag::System,
-                replacementFlags.has(MessageFlag::System));
-            message->flags.set(
-                MessageFlag::Subscription,
-                replacementFlags.has(MessageFlag::Subscription));
+            message->flags.set(MessageFlag::System,
+                               replacementFlags.has(MessageFlag::System));
+            message->flags.set(MessageFlag::Subscription,
+                               replacementFlags.has(MessageFlag::Subscription));
             message->flags.set(MessageFlag::DoNotLog);
-            if (replacementFlags.has(
-                    MessageFlag::DoNotTriggerNotification))
+            if (replacementFlags.has(MessageFlag::DoNotTriggerNotification))
             {
-                message->flags.set(
-                    MessageFlag::DoNotTriggerNotification);
+                message->flags.set(MessageFlag::DoNotTriggerNotification);
             }
             if (!message->flags.has(MessageFlag::Highlighted) &&
                 replacementFlags.has(MessageFlag::Highlighted))
@@ -1064,8 +1050,8 @@ void YouTubeChannel::receiveMessages(
                     if (!candidate->flags.has(MessageFlag::Disabled) &&
                         !candidate->id.isEmpty())
                     {
-                        this->restorableBanMessageIDs_[
-                                source.ban->targetChannelId]
+                        this->restorableBanMessageIDs_[source.ban
+                                                           ->targetChannelId]
                             .insert(candidate->id);
                     }
                     candidate->flags.set(MessageFlag::Disabled);
@@ -1087,10 +1073,9 @@ void YouTubeChannel::receiveMessages(
         }
 
         this->applySimilarityFilters(message);
-        if (!historical &&
-            (!message->flags.has(MessageFlag::Similar) ||
-             (!getSettings()->hideSimilar &&
-              getSettings()->shownSimilarTriggerHighlights)))
+        if (!historical && (!message->flags.has(MessageFlag::Similar) ||
+                            (!getSettings()->hideSimilar &&
+                             getSettings()->shownSimilarTriggerHighlights)))
         {
             MessageBuilder::triggerHighlights(this, message, alert);
         }
@@ -1132,7 +1117,8 @@ void YouTubeChannel::receiveMessages(
             const auto targetChannelID =
                 source.kind == YouTubeMessageKind::AuthorMessagesDeleted
                     ? source.targetAuthorChannelID
-                    : source.ban ? source.ban->targetChannelId : QString{};
+                : source.ban ? source.ban->targetChannelId
+                             : QString{};
             rememberModerationEcho(moderationKey, targetChannelID, message);
         }
     }
@@ -1147,8 +1133,7 @@ void YouTubeChannel::setObservedSelfRole(const YouTubeAuthor &author)
 {
     const auto account = getApp()->getAccounts()->youtube.current();
     if (account->isAnonymous() || !account->hasCredentials() ||
-        author.channelId != account->channelID() ||
-        !author.roleMetadataKnown)
+        author.channelId != account->channelID() || !author.roleMetadataKnown)
     {
         return;
     }
@@ -1180,8 +1165,9 @@ void YouTubeChannel::setConnectionState(bool connected, const QString &detail)
     {
         this->resolutionErrorShown_ = false;
         this->offlineNoticeShown_ = false;
-        this->addSystemMessage(this->everConnected_ ? u"reconnected to YouTube"_s
-                                                    : u"connected to YouTube"_s);
+        this->addSystemMessage(this->everConnected_
+                                   ? u"reconnected to YouTube"_s
+                                   : u"connected to YouTube"_s);
         this->everConnected_ = true;
     }
     else if (wasConnected)
@@ -1283,10 +1269,8 @@ void YouTubeChannel::refreshAccountState(bool recheckRole)
         }
         this->moderationStateChanged.invoke();
     }
-    if (identityChanged || recheckRole ||
-        oldOwner != this->observedOwner_ ||
-        oldKnown != this->selfRoleKnown_ ||
-        oldMod != this->observedMod_)
+    if (identityChanged || recheckRole || oldOwner != this->observedOwner_ ||
+        oldKnown != this->selfRoleKnown_ || oldMod != this->observedMod_)
     {
         this->userStateChanged.invoke();
     }
@@ -1420,7 +1404,8 @@ void YouTubeChannel::learnMessageEmotes(
                 }
 
                 const EmoteName name{shortcut};
-                const auto &current = updated ? *updated : *this->youtubeEmotes();
+                const auto &current =
+                    updated ? *updated : *this->youtubeEmotes();
                 if (current.contains(name) ||
                     current.size() >= MAX_CHANNEL_EMOTES)
                 {
@@ -1430,9 +1415,9 @@ void YouTubeChannel::learnMessageEmotes(
                 {
                     updated = std::make_shared<EmoteMap>(current);
                 }
-                updated->emplace(
-                    name, YouTubeEmotes::makeCustomEmoji(
-                              shortcut, run.emojiImageUrl, run.emojiID));
+                updated->emplace(name,
+                                 YouTubeEmotes::makeCustomEmoji(
+                                     shortcut, run.emojiImageUrl, run.emojiID));
             }
         }
     }
@@ -1565,8 +1550,7 @@ void YouTubeChannel::deleteMessage(const QString &messageID)
                         .targetMessageID = messageID,
                     }},
                     false);
-                const auto account =
-                    getApp()->getAccounts()->youtube.current();
+                const auto account = getApp()->getAccounts()->youtube.current();
                 if (account->channelID() != actingAccountID ||
                     !account->hasCredentials())
                 {
@@ -1613,8 +1597,7 @@ void YouTubeChannel::deleteMessage(const QString &messageID)
 
                 const auto canonicalID =
                     youtube::detail::findMatchingLiveChatMessageID(
-                        *recent, targetAuthorID, targetText,
-                        targetPublishedAt);
+                        *recent, targetAuthorID, targetText, targetPublishedAt);
                 if (canonicalID)
                 {
                     YouTubeApi::deleteMessage(*canonicalID, accessToken,
@@ -1787,10 +1770,9 @@ void YouTubeChannel::unbanUser(const QString &channelID)
     }
     const auto banID = it->second;
     const auto createdAt = this->banCreatedAtByChannel_.find(channelID);
-    const auto banCreatedAt =
-        createdAt == this->banCreatedAtByChannel_.end()
-            ? std::chrono::steady_clock::time_point{}
-            : createdAt->second;
+    const auto banCreatedAt = createdAt == this->banCreatedAtByChannel_.end()
+                                  ? std::chrono::steady_clock::time_point{}
+                                  : createdAt->second;
     const auto liveChatID = this->liveChatID_;
     const auto generation = this->moderationGeneration_;
     const auto actingAccountID =
@@ -1832,8 +1814,7 @@ void YouTubeChannel::unbanUser(const QString &channelID)
                 self->addSystemMessage(u"Unhid "_s + target +
                                        u" from this YouTube channel."_s);
 
-                const auto account =
-                    getApp()->getAccounts()->youtube.current();
+                const auto account = getApp()->getAccounts()->youtube.current();
                 if (account->channelID() == actingAccountID &&
                     account->hasCredentials())
                 {
@@ -1925,16 +1906,15 @@ void YouTubeChannel::unbanUser(const QString &channelID)
 
 bool YouTubeChannel::canModerateTarget(const YouTubeAuthor &author) const
 {
-    if (!this->hasModRights() || author.channelId.isEmpty() ||
-        author.isOwner || author.isModerator ||
+    if (!this->hasModRights() || author.channelId.isEmpty() || author.isOwner ||
+        author.isModerator ||
         this->pendingModerationChannelIDs_.contains(author.channelId))
     {
         return false;
     }
 
     const auto account = getApp()->getAccounts()->youtube.current();
-    return !account->isAnonymous() &&
-           author.channelId != account->channelID();
+    return !account->isAnonymous() && author.channelId != account->channelID();
 }
 
 bool YouTubeChannel::isCurrentModerationContext(std::uint64_t generation,
@@ -1952,15 +1932,15 @@ void YouTubeChannel::rejectModerationAccess(const YouTubeApiError &error)
     const bool permissionDenied =
         error.httpStatus == 403 &&
         (reason.compare(u"forbidden"_s, Qt::CaseInsensitive) == 0 ||
-         reason.compare(u"insufficientPermissions"_s,
-                        Qt::CaseInsensitive) == 0);
+         reason.compare(u"insufficientPermissions"_s, Qt::CaseInsensitive) ==
+             0);
     if (!permissionDenied || this->isBroadcaster())
     {
         return;
     }
 
-    const bool changed = !this->selfRoleKnown_ || this->observedMod_ ||
-                         this->observedOwner_;
+    const bool changed =
+        !this->selfRoleKnown_ || this->observedMod_ || this->observedOwner_;
     this->selfRoleKnown_ = true;
     this->observedMod_ = false;
     this->observedOwner_ = false;
@@ -2150,4 +2130,4 @@ void YouTubeChannel::withAccessToken(AuthenticatedAction action,
     (*attempt)();
 }
 
-}
+}  // namespace chatterino

@@ -69,7 +69,7 @@ qsizetype countArtGraphemes(QStringView text)
     return graphemes;
 }
 
-}
+}  // namespace
 
 bool isAsciiArt(QStringView content)
 {
@@ -77,4 +77,4 @@ bool isAsciiArt(QStringView content)
            countArtGraphemes(content) >= MIN_ART_GRAPHEMES;
 }
 
-}
+}  // namespace chatterino

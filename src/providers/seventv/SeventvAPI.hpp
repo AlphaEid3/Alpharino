@@ -56,4 +56,4 @@ public:
                         SuccessCallback<> &&onSuccess, ErrorCallback &&onError);
 };
 
-}
+}  // namespace chatterino

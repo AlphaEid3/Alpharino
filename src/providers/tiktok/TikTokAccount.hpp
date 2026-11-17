@@ -36,4 +36,4 @@ private:
 
 bool isTikTokUserID(QStringView value);
 
-}
+}  // namespace chatterino

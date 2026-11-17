@@ -39,7 +39,7 @@ T qSizeLikeGet(lua_State *L, int index, sol::stack::record &tracking)
     }
 }
 
-}
+}  // namespace
 
 namespace chatterino::lua {
 
@@ -84,7 +84,7 @@ void logError(Plugin *plugin, QStringView context, const QString &msg)
     plugin->onLog(api::LogLevel::Warning, fullMessage);
 }
 
-}
+}  // namespace chatterino::lua
 
 bool sol_lua_check(sol::types<QString>, lua_State *L, int index,
                    chatterino::FunctionRef<sol::check_handler_type> handler,
@@ -200,17 +200,15 @@ int sol_lua_push(sol::types<QSizeF>, lua_State *L, const QSizeF &value)
 
 namespace chatterino::lua {
 
-bool sol_lua_check(
-    sol::types<chatterino::lua::ThisPluginState>, lua_State * ,
-    int ,
-    chatterino::FunctionRef<sol::check_handler_type> ,
-    sol::stack::record & )
+bool sol_lua_check(sol::types<chatterino::lua::ThisPluginState>, lua_State *,
+                   int, chatterino::FunctionRef<sol::check_handler_type>,
+                   sol::stack::record &)
 {
     return true;
 }
 
 chatterino::lua::ThisPluginState sol_lua_get(
-    sol::types<chatterino::lua::ThisPluginState>, lua_State *L, int ,
+    sol::types<chatterino::lua::ThisPluginState>, lua_State *L, int,
     sol::stack::record &tracking)
 {
     tracking.use(0);
@@ -223,7 +221,7 @@ int sol_lua_push(sol::types<chatterino::lua::ThisPluginState>, lua_State *L,
     return sol::stack::push(L, sol::thread(L, value));
 }
 
-}
+}  // namespace chatterino::lua
 
 namespace chatterino {
 
@@ -264,6 +262,6 @@ int sol_lua_push(sol::types<chatterino::Link>, lua_State *L,
     return sol::stack::push(L, table);
 }
 
-}
+}  // namespace chatterino
 
 #endif

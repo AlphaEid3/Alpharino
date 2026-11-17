@@ -59,16 +59,17 @@ constexpr uint32_t BTTV_SHAKE = 1U << 27U;
 constexpr uint32_t BTTV_WIDE = 1U << 28U;
 
 constexpr uint32_t SUPPORTED =
-    FLIP_X | FLIP_Y | WIDE | SLIDE | APPEAR | LEAVE | SPIN | ROTATE_90 | RAINBOW |
-    HYPER_RED | SHAKE | CURSED | JAM | BOUNCE | ZERO_SPACE | ROTATE_LEFT |
-    ROTATE_RIGHT | PARTY | BTTV_SHAKE | BTTV_WIDE;
+    FLIP_X | FLIP_Y | WIDE | SLIDE | APPEAR | LEAVE | SPIN | ROTATE_90 |
+    RAINBOW | HYPER_RED | SHAKE | CURSED | JAM | BOUNCE | ZERO_SPACE |
+    ROTATE_LEFT | ROTATE_RIGHT | PARTY | BTTV_SHAKE | BTTV_WIDE;
 
 constexpr uint32_t EFFECTS = SUPPORTED & ~HIDDEN;
 
-constexpr uint32_t ANIMATED = SLIDE | APPEAR | LEAVE | SPIN | RAINBOW | HYPER_RED |
-                              SHAKE | JAM | BOUNCE | PARTY | BTTV_SHAKE;
+constexpr uint32_t ANIMATED = SLIDE | APPEAR | LEAVE | SPIN | RAINBOW |
+                              HYPER_RED | SHAKE | JAM | BOUNCE | PARTY |
+                              BTTV_SHAKE;
 
-}
+}  // namespace emote_modifiers
 
 struct Emote {
     EmoteName name;
@@ -127,12 +128,12 @@ public:
                                        const QString &emoteID) const;
 };
 
-inline const std::shared_ptr<const EmoteMap> EMPTY_EMOTE_MAP = std::make_shared<
-    const EmoteMap>();
+inline const std::shared_ptr<const EmoteMap> EMPTY_EMOTE_MAP =
+    std::make_shared<const EmoteMap>();
 
 EmotePtr cachedOrMakeEmotePtr(Emote &&emote, const EmoteMap &cache);
 EmotePtr cachedOrMakeEmotePtr(Emote &&emote, WeakEmoteCache &cache,
                               std::mutex &mutex, size_t &newEntriesSinceSweep,
                               const EmoteId &id);
 
-}
+}  // namespace chatterino

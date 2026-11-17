@@ -538,7 +538,7 @@ ChannelPtr selectedDailyMessageChannel()
     }
 }
 
-}
+}  // namespace
 
 namespace chatterino {
 
@@ -658,4 +658,4 @@ void MoltorinoDailyMessage::scheduleRetry()
     this->timer_.start(30'000);
 }
 
-}
+}  // namespace chatterino

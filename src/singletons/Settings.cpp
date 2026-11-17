@@ -23,11 +23,10 @@
 #include "util/WindowsHelper.hpp"
 
 #include <pajlada/signals/scoped-connection.hpp>
-#include <rapidjson/pointer.h>
-
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QStringList>
+#include <rapidjson/pointer.h>
 
 #include <cmath>
 #include <optional>
@@ -82,7 +81,7 @@ QString normalizedOutgoingTranslationChannel(QString channelName)
 }
 
 std::optional<OutgoingTranslationChannelSettings>
-parseOutgoingTranslationChannelSettings(const QString &entry)
+    parseOutgoingTranslationChannelSettings(const QString &entry)
 {
     const auto parts = entry.split('\t');
     if (parts.size() < 3)
@@ -106,8 +105,7 @@ parseOutgoingTranslationChannelSettings(const QString &entry)
 QString formatOutgoingTranslationChannelSettings(
     const OutgoingTranslationChannelSettings &settings)
 {
-    return QStringList{settings.channel, settings.mode,
-                       settings.targetLanguage}
+    return QStringList{settings.channel, settings.mode, settings.targetLanguage}
         .join(QLatin1Char('\t'));
 }
 
@@ -344,8 +342,8 @@ QString Settings::outgoingTranslationTargetLanguageForChannel(
     return this->outgoingTranslationTargetLanguage.getValue();
 }
 
-void Settings::setOutgoingTranslationModeForChannel(
-    const QString &channelName, const QString &mode)
+void Settings::setOutgoingTranslationModeForChannel(const QString &channelName,
+                                                    const QString &mode)
 {
     const auto channel = normalizedOutgoingTranslationChannel(channelName);
     if (channel.isEmpty())
@@ -539,7 +537,8 @@ Settings::Settings(const Modes &modes, const Args &args,
 
     instance_ = this;
 
-    BoolSetting popupSizesReset("/moltorino/appearance/popupSizesResetV1", false);
+    BoolSetting popupSizesReset("/moltorino/appearance/popupSizesResetV1",
+                                false);
     if (!popupSizesReset)
     {
         for (auto *setting : {&this->pollPopupSize, &this->predictionPopupSize,

@@ -100,7 +100,7 @@ EmotePtr cachedOrMake(Emote &&emote, const EmoteId &id)
     static size_t newEntriesSinceSweep = 0;
 
     return cachedOrMakeEmotePtr(std::move(emote), cache, mutex,
-                               newEntriesSinceSweep, id);
+                                newEntriesSinceSweep, id);
 }
 
 void parseEmoteSetInto(const QJsonObject &emoteSet, const QString &kind,
@@ -127,7 +127,6 @@ void parseEmoteSetInto(const QJsonObject &emoteSet, const QString &kind,
         auto urls = emoteJson["urls"].toObject();
         if (emoteJson["animated"].isObject())
         {
-
             urls = emoteJson["animated"].toObject();
         }
 
@@ -180,7 +179,7 @@ std::optional<EmotePtr> parseAuthorityBadge(const QJsonObject &badgeUrls,
     return authorityBadge;
 }
 
-}
+}  // namespace
 
 namespace chatterino {
 
@@ -188,7 +187,6 @@ using namespace ffz::detail;
 
 EmoteMap ffz::detail::parseGlobalEmotes(const QJsonObject &jsonRoot)
 {
-
     std::unordered_set<int> defaultSets{};
     auto jsonDefaultSets = jsonRoot["default_sets"].toArray();
     for (auto jsonDefaultSet : jsonDefaultSets)
@@ -248,7 +246,6 @@ FfzChannelBadgeMap ffz::detail::parseChannelBadges(const QJsonObject &badgeRoot)
         const auto &jsonUserIDs = it.value().toArray();
         for (const auto &jsonUserID : jsonUserIDs)
         {
-
             if (jsonUserID.isString())
             {
                 channelBadges[jsonUserID.toString()].emplace_back(badgeID);
@@ -410,4 +407,4 @@ void FfzEmotes::loadChannel(
         20000);
 }
 
-}
+}  // namespace chatterino

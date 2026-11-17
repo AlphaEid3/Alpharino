@@ -62,7 +62,7 @@ QString providerDescription(TranslationProvider provider)
     return {};
 }
 
-}
+}  // namespace
 
 TranslationProviderDialog::TranslationProviderDialog(QWidget *parent)
     : QDialog(parent)
@@ -76,7 +76,8 @@ TranslationProviderDialog::TranslationProviderDialog(QWidget *parent)
 
     auto *layout = new QVBoxLayout(this);
     this->providerName_ = new QLabel(descriptor.name, this);
-    QFont titleFont = makeResolvedFont(this->providerName_->font(), QFont::Bold);
+    QFont titleFont =
+        makeResolvedFont(this->providerName_->font(), QFont::Bold);
     titleFont.setPointSizeF(titleFont.pointSizeF() + 1);
     this->providerName_->setFont(titleFont);
     layout->addWidget(this->providerName_);
@@ -410,4 +411,4 @@ void TranslationProviderDialog::setStatus(const QString &text, bool error)
                                        : QString{});
 }
 
-}
+}  // namespace chatterino

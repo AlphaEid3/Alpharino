@@ -27,4 +27,4 @@ QString findThemeWallpaper(const QString &id, const QString &themesDirectory);
 bool saveThemeWallpaperUploadId(const QString &managedSource,
                                 const QString &id);
 
-}
+}  // namespace chatterino

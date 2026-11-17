@@ -21,7 +21,7 @@ namespace chatterino::eventsub {
 void handleModerateMessage(
     TwitchChannel *chan, const QDateTime &time,
     const lib::payload::channel_moderate::v2::Event &event,
-    const lib::payload::channel_moderate::v2::Clear & )
+    const lib::payload::channel_moderate::v2::Clear &)
 {
     runInGuiThread([chan = chan->sharedFromThis(),
                     actor{event.moderatorUserLogin.qt()}, time] {
@@ -30,7 +30,6 @@ void handleModerateMessage(
             time);
         if (getSettings()->hideModerated)
         {
-
             getApp()->getWindows()->forceLayoutChannelViews();
         }
     });
@@ -41,7 +40,6 @@ void handleModerateMessage(
     const lib::payload::channel_moderate::v2::Event &event,
     const lib::payload::channel_moderate::v2::Timeout &action)
 {
-
     std::chrono::system_clock::time_point chronoTime{
         std::chrono::milliseconds{time.toMSecsSinceEpoch()}};
 
@@ -157,14 +155,13 @@ void handleModerateMessage(
     });
 }
 
-void handleModerateMessage(
-    TwitchChannel *chan, const QDateTime & ,
-    const lib::payload::channel_moderate::v2::Event & ,
-    const lib::payload::channel_moderate::v2::Unraid & )
+void handleModerateMessage(TwitchChannel *chan, const QDateTime &,
+                           const lib::payload::channel_moderate::v2::Event &,
+                           const lib::payload::channel_moderate::v2::Unraid &)
 {
     runInGuiThread([chan = chan->sharedFromThis()] {
         chan->clearActiveRaid();
     });
 }
 
-}
+}  // namespace chatterino::eventsub

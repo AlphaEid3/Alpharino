@@ -84,8 +84,9 @@ void applyTikTokPreview(LinkInfo *info, const CachedTikTokPreview &cached)
 
 void failTikTokPreview(LinkInfo *info, const QString &reason)
 {
-    const auto logUrl = QUrl(info->originalUrl()).adjusted(
-        QUrl::RemoveUserInfo | QUrl::RemoveQuery | QUrl::RemoveFragment);
+    const auto logUrl = QUrl(info->originalUrl())
+                            .adjusted(QUrl::RemoveUserInfo | QUrl::RemoveQuery |
+                                      QUrl::RemoveFragment);
     qCDebug(chatterinoHTTP)
         << "TikTok link preview failed for" << logUrl << reason;
     info->setTooltip(tiktok::makeUnavailableTooltip(info->originalUrl()));
@@ -202,7 +203,7 @@ void resolveGenericLink(LinkInfo *info)
         .execute();
 }
 
-}
+}  // namespace
 
 void LinkResolver::resolve(LinkInfo *info)
 {
@@ -212,7 +213,6 @@ void LinkResolver::resolve(LinkInfo *info)
 
     if (info->state() != State::Created)
     {
-
         return;
     }
 
@@ -255,4 +255,4 @@ void LinkResolver::resolve(LinkInfo *info)
     requestTikTokOEmbed(info, *tiktokTarget);
 }
 
-}
+}  // namespace chatterino

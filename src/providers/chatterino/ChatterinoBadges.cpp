@@ -114,4 +114,4 @@ void ChatterinoBadges::loadChatterinoBadges()
         .execute();
 }
 
-}
+}  // namespace chatterino

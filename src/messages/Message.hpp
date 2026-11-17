@@ -97,8 +97,7 @@ struct Message {
         IOS,
         Abnormal,
     };
-    static QString clientDetectionStatusToString(
-        ClientDetectionStatus status);
+    static QString clientDetectionStatusToString(ClientDetectionStatus status);
     static ClientDetectionStatus classifyClientNonce(const QString &nonce);
 
     uint32_t count = 1;
@@ -108,8 +107,7 @@ struct Message {
     MessagePlatform platform = MessagePlatform::AnyOrTwitch;
 
     std::vector<std::unique_ptr<MessageElement>> elements;
-    ClientDetectionStatus clientDetection =
-        ClientDetectionStatus::Unknown;
+    ClientDetectionStatus clientDetection = ClientDetectionStatus::Unknown;
 
     bool emoteOnly = false;
 
@@ -134,4 +132,4 @@ struct Message {
     }
 };
 
-}
+}  // namespace chatterino

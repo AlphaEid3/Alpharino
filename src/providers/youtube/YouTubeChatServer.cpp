@@ -1000,4 +1000,4 @@ bool YouTubeChatServer::isRegistered(
     return it != this->channels_.end() && it->second.lock() == channel;
 }
 
-}
+}  // namespace chatterino

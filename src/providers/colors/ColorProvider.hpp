@@ -32,8 +32,8 @@ enum class ColorType {
     AnnouncementPurple,
 };
 
-ColorType colorTypeFromHelixAnnouncementColor(
-    HelixAnnouncementColor color, bool enableColoredAnnouncements);
+ColorType colorTypeFromHelixAnnouncementColor(HelixAnnouncementColor color,
+                                              bool enableColoredAnnouncements);
 
 class ColorProvider
 {
@@ -55,7 +55,7 @@ private:
     std::unordered_map<ColorType, std::shared_ptr<QColor>> typeColorMap_;
     std::vector<QColor> defaultColors_;
 };
-}
+}  // namespace chatterino
 
 inline uint qHash(const QColor &key)
 {

@@ -49,4 +49,4 @@ private:
     int width_{};
 };
 
-}
+}  // namespace chatterino

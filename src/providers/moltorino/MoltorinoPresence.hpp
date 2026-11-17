@@ -65,4 +65,4 @@ private:
 
 MoltorinoPresence *getMoltorinoPresence();
 
-}
+}  // namespace chatterino

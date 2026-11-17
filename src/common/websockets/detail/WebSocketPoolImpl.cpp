@@ -55,12 +55,13 @@ void loadLinuxSystemCaCertificates(boost::asio::ssl::context &ssl)
         ssl.add_verify_path(path.toStdString(), ec);
         if (ec)
         {
-            qCDebug(chatterinoWebsocket) << "Failed to load CA directory" << path;
+            qCDebug(chatterinoWebsocket)
+                << "Failed to load CA directory" << path;
         }
     }
 }
 #endif
-}
+}  // namespace
 
 namespace chatterino::ws::detail {
 
@@ -70,12 +71,11 @@ WebSocketPoolImpl::WebSocketPoolImpl(const QString &shortName)
     , work(this->ioc.get_executor())
 {
     boost::system::error_code ec;
-    this->ssl.set_options(
-        boost::asio::ssl::context::no_tlsv1 |
-            boost::asio::ssl::context::no_tlsv1_1 |
-            boost::asio::ssl::context::default_workarounds |
-            boost::asio::ssl::context::single_dh_use,
-        ec);
+    this->ssl.set_options(boost::asio::ssl::context::no_tlsv1 |
+                              boost::asio::ssl::context::no_tlsv1_1 |
+                              boost::asio::ssl::context::default_workarounds |
+                              boost::asio::ssl::context::single_dh_use,
+                          ec);
     if (ec)
     {
         qCWarning(chatterinoWebsocket) << "Failed to set SSL context options"
@@ -167,4 +167,4 @@ void WebSocketPoolImpl::removeConnection(WebSocketConnection *conn)
     });
 }
 
-}
+}  // namespace chatterino::ws::detail

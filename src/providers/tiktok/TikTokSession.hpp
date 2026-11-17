@@ -34,4 +34,4 @@ bool isTikTokAccountUrl(const QUrl &url);
 ExpectedStr<QString> encodeTikTokSession(const TikTokSession &session);
 ExpectedStr<TikTokSession> decodeTikTokSession(const QString &encoded);
 
-}
+}  // namespace chatterino

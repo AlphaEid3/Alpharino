@@ -20,7 +20,6 @@ class DraggablePopup : public BaseWindow
     Q_OBJECT
 
 public:
-
     DraggablePopup(bool closeAutomatically, QWidget *parent);
     ~DraggablePopup() override;
 
@@ -89,4 +88,4 @@ private:
     pajlada::Signals::SignalHolder resizeConnections_;
 };
 
-}
+}  // namespace chatterino
