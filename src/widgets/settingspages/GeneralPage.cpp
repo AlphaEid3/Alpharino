@@ -952,8 +952,8 @@ void GeneralPage::initLayout(GeneralPageView &layout)
     if (Version::instance().isSupportedOS())
     {
         layout.addDescription(
-            "You can receive updates earlier by ticking the box below. Report "
-            "issues <a href='https://chatterino.com/link/issues'>here</a>.");
+            "Windows builds are published on <a href='https://github.com/AlphaEid3/Alpharino/releases'>GitHub releases</a>. "
+            "Report issues <a href='https://github.com/AlphaEid3/Alpharino/issues'>here</a>.");
 
         SettingWidget::checkbox("Receive beta updates", s.betaUpdates)
             ->addTo(layout);

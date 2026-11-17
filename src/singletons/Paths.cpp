@@ -112,7 +112,7 @@ void tryMigrateLinuxSettingsInto(const QString &destinationPath)
     }
 }
 
-}
+}  // namespace
 
 Paths::Paths()
     : Paths(Modes::instance())
@@ -224,7 +224,6 @@ void Paths::initRootDirectory(const Modes &modes)
     assert(this->portable_.has_value());
 
     this->rootAppDataDirectory = [&]() -> QString {
-
         if (modes.isPortable)
         {
             return QCoreApplication::applicationDirPath();
@@ -243,9 +242,10 @@ void Paths::initRootDirectory(const Modes &modes)
 #endif
 
 #ifdef Q_OS_WIN
-        path.replace("chatterino", "Chatterino");
-
-        path += "2";
+        // %APPDATA%\Alpharino. Do not append "2": that suffix is Chatterino's
+        // folder (%APPDATA%\Chatterino2), which Chatterino7 and this tree's
+        // previous Moltorino builds also used.
+        path = QFileInfo(path).dir().filePath(QStringLiteral("Alpharino"));
 #endif
         return path;
     }();
@@ -253,7 +253,6 @@ void Paths::initRootDirectory(const Modes &modes)
 
 void Paths::initSubDirectories()
 {
-
     assert(!this->rootAppDataDirectory.isEmpty());
 
     auto makePath = [&](const QString &name) -> QString {
@@ -287,4 +286,4 @@ void Paths::initSubDirectories()
 #endif
 }
 
-}
+}  // namespace chatterino

@@ -61,13 +61,13 @@ RestoreBackupsDialog::RestoreBackupsDialog(backup::FileData fileData,
           u"Some backups are damaged or otherwise unreadable."_s)
 {
     this->setAttribute(Qt::WA_DeleteOnClose);
-    this->setWindowTitle(u"Chatterino - Restore Backup of " %
+    this->setWindowTitle(u"Alpharino - Restore Backup of " %
                          this->fileData.fileKind % '?');
 
     auto *layout = new QVBoxLayout(this);
 
     auto *description =
-        new QLabel(u"Chatterino " % this->fileData.fileKind.toLower() %
+        new QLabel(u"Alpharino " % this->fileData.fileKind.toLower() %
                    u" failed to load: " % prevError % u"<p>" %
                    this->fileData.fileDescription %
                    u"<p>There are backups of this file.<br>Do you want to "

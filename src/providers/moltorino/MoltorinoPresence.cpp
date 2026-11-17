@@ -66,7 +66,7 @@ QString platformKey()
 
 QString savedClientId()
 {
-    QSettings settings(QStringLiteral("Moltorino"), QStringLiteral("Moltorino7"));
+    QSettings settings(QStringLiteral("Alpharino"), QStringLiteral("Alpharino"));
     auto id = settings.value(QStringLiteral("presence/clientInstanceId"))
                   .toString()
                   .trimmed();

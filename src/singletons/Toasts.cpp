@@ -77,7 +77,7 @@ bool hasAvatarForChannel(const QString &channelName)
 bool isRunningFromBuildTree()
 {
     const QFileInfo appFile(QCoreApplication::applicationFilePath());
-    if (appFile.fileName().compare(u"Moltorino7.exe"_s,
+    if (appFile.fileName().compare(u"Alpharino.exe"_s,
                                    Qt::CaseInsensitive) != 0)
     {
         return false;
@@ -450,9 +450,7 @@ void Toasts::ensureInitialized()
 
     auto *instance = WinToast::instance();
     const auto &appId = Version::instance().appUserModelID();
-    const bool official = appId == L"MoltoBenne.Moltorino7" ||
-                          appId == L"MoltoBenne.Moltorino7UpdaterTest";
-    instance->setAppName(official ? L"Moltorino7" : appId);
+    instance->setAppName(L"Alpharino");
     instance->setAppUserModelId(appId);
     if (isRunningFromBuildTree() || !getSettings()->createShortcutForToasts)
     {

@@ -12,6 +12,7 @@
 #include "widgets/dialogs/UpdateDialog.hpp"
 
 #include <QApplication>
+#include <QDesktopServices>
 #include <QDir>
 #include <QFile>
 #include <QJsonDocument>
@@ -21,11 +22,11 @@
 #include <QSaveFile>
 #include <QStandardPaths>
 #include <QStringList>
+#include <QtConcurrent>
 #include <QTimer>
 #include <QUrl>
 #include <QUrlQuery>
 #include <QVersionNumber>
-#include <QtConcurrent>
 
 #ifdef MOLTORINO_VELOPACK_ENABLED
 #    include <Velopack.hpp>
@@ -45,6 +46,8 @@ Q_LOGGING_CATEGORY(moltorinoUpdater, "chatterino.moltorino.updater")
 
 namespace {
 
+// Historical Moltorino feed. Alpharino does not call this host: checkForUpdates
+// opens this repository's GitHub releases instead.
 constexpr auto UPDATE_API_BASE = "https://api.moltorino.com";
 constexpr int STARTUP_CHECK_DELAY_MS = 8000;
 constexpr int POLL_INTERVAL_MS = 4 * 60 * 60 * 1000;
@@ -102,7 +105,7 @@ std::optional<int> comparePackageVersions(const QString &left,
     return QVersionNumber::compare(leftVersion, rightVersion);
 }
 
-QString absoluteUpdateUrl(const QString &pathOrUrl)
+[[maybe_unused]] QString absoluteUpdateUrl(const QString &pathOrUrl)
 {
     if (pathOrUrl.trimmed().isEmpty())
     {
@@ -127,8 +130,7 @@ bool isTrustedAutomaticFeed(const QString &url)
     const auto expectedPath = updaterFeedPath();
     return candidate.isValid() && candidate.scheme() == "https" &&
            candidate.host().compare(api.host(), Qt::CaseInsensitive) == 0 &&
-           candidate.port(-1) == -1 &&
-           candidate.path() == expectedPath &&
+           candidate.port(-1) == -1 && candidate.path() == expectedPath &&
            candidate.userInfo().isEmpty() && candidate.query().isEmpty() &&
            candidate.fragment().isEmpty();
 }
@@ -176,16 +178,15 @@ QString velopackChannelFor(const QString &logicalChannel)
 #elif defined(Q_OS_LINUX)
     platformChannel = QStringLiteral("linux-x64");
 #endif
-    return platformChannel +
-           (logicalChannel == "internal" ? QStringLiteral("-internal")
-                                          : QStringLiteral("-stable"));
+    return platformChannel + (logicalChannel == "internal"
+                                  ? QStringLiteral("-internal")
+                                  : QStringLiteral("-stable"));
 }
 
 QString velopackPackageIdFor(const QString &logicalChannel)
 {
-    return logicalChannel == "internal"
-               ? "MoltoBenne.Moltorino7UpdaterTest"
-               : "MoltoBenne.Moltorino7";
+    return logicalChannel == "internal" ? "AlphaEid3.Alpharino.Internal"
+                                        : "AlphaEid3.Alpharino";
 }
 
 #ifdef MOLTORINO_VELOPACK_ENABLED
@@ -200,7 +201,7 @@ Velopack::UpdateOptions updateOptions(const QString &channel,
 }
 #endif
 
-}
+}  // namespace
 
 MoltorinoUpdater::MoltorinoUpdater()
 {
@@ -230,92 +231,16 @@ MoltorinoUpdater &MoltorinoUpdater::instance()
 
 void MoltorinoUpdater::init(bool automaticUpdatesEnabled)
 {
+    (void)automaticUpdatesEnabled;
     if (this->initialized_)
     {
         return;
     }
     this->initialized_ = true;
-    this->automaticUpdatesEnabled_ = automaticUpdatesEnabled;
-#if defined(Q_OS_LINUX) && !defined(Q_PROCESSOR_X86_64)
+    // Do not query api.moltorino.com. Windows builds are published as GitHub
+    // release assets; a user-started check opens that page.
     this->automaticUpdatesEnabled_ = false;
-#endif
-
-#ifdef MOLTORINO_DEFAULT_UPDATE_CHANNEL
-    this->channel_ =
-        QStringLiteral(MOLTORINO_DEFAULT_UPDATE_CHANNEL).trimmed().toLower();
-#else
-    this->channel_ = Version::instance().isNightly() ? "internal" : "stable";
-#endif
-    if (this->channel_ != "internal" && this->channel_ != "stable")
-    {
-        qCWarning(moltorinoUpdater)
-            << "Invalid compiled update channel; falling back to stable:"
-            << this->channel_;
-        this->channel_ = "stable";
-    }
-
-#ifdef MOLTORINO_VELOPACK_ENABLED
-    if (!this->automaticUpdatesEnabled_)
-    {
-        this->setStatus(MoltorinoUpdateStatus::Disabled);
-        return;
-    }
-
-    this->loadPendingState();
-    const auto currentPackageVersion = this->installedPackageVersion();
-    if (currentPackageVersion.isEmpty())
-    {
-        this->pendingUpdate_.reset();
-        this->setStatus(MoltorinoUpdateStatus::Disabled);
-        return;
-    }
-    if (this->pendingUpdate_.has_value() &&
-        normalizedVersion(this->pendingUpdate_->packageVersion) ==
-            normalizedVersion(currentPackageVersion))
-    {
-        this->clearPendingState();
-        this->setStatus(MoltorinoUpdateStatus::UpToDate);
-    }
-    else if (this->pendingUpdate_.has_value())
-    {
-        const auto comparison = comparePackageVersions(
-            this->pendingUpdate_->packageVersion, currentPackageVersion);
-        if (!comparison.has_value() || *comparison == 0 ||
-            (*comparison < 0 && !this->pendingUpdate_->rollback))
-        {
-            qCWarning(moltorinoUpdater)
-                << "Discarding stale or invalid updater state for"
-                << this->pendingUpdate_->packageVersion;
-            this->clearPendingState();
-            this->setStatus(MoltorinoUpdateStatus::Idle);
-        }
-        else if (this->hasStagedPackage())
-        {
-            this->setStatus(MoltorinoUpdateStatus::Idle);
-        }
-        else
-        {
-            qCWarning(moltorinoUpdater)
-                << "Discarding updater state because the staged package is missing.";
-            this->clearPendingState();
-            this->setStatus(MoltorinoUpdateStatus::Idle);
-        }
-    }
-    else
-    {
-        this->setStatus(MoltorinoUpdateStatus::Idle);
-    }
-
-    QTimer::singleShot(STARTUP_CHECK_DELAY_MS, this, [this] {
-        this->checkForUpdates(false);
-    });
-    QTimer::singleShot(15000, this, [this] {
-        this->cleanupLegacyUpdaterArtifacts();
-    });
-    this->pollTimer_.start();
-#else
     this->setStatus(MoltorinoUpdateStatus::Disabled);
-#endif
 }
 
 void MoltorinoUpdater::checkForUpdates(bool userInitiated)
@@ -324,54 +249,11 @@ void MoltorinoUpdater::checkForUpdates(bool userInitiated)
     {
         return;
     }
-#ifdef MOLTORINO_VELOPACK_ENABLED
-    if (!this->initialized_)
-    {
-        qCWarning(moltorinoUpdater)
-            << "Ignoring an update check before updater initialization.";
-        return;
-    }
-    if (!this->automaticUpdatesEnabled_ ||
-        this->status_ == MoltorinoUpdateStatus::Disabled)
-    {
-        if (userInitiated)
-        {
-            this->showUpdateDialog();
-        }
-        return;
-    }
-    if (this->operationInFlight_ || this->applyScheduled_)
-    {
-        if (userInitiated)
-        {
-            this->showUpdateDialog();
-        }
-        return;
-    }
-    if (this->status_ == MoltorinoUpdateStatus::Ready && userInitiated &&
-        this->canRestartToUpdate())
-    {
-        this->showUpdateDialog();
-        return;
-    }
-
-    this->operationInFlight_ = true;
-    this->retryTimer_.stop();
-    this->progress_ = 0;
-    this->errorMessage_.clear();
-    const int generation = ++this->operationGeneration_;
-    this->setStatus(MoltorinoUpdateStatus::Checking);
     if (userInitiated)
     {
-        this->showUpdateDialog();
+        QDesktopServices::openUrl(QUrl(
+            QStringLiteral("https://github.com/AlphaEid3/Alpharino/releases")));
     }
-    this->fetchMetadata(userInitiated, generation);
-#else
-    if (userInitiated)
-    {
-        this->showUpdateDialog();
-    }
-#endif
 }
 
 void MoltorinoUpdater::retry()
@@ -381,14 +263,22 @@ void MoltorinoUpdater::retry()
 
 bool MoltorinoUpdater::requestUpdatePrompt()
 {
-    if (!this->automaticUpdatesEnabled_ ||
-        this->status_ == MoltorinoUpdateStatus::Disabled ||
-        this->applyScheduled_ || this->quitCoordinated_ || isAppAboutToQuit())
+    if (this->quitCoordinated_ || isAppAboutToQuit())
     {
         return false;
     }
-    if (this->pendingUpdate_.has_value() &&
-        !this->pendingValidatedThisRun_ && !this->operationInFlight_)
+    if (!this->automaticUpdatesEnabled_ ||
+        this->status_ == MoltorinoUpdateStatus::Disabled)
+    {
+        this->checkForUpdates(true);
+        return true;
+    }
+    if (this->applyScheduled_)
+    {
+        return false;
+    }
+    if (this->pendingUpdate_.has_value() && !this->pendingValidatedThisRun_ &&
+        !this->operationInFlight_)
     {
         this->checkForUpdates(true);
     }
@@ -405,6 +295,12 @@ bool MoltorinoUpdater::requestUpdatePrompt()
 
 void MoltorinoUpdater::fetchMetadata(bool userInitiated, int generation)
 {
+    // The Moltorino update feed is not used. Opening GitHub releases is handled
+    // in checkForUpdates().
+    (void)userInitiated;
+    (void)generation;
+    return;
+#if 0
     QUrl url(QString::fromLatin1(UPDATE_API_BASE) + updaterFeedPath() +
              QStringLiteral("/metadata"));
     QUrlQuery query;
@@ -609,22 +505,21 @@ void MoltorinoUpdater::fetchMetadata(bool userInitiated, int generation)
                 userInitiated);
         })
         .execute();
+#endif
 }
 
 void MoltorinoUpdater::startVelopackUpdate(const ReleaseMetadata &metadata,
-                                            bool userInitiated,
-                                            int generation)
+                                           bool userInitiated, int generation)
 {
 #ifdef MOLTORINO_VELOPACK_ENABLED
     std::ignore = QtConcurrent::run(
-        &this->updatePool_,
-        [this, metadata, userInitiated, generation] {
+        &this->updatePool_, [this, metadata, userInitiated, generation] {
             try
             {
-                auto options = updateOptions(metadata.velopackChannel,
-                                             metadata.rollback);
-                Velopack::UpdateManager manager(metadata.feedBaseUrl.toStdString(),
-                                                &options);
+                auto options =
+                    updateOptions(metadata.velopackChannel, metadata.rollback);
+                Velopack::UpdateManager manager(
+                    metadata.feedBaseUrl.toStdString(), &options);
                 auto update = manager.CheckForUpdates();
                 if (!update.has_value())
                 {
@@ -644,8 +539,8 @@ void MoltorinoUpdater::startVelopackUpdate(const ReleaseMetadata &metadata,
                     normalizedVersion(QString::fromStdString(target.Version)) !=
                         normalizedVersion(metadata.packageVersion))
                 {
-                    throw std::runtime_error(
-                        "The published update feed does not match its release metadata.");
+                    throw std::runtime_error("The published update feed does "
+                                             "not match its release metadata.");
                 }
 
                 if (!isAppAboutToQuit())
@@ -668,8 +563,8 @@ void MoltorinoUpdater::startVelopackUpdate(const ReleaseMetadata &metadata,
                     *update,
                     [](void *raw, size_t progress) {
                         auto *context = static_cast<ProgressContext *>(raw);
-                        const auto bounded = static_cast<int>(
-                            std::min<size_t>(progress, 100));
+                        const auto bounded =
+                            static_cast<int>(std::min<size_t>(progress, 100));
                         if (isAppAboutToQuit())
                         {
                             return;
@@ -687,8 +582,7 @@ void MoltorinoUpdater::startVelopackUpdate(const ReleaseMetadata &metadata,
                 pending.channel = metadata.channel;
                 pending.velopackChannel = metadata.velopackChannel;
                 pending.build = metadata.build;
-                pending.packageVersion =
-                    QString::fromStdString(target.Version);
+                pending.packageVersion = QString::fromStdString(target.Version);
                 pending.summaryMarkdown = metadata.summaryMarkdown;
                 pending.feedBaseUrl = metadata.feedBaseUrl;
                 pending.rollback = metadata.rollback;
@@ -750,9 +644,8 @@ void MoltorinoUpdater::finishReady(int generation, PendingUpdate update)
     if (!this->hasStagedPackage())
     {
         this->clearPendingState();
-        this->setStatus(
-            MoltorinoUpdateStatus::Error,
-            "Could not verify the downloaded update.");
+        this->setStatus(MoltorinoUpdateStatus::Error,
+                        "Could not verify the downloaded update.");
         this->retryTimer_.start();
         return;
     }
@@ -769,7 +662,7 @@ void MoltorinoUpdater::revalidateDownloadedUpdate()
 }
 
 void MoltorinoUpdater::finishError(int generation, QString message,
-                                    bool userInitiated)
+                                   bool userInitiated)
 {
     if (generation != this->operationGeneration_)
     {
@@ -808,8 +701,7 @@ void MoltorinoUpdater::finishError(int generation, QString message,
 
 void MoltorinoUpdater::updateProgress(int generation, int progress)
 {
-    if (generation != this->operationGeneration_ ||
-        progress == this->progress_)
+    if (generation != this->operationGeneration_ || progress == this->progress_)
     {
         return;
     }
@@ -843,7 +735,8 @@ bool MoltorinoUpdater::scheduleApply(bool restart, QString &error)
             normalizedVersion(QString::fromStdString(asset->Version)) !=
                 normalizedVersion(this->pendingUpdate_->packageVersion))
         {
-            error = "The staged update package is missing or no longer matches. Check for updates again.";
+            error = "The staged update package is missing or no longer "
+                    "matches. Check for updates again.";
             return false;
         }
 
@@ -936,8 +829,7 @@ void MoltorinoUpdater::prepareForApplicationQuit()
         return;
     }
 
-    if (this->canRestartToUpdate() &&
-        !this->deferUpdateForExplicitRestart_)
+    if (this->canRestartToUpdate() && !this->deferUpdateForExplicitRestart_)
     {
         QString error;
         if (this->scheduleApply(this->restartRequested_, error))
@@ -1009,7 +901,8 @@ void MoltorinoUpdater::loadPendingState()
     if (parseError.error != QJsonParseError::NoError || !document.isObject())
     {
         qCWarning(moltorinoUpdater)
-            << "Ignoring invalid persisted updater state:" << parseError.errorString();
+            << "Ignoring invalid persisted updater state:"
+            << parseError.errorString();
         file.close();
         QFile::remove(file.fileName());
         return;
@@ -1033,8 +926,7 @@ void MoltorinoUpdater::loadPendingState()
     if (!object.value("preview").toBool(false) &&
         object.value("previewAuthorizationToken").toString().isEmpty() &&
         object.value("previewRollbackToken").toString().isEmpty() &&
-        !pending.releaseId.isEmpty() &&
-        !pending.build.isEmpty() &&
+        !pending.releaseId.isEmpty() && !pending.build.isEmpty() &&
         !pending.packageVersion.isEmpty() &&
         pending.channel == this->channel_ &&
         pending.velopackChannel == velopackChannelFor(pending.channel) &&
@@ -1130,12 +1022,12 @@ QString MoltorinoUpdater::installedPackageVersion() const
             QString::fromLatin1(UPDATE_API_BASE) + updaterFeedPath();
         auto options = updateOptions(velopackChannelFor(this->channel_));
         Velopack::UpdateManager manager(feed.toStdString(), &options);
-#ifdef Q_OS_WIN
+#    ifdef Q_OS_WIN
         if (manager.IsPortable())
         {
             return {};
         }
-#endif
+#    endif
         auto installedPackageId = QString::fromStdString(manager.GetAppId());
         installedPackageId.remove(QChar::Null);
         if (installedPackageId != velopackPackageIdFor(this->channel_))
@@ -1151,8 +1043,7 @@ QString MoltorinoUpdater::installedPackageVersion() const
     catch (const std::exception &ex)
     {
         qCWarning(moltorinoUpdater)
-            << "Could not inspect the installed Velopack package:"
-            << ex.what();
+            << "Could not inspect the installed Velopack package:" << ex.what();
         return {};
     }
 #else
@@ -1235,16 +1126,16 @@ void MoltorinoUpdater::showFullChangelog()
                            ? Version::instance().internalVersion()
                            : this->targetBuild();
     QMessageBox::information(
-        QApplication::activeWindow(), "Moltorino Changelog",
-        QString("No changelog is available for %1.")
+        QApplication::activeWindow(), "Alpharino",
+        QString("Release notes for %1 are published with the GitHub release.")
             .arg(build.toHtmlEscaped()));
 }
 
 void MoltorinoUpdater::setStatus(MoltorinoUpdateStatus status,
-                                  const QString &error)
+                                 const QString &error)
 {
-    const bool changed = this->status_ != status ||
-                         this->errorMessage_ != error;
+    const bool changed =
+        this->status_ != status || this->errorMessage_ != error;
     this->status_ = status;
     this->errorMessage_ = error;
     if (status == MoltorinoUpdateStatus::Ready &&
@@ -1275,7 +1166,8 @@ QString MoltorinoUpdater::statusText() const
     switch (this->status_)
     {
         case MoltorinoUpdateStatus::Disabled:
-            return "Automatic updates are unavailable in this build.";
+            return "Updates are published on the Alpharino GitHub releases "
+                   "page.";
         case MoltorinoUpdateStatus::Idle:
             return "Moltorino checks for updates quietly in the background.";
         case MoltorinoUpdateStatus::Checking:
@@ -1285,9 +1177,10 @@ QString MoltorinoUpdater::statusText() const
                 .arg(this->isRollback() ? "rollback" : "update")
                 .arg(this->progress_);
         case MoltorinoUpdateStatus::Ready:
-            return this->isRollback()
-                       ? "The rollback is downloaded and will install when Moltorino closes."
-                       : "The update is downloaded and will install when Moltorino closes.";
+            return this->isRollback() ? "The rollback is downloaded and will "
+                                        "install when Moltorino closes."
+                                      : "The update is downloaded and will "
+                                        "install when Moltorino closes.";
         case MoltorinoUpdateStatus::Applying:
             return this->isRollback()
                        ? "Moltorino will finish rolling back after it closes."
@@ -1404,11 +1297,9 @@ bool MoltorinoUpdater::canRestartToUpdate() const
 {
 #ifdef MOLTORINO_VELOPACK_ENABLED
     return this->status_ == MoltorinoUpdateStatus::Ready &&
-           this->pendingUpdate_.has_value() &&
-           this->pendingValidatedThisRun_ &&
+           this->pendingUpdate_.has_value() && this->pendingValidatedThisRun_ &&
            this->pendingValidationAge_.isValid() &&
-           this->pendingValidationAge_.elapsed() <=
-               READY_VALIDATION_LEASE_MS;
+           this->pendingValidationAge_.elapsed() <= READY_VALIDATION_LEASE_MS;
 #else
     return false;
 #endif
@@ -1424,4 +1315,4 @@ MoltorinoUpdater *getMoltorinoUpdater()
     return &MoltorinoUpdater::instance();
 }
 
-}
+}  // namespace chatterino

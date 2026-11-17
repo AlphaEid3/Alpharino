@@ -87,7 +87,8 @@ int main(int argc, char **argv)
             {"channel", version.updateChannel()},
 #if defined(Q_OS_WIN)
             {"platform", "windows"},
-            {"appUserModelId", QString::fromStdWString(version.appUserModelID())},
+            {"appUserModelId",
+             QString::fromStdWString(version.appUserModelID())},
 #elif defined(Q_OS_MACOS)
             {"platform", "macos"},
 #elif defined(Q_OS_LINUX)
@@ -122,12 +123,14 @@ int main(int argc, char **argv)
 
     QApplication a(argc, argv);
 
-    QCoreApplication::setApplicationName("chatterino");
+    // The application name selects the Windows profile directory. Alpharino
+    // must not reuse Chatterino, Chatterino7, or Moltorino's folder.
+    QCoreApplication::setApplicationName("Alpharino");
     QCoreApplication::setApplicationVersion(Version::instance().version());
-    QCoreApplication::setOrganizationDomain("chatterino.com");
+    QCoreApplication::setOrganizationDomain("github.com");
 #if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD)
 
-    QGuiApplication::setDesktopFileName("com.moltobenne.moltorino");
+    QGuiApplication::setDesktopFileName("com.alphaeid3.alpharino");
 #endif
 #ifdef Q_OS_WIN
     SetCurrentProcessExplicitAppUserModelID(
@@ -154,7 +157,7 @@ int main(int argc, char **argv)
                     "\n\nInfo: Portable mode requires the application to "
                     "be in a writeable location. If you don't want "
                     "portable mode reinstall the application. "
-                    "https://chatterino.com.");
+                    "https://github.com/AlphaEid3/Alpharino/releases.");
             std::cerr << errorMessage.toLocal8Bit().constData() << '\n';
             std::cerr.flush();
             box.setText(errorMessage);
@@ -229,7 +232,7 @@ int main(int argc, char **argv)
                 << pendingRestoreError;
             QMessageBox::warning(
                 nullptr, QStringLiteral("Settings restore failed"),
-                QStringLiteral("Moltorino could not finish the pending "
+                QStringLiteral("Alpharino could not finish the pending "
                                "restore safely.\n\n%1")
                     .arg(pendingRestoreError));
         }

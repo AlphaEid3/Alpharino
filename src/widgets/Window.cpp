@@ -809,8 +809,14 @@ void Window::addMenuBar()
         QDesktopServices::openUrl(QUrl(LINK_CHATTERINO_WIKI.toString()));
     });
 
-    QAction *helpGithub = helpMenu->addAction(QString("Chatterino GitHub"));
+    QAction *helpGithub = helpMenu->addAction(QString("Alpharino on GitHub"));
     connect(helpGithub, &QAction::triggered, this, []() {
+        QDesktopServices::openUrl(
+            QUrl(QStringLiteral("https://github.com/AlphaEid3/Alpharino")));
+    });
+
+    QAction *helpUpstream = helpMenu->addAction(QString("Chatterino 2 source"));
+    connect(helpUpstream, &QAction::triggered, this, []() {
         QDesktopServices::openUrl(QUrl(LINK_CHATTERINO_SOURCE.toString()));
     });
 

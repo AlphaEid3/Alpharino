@@ -1,8 +1,10 @@
 ---
 name: clang-tidy
 
+# Alpharino CI is Windows-only. This Linux analysis build stays available by
+# hand and does not run on pull requests.
 on:
-  pull_request:
+  workflow_dispatch:
 
 concurrency:
   group: clang-tidy-${{ github.ref }}

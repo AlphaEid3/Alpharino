@@ -10,7 +10,7 @@ WelcomeDialog::WelcomeDialog()
     : BaseWindow({BaseWindow::EnableCustomFrame, BaseWindow::DisableLayoutSave,
                   BaseWindow::CloseOnMinimize})
 {
-    this->setWindowTitle("Chatterino quick setup");
+    this->setWindowTitle("Alpharino quick setup");
 }
 
 }

@@ -1,14 +1,10 @@
 ---
 name: Test Ubuntu
 
+# Alpharino CI is Windows-only. This workflow stays for local reference and can
+# still be started by hand. It does not run on pull requests.
 on:
-  pull_request:
   workflow_dispatch:
-  merge_group:
-  push:
-    branches:
-      - master
-      - main
 
 env:
   TWITCH_PUBSUB_SERVER_TAG: v1.0.12

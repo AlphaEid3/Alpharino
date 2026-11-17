@@ -305,7 +305,7 @@ void Application::initialize(Settings &settings, const Modes &modes,
                     if (auto channel = split->getChannel(); !channel->isEmpty())
                     {
                         channel->addSystemMessage(
-                            "Chatterino unexpectedly crashed and restarted. "
+                            "Alpharino unexpectedly crashed and restarted. "
                             "You can disable automatic restarts in the "
                             "settings.");
                     }

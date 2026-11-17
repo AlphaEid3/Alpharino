@@ -1641,7 +1641,7 @@ void SplitInput::handleImagePaste(const QMimeData *source)
     if (getSettings()->askOnImageUpload.getValue())
     {
         QMessageBox msgBox(this->window());
-        msgBox.setWindowTitle("Moltorino");
+        msgBox.setWindowTitle("Alpharino");
         msgBox.setText("Image upload");
         msgBox.setInformativeText(
             "You are uploading an image to a 3rd party service not in "
@@ -1705,7 +1705,7 @@ void SplitInput::handleUrlPaste(const QString &url, QTextCursor cursor)
     if (getSettings()->askOnUrlShorten.getValue())
     {
         QMessageBox msgBox(this->window());
-        msgBox.setWindowTitle("Moltorino");
+        msgBox.setWindowTitle("Alpharino");
         msgBox.setText("URL Shortener");
         msgBox.setInformativeText(
             QString("You are about to shorten this URL using a 3rd party service "

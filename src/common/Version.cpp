@@ -24,13 +24,13 @@ Version::Version()
     , dateOfBuild_(QStringLiteral(CHATTERINO_CMAKE_GEN_DATE))
     , isNightly_(CHATTERINO_NIGHTLY_BUILD == 1)
 {
-    this->fullVersion_ = "Moltorino ";
+    this->fullVersion_ = "Alpharino ";
     if (this->isNightly())
     {
         this->fullVersion_ += "Nightly ";
     }
 
-    this->fullVersion_ += this->internalVersion_;
+    this->fullVersion_ += this->version_;
 
 #ifndef NDEBUG
     this->fullVersion_ += " DEBUG";
@@ -160,12 +160,11 @@ bool Version::isNightly() const
 
 void Version::generateBuildString()
 {
-
     auto s = this->fullVersion();
 
     s +=
         QString(
-            R"( (commit <a href="https://github.com/EEVA-inc/chatterino7/commit/%1">%1</a>)")
+            R"( (commit <a href="https://github.com/AlphaEid3/Alpharino/commit/%1">%1</a>)")
             .arg(this->commitHash());
     if (this->isModified())
     {
@@ -204,7 +203,8 @@ void Version::generateRunningString()
 void Version::generateExtraString()
 {
     this->extraString_ =
-        QString::fromUtf8("" STRINGIFY2(CHATTERINO_EXTRA_BUILD_STRING)).trimmed();
+        QString::fromUtf8("" STRINGIFY2(CHATTERINO_EXTRA_BUILD_STRING))
+            .trimmed();
 }
 
 #undef STRINGIFY2
@@ -217,4 +217,4 @@ const std::wstring &Version::appUserModelID() const
 }
 #endif
 
-}
+}  // namespace chatterino

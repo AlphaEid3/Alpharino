@@ -586,7 +586,7 @@ ChatRecordingController::ChatRecordingController(const Paths &paths)
                       .left(16)),
           QDir(paths.settingsDirectory).filePath("chat-recording.json"),
           QDir(QStandardPaths::writableLocation(QStandardPaths::MoviesLocation))
-              .filePath("Moltorino Recordings"))
+              .filePath("Alpharino Recordings"))
 {
 }
 
