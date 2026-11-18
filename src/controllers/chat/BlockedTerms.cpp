@@ -6,6 +6,7 @@
 
 #include "Application.hpp"
 #include "common/Channel.hpp"
+#include "controllers/accounts/AccountController.hpp"
 #include "providers/twitch/api/TwitchGql.hpp"
 #include "providers/twitch/TwitchAccount.hpp"
 #include "providers/twitch/TwitchChannel.hpp"
@@ -17,6 +18,8 @@
 #include <QStringList>
 
 #include <mutex>
+
+using namespace Qt::Literals::StringLiterals;
 
 namespace chatterino {
 namespace {

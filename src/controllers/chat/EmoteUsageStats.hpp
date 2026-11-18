@@ -13,7 +13,7 @@ class QMenu;
 namespace chatterino {
 
 class Channel;
-class Message;
+struct Message;
 
 struct EmoteUsageRow {
     QString name;

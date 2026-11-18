@@ -21,6 +21,8 @@
 #include <mutex>
 #include <utility>
 
+using namespace Qt::Literals::StringLiterals;
+
 namespace chatterino {
 namespace detail {
 

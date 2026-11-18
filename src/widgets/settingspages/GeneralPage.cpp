@@ -446,16 +446,16 @@ void GeneralPage::initLayout(GeneralPageView &layout)
             "slow mode or rate limits. Esc cancels the hold.")
         ->addKeywords({"pause", "timing", "fast chat"})
         ->addTo(layout);
-    SettingWidget::intInput(
-        "Max hold before sending anyway", s.timeMessagesBeforeChatPausesTimeout,
-        {.min = 1, .max = 30, .suffix = QStringLiteral(" s")})
+    SettingWidget::intInput("Max hold before sending anyway",
+                            s.timeMessagesBeforeChatPausesTimeout,
+                            {.min = 1, .max = 30, .suffix = " s"})
         ->setTooltip("If a pause is not detected in time, send the held "
                      "message anyway.")
         ->conditionallyEnabledBy(s.timeMessagesBeforeChatPauses)
         ->addTo(layout);
-    SettingWidget::intInput(
-        "Only hold above this speed", s.timeMessagesBeforeChatPausesRate,
-        {.min = 1, .max = 100, .suffix = QStringLiteral(" msg/s")})
+    SettingWidget::intInput("Only hold above this speed",
+                            s.timeMessagesBeforeChatPausesRate,
+                            {.min = 1, .max = 100, .suffix = " msg/s"})
         ->setTooltip("The hold stays off until the channel is at least this "
                      "many messages per second.")
         ->conditionallyEnabledBy(s.timeMessagesBeforeChatPauses)
