@@ -552,6 +552,12 @@ public:
     FloatSetting pauseOnHoverDuration = {"/behaviour/pauseOnHoverDuration", 0};
     EnumSetting<Qt::KeyboardModifier> pauseChatModifier = {
         "/behaviour/pauseChatModifier", Qt::KeyboardModifier::NoModifier};
+    BoolSetting timeMessagesBeforeChatPauses = {
+        "/behaviour/timeMessagesBeforeChatPauses", false};
+    IntSetting timeMessagesBeforeChatPausesTimeout = {
+        "/behaviour/timeMessagesBeforeChatPausesTimeout", 3};
+    IntSetting timeMessagesBeforeChatPausesRate = {
+        "/behaviour/timeMessagesBeforeChatPausesRate", 5};
     BoolSetting autorun = {"/behaviour/autorun", false};
     BoolSetting mentionUsersWithComma = {"/behaviour/mentionUsersWithComma",
                                          true};
@@ -669,6 +675,7 @@ public:
     IntSetting showBlockedUsersMessages = {"/ignore/showBlockedUsers", 0};
 
     /// Moderation
+    QStringSetting localBlockedTerms = {"/moderation/localBlockedTerms", ""};
     IntSetting defaultCommercialDuration = {
         "/moltorino/moderation/defaultCommercialDuration", 30};
     QStringSetting timeoutAction = {"/moderation/timeoutAction", "Disable"};

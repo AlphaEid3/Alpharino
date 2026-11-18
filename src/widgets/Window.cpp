@@ -23,6 +23,7 @@
 #include "widgets/buttons/LabelButton.hpp"
 #include "widgets/buttons/PixmapButton.hpp"
 #include "widgets/buttons/TitlebarButton.hpp"
+#include "widgets/dialogs/LogSearchDialog.hpp"
 #include "widgets/dialogs/SettingsDialog.hpp"
 #include "widgets/dialogs/switcher/QuickSwitcherPopup.hpp"
 #include "widgets/dialogs/UpdateDialog.hpp"
@@ -797,6 +798,13 @@ void Window::addMenuBar()
     prevTab->setShortcuts({QKeySequence("Meta+Shift+Tab")});
     connect(prevTab, &QAction::triggered, this, [this] {
         this->notebook_->selectPreviousTab();
+    });
+
+    windowMenu->addSeparator();
+    QAction *searchLogs =
+        windowMenu->addAction(QString("Search saved logs..."));
+    connect(searchLogs, &QAction::triggered, this, [this] {
+        LogSearchDialog::open(this);
     });
 
     QMenu *helpMenu = mainMenu->addMenu(QString("Help"));

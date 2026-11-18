@@ -249,6 +249,9 @@ protected:
         std::array<QLabel *, 3> commandCompletionRows{};
         QWidget *translationPreviewWidget;
         QLabel *translationPreviewLabel;
+        QWidget *blockedTermWidget;
+        QLabel *blockedTermLabel;
+        QLabel *pauseHoldLabel;
         EmoteTabCompletionCarousel *emoteTabCompletionCarousel;
 #if MOLTORINO_ENABLE_CHANNEL_POINT_REWARDS
         QWidget *channelPointRewardPromptWidget;
@@ -328,6 +331,26 @@ protected:
     QPropertyAnimation raidStatusProgressAnimation_;
     pajlada::Signals::ScopedConnection raidStatusConnection_;
     bool sendWaitStatusWanted_ = false;
+    bool guardOutgoingMessage(const QString &message, const ChannelPtr &channel,
+                              const std::vector<QString> &arguments);
+    bool shouldHoldForChatPause(const ChannelPtr &channel,
+                                const QString &message) const;
+    void startPauseHold(const std::vector<QString> &arguments,
+                        const ChannelPtr &channel);
+    void cancelPauseHold();
+    void tickPauseHold();
+    void showBlockedTermWarning(const QString &term);
+    void clearBlockedTermWarning();
+
+    QTimer pauseHoldTimer_;
+    bool pauseHoldActive_ = false;
+    bool releasingPauseHold_ = false;
+    std::vector<QString> pauseHoldArguments_;
+    std::weak_ptr<Channel> pauseHoldChannel_;
+    QString pauseHoldText_;
+    qint64 pauseHoldStartedMs_ = 0;
+    bool blockedTermConfirmed_ = false;
+    QString blockedTermText_;
     bool channelPointsLabelWanted_ = false;
     bool channelPointsManualRefreshLoading_ = false;
     qint64 lastManualChannelPointsRefreshMs_ = 0;

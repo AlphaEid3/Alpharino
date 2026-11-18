@@ -88,8 +88,14 @@ set(SOURCE_FILES
 
         controllers/automod/AutoModReviewController.cpp
         controllers/automod/AutoModReviewController.hpp
+        controllers/chat/BlockedTerms.cpp
+        controllers/chat/BlockedTerms.hpp
         controllers/chat/ChatAutomationController.cpp
         controllers/chat/ChatAutomationController.hpp
+        controllers/chat/ChatPace.cpp
+        controllers/chat/ChatPace.hpp
+        controllers/chat/EmoteUsageStats.cpp
+        controllers/chat/EmoteUsageStats.hpp
         controllers/commands/builtin/chatterino/Debugging.cpp
         controllers/commands/builtin/chatterino/Debugging.hpp
         controllers/commands/builtin/Misc.cpp
@@ -964,6 +970,8 @@ set(SOURCE_FILES
         widgets/dialogs/EditUserNotesDialog.hpp
         widgets/dialogs/EmotePopup.cpp
         widgets/dialogs/EmotePopup.hpp
+        widgets/dialogs/LogSearchDialog.cpp
+        widgets/dialogs/LogSearchDialog.hpp
 
         widgets/dialogs/font/FontDialog.cpp
         widgets/dialogs/font/FontDialog.hpp

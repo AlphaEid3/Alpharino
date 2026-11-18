@@ -125,6 +125,7 @@
 #include <QPainterPath>
 #include <QPointer>
 #include <QPushButton>
+#include <QSet>
 #include <QShowEvent>
 #include <QStackedWidget>
 #include <QStringBuilder>
@@ -2208,6 +2209,13 @@ UserInfoPopup::UserInfoPopup(bool closeAutomatically, Split *split)
                             });
                         });
             }
+
+            this->ui_.previousNamesLabel =
+                vbox.emplace<Label>(QString(), FontStyle::ChatSmall)
+                    .getElement();
+            this->ui_.previousNamesLabel->setWordWrap(true);
+            this->ui_.previousNamesLabel->setPadding(QMargins(8, 0, 8, 2));
+            this->ui_.previousNamesLabel->hide();
 
             auto *handleRow = new BaseWidget(this);
             auto *handleLayout = new QHBoxLayout(handleRow);
@@ -6312,8 +6320,13 @@ void UserInfoPopup::updateNameHistoryButton()
             this->nameHistoryMenu_ = nullptr;
         }
         this->ui_.nameHistoryButton->setToolTip({});
+        if (this->ui_.previousNamesLabel != nullptr)
+        {
+            this->ui_.previousNamesLabel->hide();
+        }
         return;
     }
+    this->refreshSeenNamesLabel();
     if (this->userId_.isEmpty())
     {
         this->ui_.nameHistoryButton->setToolTip(
@@ -6334,6 +6347,63 @@ void UserInfoPopup::updateNameHistoryButton()
     }
 
     this->ui_.nameHistoryButton->setToolTip("Show name history");
+}
+
+void UserInfoPopup::refreshSeenNamesLabel()
+{
+    if (this->ui_.previousNamesLabel == nullptr)
+    {
+        return;
+    }
+    if (this->isKick_ || this->isYouTube_ || this->isTikTok_ ||
+        this->userId_.isEmpty())
+    {
+        this->ui_.previousNamesLabel->hide();
+        return;
+    }
+
+    QStringList parts;
+    QSet<QString> seen;
+    const auto current = normalizeTwitchNameHistoryLogin(this->userName_);
+    const auto addName = [&](const QString &login, const QString &name,
+                             const QString &untilText) {
+        if (login.isEmpty() ||
+            login.compare(current, Qt::CaseInsensitive) == 0 ||
+            seen.contains(login))
+        {
+            return;
+        }
+        seen.insert(login);
+        parts.push_back(QStringLiteral("%1 (until %2)").arg(name, untilText));
+    };
+
+    for (const auto &sighting : localTwitchNameSightings(this->userId_))
+    {
+        addName(sighting.login, sighting.name, sighting.untilText);
+    }
+    for (const auto &entry : this->nameHistoryEntries_)
+    {
+        if (entry.rightText == QStringLiteral("Present"))
+        {
+            continue;
+        }
+        addName(entry.login, entry.login, entry.rightText);
+    }
+
+    if (parts.isEmpty())
+    {
+        this->ui_.previousNamesLabel->hide();
+        return;
+    }
+    if (parts.size() > 3)
+    {
+        const auto extra = parts.size() - 3;
+        parts.resize(3);
+        parts.push_back(QStringLiteral("and %1 more").arg(extra));
+    }
+    this->ui_.previousNamesLabel->setText(
+        QStringLiteral("Previously: %1").arg(parts.join(QStringLiteral(", "))));
+    this->ui_.previousNamesLabel->show();
 }
 
 void UserInfoPopup::showNameHistoryMenu()
@@ -6389,18 +6459,33 @@ void UserInfoPopup::openNameHistoryMenu(const QString &statusText)
         auto *status = menu->addAction(statusText);
         status->setEnabled(false);
     }
-    else if (this->nameHistoryEntries_.empty())
+    else if (this->nameHistoryEntries_.empty() &&
+             localTwitchNameSightings(this->userId_).empty())
     {
         auto *empty = menu->addAction("No name history found");
         empty->setEnabled(false);
     }
     else
     {
+        QSet<QString> shown;
         for (const auto &entry : this->nameHistoryEntries_)
         {
+            shown.insert(normalizeTwitchNameHistoryLogin(entry.login));
             auto *action = new QWidgetAction(menu);
             action->setDefaultWidget(new NameHistoryMenuRow(
                 entry.login, entry.leftText, entry.rightText, menu));
+            menu->addAction(action);
+        }
+        for (const auto &sighting : localTwitchNameSightings(this->userId_))
+        {
+            if (shown.contains(sighting.login))
+            {
+                continue;
+            }
+            shown.insert(sighting.login);
+            auto *action = new QWidgetAction(menu);
+            action->setDefaultWidget(new NameHistoryMenuRow(
+                sighting.name, sighting.fromText, sighting.untilText, menu));
             menu->addAction(action);
         }
 
@@ -6474,7 +6559,14 @@ void UserInfoPopup::requestNameHistory()
             self->nameHistoryLoading_ = false;
             self->nameHistoryLoaded_ = false;
             self->updateNameHistoryButton();
-            self->openNameHistoryMenu("Name history unavailable");
+            if (localTwitchNameSightings(self->userId_).empty())
+            {
+                self->openNameHistoryMenu("Name history unavailable");
+            }
+            else
+            {
+                self->openNameHistoryMenu();
+            }
         });
 }
 

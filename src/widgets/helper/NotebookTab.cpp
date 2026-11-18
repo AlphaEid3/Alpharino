@@ -8,6 +8,7 @@
 #include "common/Channel.hpp"
 #include "common/Common.hpp"
 #include "common/QLogging.hpp"
+#include "controllers/chat/EmoteUsageStats.hpp"
 #include "controllers/hotkeys/HotkeyCategory.hpp"
 #include "controllers/hotkeys/HotkeyController.hpp"
 #include "controllers/recording/ChatRecordingController.hpp"
@@ -17,6 +18,7 @@
 #include "singletons/WindowManager.hpp"
 #include "util/Helpers.hpp"
 #include "widgets/dialogs/ColorPickerDialog.hpp"
+#include "widgets/dialogs/LogSearchDialog.hpp"
 #include "widgets/dialogs/MoltorinoDialogTheme.hpp"
 #include "widgets/dialogs/SettingsDialog.hpp"
 #include "widgets/Notebook.hpp"
@@ -441,6 +443,38 @@ NotebookTab::NotebookTab(Notebook *notebook, Role role)
                          this->highlightEnabled_ = checked;
                      });
     this->menu_.addAction(this->highlightNewMessagesAction_);
+
+    this->menu_.addSeparator();
+    this->menu_.addAction("Search saved logs...", [this] {
+        QString channelName;
+        if (auto *container = dynamic_cast<SplitContainer *>(this->page))
+        {
+            if (auto *split = container->getSelectedSplit())
+            {
+                if (const auto channel = split->getChannel())
+                {
+                    channelName = channel->getName();
+                }
+            }
+        }
+        LogSearchDialog::open(this->window(), channelName);
+    });
+    auto *emoteStats = this->menu_.addMenu("Show emote stats");
+    QObject::connect(emoteStats, &QMenu::aboutToShow, this, [this, emoteStats] {
+        QString channelName;
+        if (auto *container = dynamic_cast<SplitContainer *>(this->page))
+        {
+            if (auto *split = container->getSelectedSplit())
+            {
+                const auto channel = split->getChannel();
+                if (channel && channel->isTwitchChannel())
+                {
+                    channelName = channel->getName();
+                }
+            }
+        }
+        fillEmoteStatsMenu(*emoteStats, channelName);
+    });
 
     auto *tabColorMenu = this->menu_.addMenu("Tab Color");
     const std::vector<std::pair<QString, QColor>> tabColorPresets = {

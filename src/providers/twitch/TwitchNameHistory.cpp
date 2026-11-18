@@ -6,6 +6,7 @@
 #include "providers/twitch/TwitchNameHistoryCache.hpp"
 #include "singletons/Paths.hpp"
 
+#include <QCoreApplication>
 #include <QFile>
 #include <QHash>
 #include <QJsonArray>
@@ -17,6 +18,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <mutex>
 #include <utility>
 
 namespace chatterino {
@@ -559,6 +561,290 @@ void fetchTwitchNameHistoryByUserId(
             failureCallback(result.formatError());
         })
         .execute();
+}
+
+namespace {
+
+constexpr int kLocalNameLimit = 20;
+constexpr QStringView kLocalNameFile = u"twitch-seen-names.json";
+
+struct LocalPreviousName {
+    QString login;
+    QString display;
+    QDateTime from;
+    QDateTime until;
+};
+
+struct LocalNameRecord {
+    QString login;
+    QString display;
+    QDateTime since;
+    std::vector<LocalPreviousName> previous;
+};
+
+std::mutex &localNameMutex()
+{
+    static std::mutex mutex;
+    return mutex;
+}
+
+QHash<QString, LocalNameRecord> &localNames()
+{
+    static QHash<QString, LocalNameRecord> records;
+    return records;
+}
+
+bool &localNamesLoaded()
+{
+    static bool loaded = false;
+    return loaded;
+}
+
+QString localNamePath()
+{
+    auto *app = tryGetApp();
+    if (app == nullptr)
+    {
+        return {};
+    }
+    return app->getPaths().settingsDirectory + QLatin1Char('/') +
+           kLocalNameFile.toString();
+}
+
+QString formatLocalDate(const QDateTime &time)
+{
+    if (!time.isValid())
+    {
+        return QStringLiteral("Unknown");
+    }
+    return time.toLocalTime().date().toString(QStringLiteral("MMM d, yyyy"));
+}
+
+void saveLocalNamesLocked()
+{
+    const auto path = localNamePath();
+    if (path.isEmpty())
+    {
+        return;
+    }
+
+    QJsonArray users;
+    for (auto it = localNames().cbegin(); it != localNames().cend(); ++it)
+    {
+        QJsonArray previous;
+        for (const auto &entry : it->previous)
+        {
+            QJsonObject object;
+            object.insert(QStringLiteral("login"), entry.login);
+            object.insert(QStringLiteral("display"), entry.display);
+            object.insert(QStringLiteral("from"),
+                          entry.from.toUTC().toString(Qt::ISODateWithMs));
+            object.insert(QStringLiteral("until"),
+                          entry.until.toUTC().toString(Qt::ISODateWithMs));
+            previous.push_back(object);
+        }
+
+        QJsonObject user;
+        user.insert(QStringLiteral("id"), it.key());
+        user.insert(QStringLiteral("login"), it->login);
+        user.insert(QStringLiteral("display"), it->display);
+        user.insert(QStringLiteral("since"),
+                    it->since.toUTC().toString(Qt::ISODateWithMs));
+        user.insert(QStringLiteral("previous"), previous);
+        users.push_back(user);
+    }
+
+    QJsonObject root;
+    root.insert(QStringLiteral("version"), 1);
+    root.insert(QStringLiteral("users"), users);
+    QSaveFile file(path);
+    if (!file.open(QIODevice::WriteOnly))
+    {
+        return;
+    }
+    const auto data = QJsonDocument(root).toJson(QJsonDocument::Compact);
+    if (file.write(data) != data.size() || !file.commit())
+    {
+        file.cancelWriting();
+    }
+}
+
+void loadLocalNamesLocked()
+{
+    if (localNamesLoaded())
+    {
+        return;
+    }
+    localNamesLoaded() = true;
+
+    QFile file(localNamePath());
+    if (!file.open(QIODevice::ReadOnly))
+    {
+        return;
+    }
+    const auto document = QJsonDocument::fromJson(file.readAll());
+    if (!document.isObject())
+    {
+        return;
+    }
+    for (const auto &value : document.object().value(u"users"_s).toArray())
+    {
+        const auto object = value.toObject();
+        const auto id = object.value(u"id"_s).toString().trimmed();
+        if (id.isEmpty())
+        {
+            continue;
+        }
+        LocalNameRecord record;
+        record.login = normalizeTwitchNameHistoryLogin(
+            object.value(u"login"_s).toString());
+        record.display = object.value(u"display"_s).toString().trimmed();
+        record.since =
+            parseNameHistoryTimestamp(object.value(u"since"_s).toString());
+        for (const auto &previousValue : object.value(u"previous"_s).toArray())
+        {
+            const auto previousObject = previousValue.toObject();
+            LocalPreviousName previous;
+            previous.login = normalizeTwitchNameHistoryLogin(
+                previousObject.value(u"login"_s).toString());
+            previous.display =
+                previousObject.value(u"display"_s).toString().trimmed();
+            previous.from = parseNameHistoryTimestamp(
+                previousObject.value(u"from"_s).toString());
+            previous.until = parseNameHistoryTimestamp(
+                previousObject.value(u"until"_s).toString());
+            if (previous.login.isEmpty() && previous.display.isEmpty())
+            {
+                continue;
+            }
+            record.previous.push_back(std::move(previous));
+        }
+        localNames().insert(id, std::move(record));
+    }
+}
+
+QString sightingLabel(const QString &login, const QString &display)
+{
+    if (display.isEmpty() || display.compare(login, Qt::CaseInsensitive) == 0)
+    {
+        return login;
+    }
+    return display + QStringLiteral(" (") + login + u')';
+}
+
+}  // namespace
+
+void noteTwitchIdentity(const QString &userId, const QString &login,
+                        const QString &displayName)
+{
+    const auto id = userId.trimmed();
+    const auto normalized = normalizeTwitchNameHistoryLogin(login);
+    if (id.isEmpty() || normalized.isEmpty())
+    {
+        return;
+    }
+    const auto display = displayName.trimmed();
+
+    if (auto *application = QCoreApplication::instance())
+    {
+        static bool flushOnQuit = false;
+        if (!flushOnQuit)
+        {
+            flushOnQuit = true;
+            QObject::connect(application, &QCoreApplication::aboutToQuit,
+                             application, [] {
+                                 std::lock_guard lock(localNameMutex());
+                                 if (localNamesLoaded())
+                                 {
+                                     saveLocalNamesLocked();
+                                 }
+                             });
+        }
+    }
+
+    std::lock_guard lock(localNameMutex());
+    loadLocalNamesLocked();
+    auto &record = localNames()[id];
+    const auto now = QDateTime::currentDateTimeUtc();
+    if (record.since.isNull() && record.login.isEmpty())
+    {
+        record.login = normalized;
+        record.display = display;
+        record.since = now;
+        static int pendingNewUsers = 0;
+        if (++pendingNewUsers >= 30)
+        {
+            pendingNewUsers = 0;
+            saveLocalNamesLocked();
+        }
+        return;
+    }
+
+    const bool loginChanged =
+        record.login.compare(normalized, Qt::CaseInsensitive) != 0;
+    const bool displayChanged = !display.isEmpty() &&
+                                !record.display.isEmpty() &&
+                                record.display != display;
+    if (!loginChanged && !displayChanged)
+    {
+        if (record.display.isEmpty() && !display.isEmpty())
+        {
+            record.display = display;
+            saveLocalNamesLocked();
+        }
+        return;
+    }
+
+    LocalPreviousName previous;
+    previous.login = record.login;
+    previous.display = record.display;
+    previous.from = record.since;
+    previous.until = now;
+    record.previous.push_back(std::move(previous));
+    if (static_cast<int>(record.previous.size()) > kLocalNameLimit)
+    {
+        record.previous.erase(record.previous.begin());
+    }
+    record.login = normalized;
+    if (!display.isEmpty())
+    {
+        record.display = display;
+    }
+    record.since = now;
+    saveLocalNamesLocked();
+}
+
+std::vector<LocalTwitchNameSighting> localTwitchNameSightings(
+    const QString &userId)
+{
+    const auto id = userId.trimmed();
+    if (id.isEmpty())
+    {
+        return {};
+    }
+
+    std::lock_guard lock(localNameMutex());
+    loadLocalNamesLocked();
+    const auto it = localNames().constFind(id);
+    if (it == localNames().cend())
+    {
+        return {};
+    }
+
+    std::vector<LocalTwitchNameSighting> sightings;
+    sightings.reserve(it->previous.size());
+    for (auto index = static_cast<int>(it->previous.size()) - 1; index >= 0;
+         --index)
+    {
+        const auto &previous = it->previous[static_cast<size_t>(index)];
+        LocalTwitchNameSighting sighting;
+        sighting.login = previous.login;
+        sighting.name = sightingLabel(previous.login, previous.display);
+        sighting.fromText = formatLocalDate(previous.from);
+        sighting.untilText = formatLocalDate(previous.until);
+        sightings.push_back(std::move(sighting));
+    }
+    return sightings;
 }
 
 }  // namespace chatterino

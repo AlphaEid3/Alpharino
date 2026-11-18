@@ -437,6 +437,38 @@ void GeneralPage::initLayout(GeneralPageView &layout)
         ->addKeywords({"slowmode", "timeout"})
         ->addTo(layout);
 
+    SettingWidget::checkbox("Time messages to land before chat pauses",
+                            s.timeMessagesBeforeChatPauses)
+        ->setTooltip(
+            "In a very fast Twitch chat, hold a message and send it when the "
+            "incoming messages are about to pause, so it sits near the bottom. "
+            "This does not send extra messages and does not change Twitch "
+            "slow mode or rate limits. Esc cancels the hold.")
+        ->addKeywords({"pause", "timing", "fast chat"})
+        ->addTo(layout);
+    SettingWidget::intInput(
+        "Max hold before sending anyway", s.timeMessagesBeforeChatPausesTimeout,
+        {.min = 1, .max = 30, .suffix = QStringLiteral(" s")})
+        ->setTooltip("If a pause is not detected in time, send the held "
+                     "message anyway.")
+        ->conditionallyEnabledBy(s.timeMessagesBeforeChatPauses)
+        ->addTo(layout);
+    SettingWidget::intInput(
+        "Only hold above this speed", s.timeMessagesBeforeChatPausesRate,
+        {.min = 1, .max = 100, .suffix = QStringLiteral(" msg/s")})
+        ->setTooltip("The hold stays off until the channel is at least this "
+                     "many messages per second.")
+        ->conditionallyEnabledBy(s.timeMessagesBeforeChatPauses)
+        ->addTo(layout);
+    SettingWidget::lineEdit("Local blocked terms", s.localBlockedTerms,
+                            "comma or newline separated")
+        ->setTooltip(
+            "Before a message is sent, warn if it contains one of these "
+            "terms. Press Enter again to send it anyway. In Twitch channels "
+            "you moderate, the channel's blocked terms are included too.")
+        ->addKeywords({"automod", "blocked", "ban words"})
+        ->addTo(layout);
+
     SettingWidget::checkbox("Allow sending duplicate messages",
                             s.allowDuplicateMessages)
         ->setTooltip(

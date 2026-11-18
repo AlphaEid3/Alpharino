@@ -9,6 +9,8 @@
 #include "common/enums/MessageOverflow.hpp"
 #include "common/QLogging.hpp"
 #include "controllers/accounts/AccountController.hpp"
+#include "controllers/chat/BlockedTerms.hpp"
+#include "controllers/chat/ChatPace.hpp"
 #include "controllers/commands/builtin/twitch/Nuke.hpp"
 #include "controllers/commands/CommandController.hpp"
 #include "controllers/completion/sources/CommandSource.hpp"
@@ -1902,6 +1904,20 @@ void SplitInput::initLayout()
                                                      QSizePolicy::Fixed);
     translationPreviewWidget->hide();
 
+    auto blockedTermWidget =
+        layout.emplace<QWidget>().assign(&this->ui_.blockedTermWidget);
+    blockedTermWidget->setObjectName("blockedTermWidget");
+    blockedTermWidget->setAttribute(Qt::WA_StyledBackground, true);
+    auto blockedTermLayout =
+        blockedTermWidget.setLayoutType<QHBoxLayout>().withoutMargin();
+    blockedTermLayout->setContentsMargins(6, 1, 6, 1);
+    blockedTermLayout.emplace<QLabel>().assign(&this->ui_.blockedTermLabel);
+    this->ui_.blockedTermLabel->setObjectName("blockedTermLabel");
+    this->ui_.blockedTermLabel->setTextFormat(Qt::PlainText);
+    this->ui_.blockedTermLabel->setWordWrap(true);
+    this->ui_.blockedTermLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    blockedTermWidget->hide();
+
 #if MOLTORINO_ENABLE_CHANNEL_POINT_REWARDS
     auto rewardPromptWidget = layout.emplace<QWidget>().assign(
         &this->ui_.channelPointRewardPromptWidget);
@@ -1991,6 +2007,20 @@ void SplitInput::initLayout()
         makeInputActionLabelCompressible(this->ui_.sendWaitStatus);
         this->ui_.sendWaitStatus->setHidden(true);
 
+        this->ui_.pauseHoldLabel = new QLabel();
+        this->ui_.pauseHoldLabel->setAlignment(Qt::AlignRight |
+                                               Qt::AlignBottom);
+        this->ui_.pauseHoldLabel->setText(QStringLiteral("holding"));
+        this->ui_.pauseHoldLabel->setToolTip(
+            "Waiting for a pause in chat. Enter sends now. Esc cancels.");
+        makeInputActionLabelCompressible(this->ui_.pauseHoldLabel);
+        this->ui_.pauseHoldLabel->hide();
+        this->pauseHoldTimer_.setInterval(40);
+        QObject::connect(&this->pauseHoldTimer_, &QTimer::timeout, this,
+                         [this] {
+                             this->tickPauseHold();
+                         });
+
         this->ui_.channelPointsLabel = new QLabel();
         this->ui_.channelPointsLabel->setAlignment(Qt::AlignRight |
                                                    Qt::AlignBottom);
@@ -2058,6 +2088,7 @@ void SplitInput::initLayout()
         this->ui_.buttonsRow = buttonsRow;
         buttonsRow->setContentsMargins(0, 0, 0, 0);
         buttonsRow->setSpacing(0);
+        buttonsRow->addWidget(this->ui_.pauseHoldLabel, 0, Qt::AlignBottom);
         buttonsRow->addWidget(this->ui_.sendWaitStatus, 0, Qt::AlignBottom);
         buttonsRow->addWidget(this->ui_.channelPointsLabel, 0, Qt::AlignBottom);
         buttonsRow->addWidget(this->ui_.predictionButton, 0, Qt::AlignBottom);
@@ -2263,6 +2294,10 @@ void SplitInput::themeChangedEvent()
     pointsPalette.setColor(QPalette::WindowText, channelPointsColor);
     this->ui_.channelPointsLabel->setPalette(pointsPalette);
     this->ui_.sendWaitStatus->setPalette(pointsPalette);
+    if (this->ui_.pauseHoldLabel != nullptr)
+    {
+        this->ui_.pauseHoldLabel->setPalette(pointsPalette);
+    }
 
     QPalette searchPalette = this->ui_.historySearchWrap->palette();
     searchPalette.setColor(QPalette::Window,
@@ -2315,6 +2350,14 @@ void SplitInput::themeChangedEvent()
                 "QLabel#translationPreviewLabel { color: #6b3300; "
                 "background: transparent; }");
         }
+        if (this->ui_.blockedTermWidget != nullptr)
+        {
+            this->ui_.blockedTermWidget->setStyleSheet(
+                "QWidget#blockedTermWidget { background: rgba(180, 40, 40, "
+                "0.14); border-top: 1px solid rgba(180, 40, 40, 0.40); }"
+                "QLabel#blockedTermLabel { color: #7a1111; background: "
+                "transparent; }");
+        }
 #if MOLTORINO_ENABLE_CHANNEL_POINT_REWARDS
         this->ui_.channelPointRewardPromptWidget->setStyleSheet(
             "QWidget#channelPointRewardPromptWidget { background: rgba(145, "
@@ -2354,6 +2397,14 @@ void SplitInput::themeChangedEvent()
                 "68, 0, 0.78); border-top: 1px solid #ff8a00; }"
                 "QLabel#translationPreviewLabel { color: #ffe7c2; "
                 "background: transparent; }");
+        }
+        if (this->ui_.blockedTermWidget != nullptr)
+        {
+            this->ui_.blockedTermWidget->setStyleSheet(
+                "QWidget#blockedTermWidget { background: rgba(90, 20, 20, "
+                "0.82); border-top: 1px solid #ff8a8a; }"
+                "QLabel#blockedTermLabel { color: #ffd0d0; background: "
+                "transparent; }");
         }
 #if MOLTORINO_ENABLE_CHANNEL_POINT_REWARDS
         this->ui_.channelPointRewardPromptWidget->setStyleSheet(
@@ -2449,6 +2500,7 @@ void SplitInput::updateActionRowCompactness()
     }
 
     updateInputActionLabelMinimumWidth(this->ui_.sendWaitStatus);
+    updateInputActionLabelMinimumWidth(this->ui_.pauseHoldLabel);
 
     const auto lengthMargins = this->ui_.textEditLength->contentsMargins();
     const QFontMetricsF lengthMetrics(this->ui_.textEditLength->font());
@@ -2654,6 +2706,10 @@ QString SplitInput::handleSendMessage(const std::vector<QString> &arguments)
     };
 
     QString message = this->currentOutgoingMessageBody();
+    if (!this->guardOutgoingMessage(message, c, arguments))
+    {
+        return "";
+    }
     if (openPollDialogCommand(message))
     {
         return "";
@@ -2719,6 +2775,177 @@ QString SplitInput::handleSendMessage(const std::vector<QString> &arguments)
 
     this->postMessageSend(message, arguments);
     return "";
+}
+
+bool SplitInput::guardOutgoingMessage(const QString &message,
+                                      const ChannelPtr &channel,
+                                      const std::vector<QString> &arguments)
+{
+    if (this->releasingPauseHold_)
+    {
+        this->releasingPauseHold_ = false;
+        this->cancelPauseHold();
+        return true;
+    }
+    if (this->pauseHoldActive_)
+    {
+        this->cancelPauseHold();
+        return true;
+    }
+
+    const auto trimmed = message.trimmed();
+    if (trimmed.isEmpty() || trimmed.startsWith(u'/') ||
+        trimmed.startsWith(u'.'))
+    {
+        this->clearBlockedTermWarning();
+        return true;
+    }
+
+    auto *twitch = dynamic_cast<TwitchChannel *>(channel.get());
+    const auto term = matchingBlockedTerm(message, channel.get());
+    if (!term.isEmpty())
+    {
+        if (!this->blockedTermConfirmed_ || this->blockedTermText_ != message)
+        {
+            this->blockedTermConfirmed_ = true;
+            this->blockedTermText_ = message;
+            this->showBlockedTermWarning(term);
+            return false;
+        }
+    }
+    const bool confirmedBlockedTerm =
+        this->blockedTermConfirmed_ && this->blockedTermText_ == message;
+    this->clearBlockedTermWarning();
+    if (confirmedBlockedTerm)
+    {
+        return true;
+    }
+    if (twitch != nullptr && this->shouldHoldForChatPause(channel, message))
+    {
+        this->startPauseHold(arguments, channel);
+        return false;
+    }
+    return true;
+}
+
+bool SplitInput::shouldHoldForChatPause(const ChannelPtr &channel,
+                                        const QString &message) const
+{
+    if (!getSettings()->timeMessagesBeforeChatPauses || channel == nullptr ||
+        !channel->isTwitchChannel())
+    {
+        return false;
+    }
+    const auto trimmed = message.trimmed();
+    if (trimmed.isEmpty() || trimmed.startsWith(u'/') ||
+        trimmed.startsWith(u'.'))
+    {
+        return false;
+    }
+    auto threshold = getSettings()->timeMessagesBeforeChatPausesRate.getValue();
+    if (threshold < 1)
+    {
+        threshold = 1;
+    }
+    return ChatPace::instance().messagesPerSecond(channel->getName()) >=
+           threshold;
+}
+
+void SplitInput::startPauseHold(const std::vector<QString> &arguments,
+                                const ChannelPtr &channel)
+{
+    this->pauseHoldArguments_ = arguments;
+    this->pauseHoldChannel_ = channel;
+    this->pauseHoldText_ = this->currentOutgoingMessageBody();
+    this->pauseHoldStartedMs_ = QDateTime::currentMSecsSinceEpoch();
+    this->pauseHoldActive_ = true;
+    if (this->ui_.pauseHoldLabel != nullptr)
+    {
+        this->ui_.pauseHoldLabel->show();
+    }
+    if (!this->pauseHoldTimer_.isActive())
+    {
+        this->pauseHoldTimer_.start();
+    }
+}
+
+void SplitInput::cancelPauseHold()
+{
+    this->pauseHoldActive_ = false;
+    this->pauseHoldTimer_.stop();
+    this->pauseHoldChannel_.reset();
+    if (this->ui_.pauseHoldLabel != nullptr)
+    {
+        this->ui_.pauseHoldLabel->hide();
+    }
+}
+
+void SplitInput::tickPauseHold()
+{
+    if (!this->pauseHoldActive_)
+    {
+        this->pauseHoldTimer_.stop();
+        return;
+    }
+
+    if (this->pauseHoldText_ != this->currentOutgoingMessageBody())
+    {
+        this->cancelPauseHold();
+        return;
+    }
+
+    const auto channel = this->pauseHoldChannel_.lock();
+    const auto selected = this->split_->getSelectedChannel();
+    if (!channel || selected.get() != channel.get())
+    {
+        this->cancelPauseHold();
+        return;
+    }
+
+    auto timeoutSeconds =
+        getSettings()->timeMessagesBeforeChatPausesTimeout.getValue();
+    timeoutSeconds = std::clamp(timeoutSeconds, 1, 30);
+    const auto elapsed =
+        QDateTime::currentMSecsSinceEpoch() - this->pauseHoldStartedMs_;
+    const auto ending = ChatPace::instance().burstEnding(channel->getName());
+    if (elapsed < timeoutSeconds * 1000 && !ending)
+    {
+        return;
+    }
+
+    this->pauseHoldActive_ = false;
+    this->pauseHoldTimer_.stop();
+    if (this->ui_.pauseHoldLabel != nullptr)
+    {
+        this->ui_.pauseHoldLabel->hide();
+    }
+    this->releasingPauseHold_ = true;
+    const auto arguments = this->pauseHoldArguments_;
+    this->handleSendMessage(arguments);
+}
+
+void SplitInput::showBlockedTermWarning(const QString &term)
+{
+    if (this->ui_.blockedTermLabel == nullptr ||
+        this->ui_.blockedTermWidget == nullptr)
+    {
+        return;
+    }
+    this->ui_.blockedTermLabel->setText(
+        QStringLiteral("Contains blocked term \"%1\". Press Enter again to "
+                       "send, or Esc to cancel.")
+            .arg(term));
+    this->ui_.blockedTermWidget->show();
+}
+
+void SplitInput::clearBlockedTermWarning()
+{
+    this->blockedTermConfirmed_ = false;
+    this->blockedTermText_.clear();
+    if (this->ui_.blockedTermWidget != nullptr)
+    {
+        this->ui_.blockedTermWidget->hide();
+    }
 }
 
 void SplitInput::postMessageSend(const QString &message,
@@ -3312,6 +3539,14 @@ bool SplitInput::eventFilter(QObject *obj, QEvent *event)
     {
         auto *keyEvent = static_cast<QKeyEvent *>(event);
         const auto key = keyEvent->key();
+        if (key == Qt::Key_Escape && keyEvent->modifiers() == Qt::NoModifier &&
+            (this->pauseHoldActive_ || this->blockedTermConfirmed_))
+        {
+            this->cancelPauseHold();
+            this->clearBlockedTermWarning();
+            keyEvent->accept();
+            return true;
+        }
         if (key == Qt::Key_Up || key == Qt::Key_Down || key == Qt::Key_Tab ||
             key == Qt::Key_Backtab || key == Qt::Key_Escape)
         {
@@ -4770,6 +5005,16 @@ void SplitInput::editTextChanged()
 
     // set textLengthLabel value
     QString text = this->ui_.textEdit->toPlainText();
+    if (this->pauseHoldActive_ &&
+        this->pauseHoldText_ != this->currentOutgoingMessageBody())
+    {
+        this->cancelPauseHold();
+    }
+    if (this->blockedTermConfirmed_ &&
+        this->blockedTermText_ != this->currentOutgoingMessageBody())
+    {
+        this->clearBlockedTermWarning();
+    }
 
     if (this->shouldPreventInput(text))
     {
@@ -5477,6 +5722,10 @@ void SplitInput::updateFonts()
     this->ui_.textEditLength->setFont(inputActionFont);
     this->ui_.channelPointsLabel->setFont(inputActionFont);
     this->ui_.sendWaitStatus->setFont(inputActionFont);
+    if (this->ui_.pauseHoldLabel != nullptr)
+    {
+        this->ui_.pauseHoldLabel->setFont(inputActionFont);
+    }
     if (this->ui_.multiChannelDestinationButton != nullptr)
     {
         this->ui_.multiChannelDestinationButton->setFont(inputActionFont);

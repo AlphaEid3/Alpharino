@@ -5,11 +5,14 @@
 #include "common/Channel.hpp"
 
 #include "Application.hpp"
+#include "controllers/chat/ChatPace.hpp"
+#include "controllers/chat/EmoteUsageStats.hpp"
 #include "messages/Emote.hpp"
 #include "messages/Message.hpp"
 #include "messages/MessageBuilder.hpp"
 #include "messages/MessageElement.hpp"
 #include "messages/MessageSimilarity.hpp"
+#include "providers/twitch/TwitchNameHistory.hpp"
 #include "singletons/Logging.hpp"
 #include "singletons/Settings.hpp"
 #include "util/ChannelHelpers.hpp"
@@ -164,6 +167,17 @@ void Channel::addMessage(MessagePtr message, MessageContext context,
                                                   this->platform_,
                                                   this->getCurrentStreamID());
             this->anythingLogged_ = true;
+        }
+
+        if (this->isTwitchChannel())
+        {
+            ChatPace::instance().note(this->name_);
+            if (!message->flags.has(MessageFlag::System))
+            {
+                noteTwitchIdentity(message->userID, message->loginName,
+                                   message->displayName);
+                EmoteUsageStats::instance().observeMessage(*this, *message);
+            }
         }
     }
 

@@ -158,6 +158,7 @@ private:
     void resetNameHistory();
     bool applyCachedNameHistory();
     void updateNameHistoryButton();
+    void refreshSeenNamesLabel();
     void showNameHistoryMenu();
     void openNameHistoryMenu(const QString &statusText = {});
     void requestNameHistory();
@@ -326,6 +327,7 @@ private:
         int localizedNameIndex = 0;
 
         Label *nameLabel = nullptr;
+        Label *previousNamesLabel = nullptr;
         LabelButton *nameHistoryButton = nullptr;
         Label *localizedNameLabel = nullptr;
         Label *bioLabel = nullptr;

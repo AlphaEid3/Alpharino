@@ -8,6 +8,7 @@
 #include "common/Common.hpp"
 #include "common/QLogging.hpp"
 #include "controllers/accounts/AccountController.hpp"
+#include "controllers/chat/BlockedTerms.hpp"
 #include "controllers/chat/ChatAutomationController.hpp"
 #include "controllers/commands/Command.hpp"
 #include "controllers/commands/CommandController.hpp"
@@ -1084,15 +1085,18 @@ void Split::updateChannelConnections()
     }
     if (tc)
     {
-        this->usermodeChangedConnection_ = tc->userStateChanged.connect([this] {
-            this->updateInputPlaceholder();
-            this->refreshModerationMode();
-            if (this->header_ != nullptr)
-            {
-                this->header_->updateChannelText();
-                this->header_->updateRoomModes();
-            }
-        });
+        prepareChannelBlockedTerms(tc);
+        this->usermodeChangedConnection_ =
+            tc->userStateChanged.connect([this, tc] {
+                prepareChannelBlockedTerms(tc);
+                this->updateInputPlaceholder();
+                this->refreshModerationMode();
+                if (this->header_ != nullptr)
+                {
+                    this->header_->updateChannelText();
+                    this->header_->updateRoomModes();
+                }
+            });
 
         this->roomModeChangedConnection_ = tc->roomModesChanged.connect([this] {
             if (this->header_ != nullptr)
@@ -2669,15 +2673,18 @@ void Split::setChannel(IndirectChannel newChannel)
     }
     else if (tc != nullptr)
     {
-        this->usermodeChangedConnection_ = tc->userStateChanged.connect([this] {
-            this->updateInputPlaceholder();
-            this->refreshModerationMode();
-            if (this->header_ != nullptr)
-            {
-                this->header_->updateChannelText();
-                this->header_->updateRoomModes();
-            }
-        });
+        prepareChannelBlockedTerms(tc);
+        this->usermodeChangedConnection_ =
+            tc->userStateChanged.connect([this, tc] {
+                prepareChannelBlockedTerms(tc);
+                this->updateInputPlaceholder();
+                this->refreshModerationMode();
+                if (this->header_ != nullptr)
+                {
+                    this->header_->updateChannelText();
+                    this->header_->updateRoomModes();
+                }
+            });
 
         this->roomModeChangedConnection_ = tc->roomModesChanged.connect([this] {
             if (this->header_ != nullptr)

@@ -10,6 +10,7 @@
 #include "common/network/NetworkResult.hpp"
 #include "controllers/accounts/AccountController.hpp"
 #include "controllers/chat/ChatAutomationController.hpp"
+#include "controllers/chat/EmoteUsageStats.hpp"
 #include "controllers/commands/builtin/Misc.hpp"
 #include "controllers/commands/CommandContext.hpp"
 #include "controllers/commands/CommandController.hpp"
@@ -44,6 +45,7 @@
 #include "widgets/buttons/SvgButton.hpp"
 #include "widgets/dialogs/ChannelManagementDialog.hpp"
 #include "widgets/dialogs/ChatAutomationDialog.hpp"
+#include "widgets/dialogs/LogSearchDialog.hpp"
 #include "widgets/dialogs/SettingsDialog.hpp"
 #include "widgets/helper/AutoModReviewBar.hpp"
 #include "widgets/helper/ChannelView.hpp"
@@ -917,6 +919,17 @@ std::unique_ptr<QMenu> SplitHeader::createMainMenu()
         this->split_, [this] {
             this->split_->showSearch(false);
         });
+    menu->addAction(QStringLiteral("Search saved logs..."), this, [this] {
+        const auto channel = this->split_->getChannel();
+        LogSearchDialog::open(this->window(), channel == nullptr
+                                                  ? QString()
+                                                  : channel->getName());
+    });
+    if (const auto channel = this->split_->getChannel();
+        channel && channel->isTwitchChannel())
+    {
+        addEmoteStatsMenu(*menu, channel->getName());
+    }
     menu->addAction("Set filters",
                     h->getDisplaySequence(HotkeyCategory::Split, "pickFilters"),
                     this->split_, &Split::setFiltersDialog);

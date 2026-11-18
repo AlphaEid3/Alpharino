@@ -8,6 +8,7 @@
 #include "common/enums/MessageContext.hpp"
 #include "common/QLogging.hpp"
 #include "controllers/accounts/AccountController.hpp"
+#include "controllers/chat/EmoteUsageStats.hpp"
 #include "controllers/emotes/EmoteController.hpp"
 #include "controllers/hotkeys/HotkeyController.hpp"
 #include "debug/Benchmark.hpp"
@@ -471,6 +472,12 @@ EmotePopup::EmotePopup(QWidget *parent)
         }
 
         const auto link = hoveredElement->getLink();
+        if (link.value == QStringLiteral("\u001Freset-emote-stats"))
+        {
+            EmoteUsageStats::instance().resetPersonal();
+            this->populateStats();
+            return;
+        }
         if (modifiers.testFlag(Qt::KeyboardModifier::ControlModifier))
         {
             const auto *page = this->searchView_->isVisible()
@@ -613,6 +620,7 @@ EmotePopup::EmotePopup(QWidget *parent)
     this->channelEmotesView_ = makeView("Channel");
     this->globalEmotesView_ = makeView("Global");
     this->viewEmojis_ = makeView("Emojis");
+    this->statsView_ = makeView("Stats");
 
     this->notebook_->select(this->subEmotesView_);
 
@@ -798,6 +806,10 @@ void EmotePopup::loadChannel(ChannelPtr channel)
     this->viewEmojis_->setChannel(makeEmoteChannel());
     this->searchView_->setChannel(makeEmoteChannel());
     this->favouritesView_->setChannel(makeEmoteChannel());
+    if (this->statsView_)
+    {
+        this->statsView_->setChannel(makeEmoteChannel());
+    }
 
     if (!this->channel_)
     {
@@ -1034,6 +1046,10 @@ void EmotePopup::loadTabIfNeeded(QWidget *page)
     {
         this->populateFavourites();
     }
+    else if (page == this->statsView_)
+    {
+        this->populateStats();
+    }
 }
 
 void EmotePopup::populateChannelEmotes()
@@ -1231,6 +1247,58 @@ void EmotePopup::populateFavourites()
     this->updateFavouriteEmotesAndEmojis();
 }
 
+void EmotePopup::populateStats()
+{
+    if (this->statsView_ == nullptr)
+    {
+        return;
+    }
+    auto channel = this->statsView_->underlyingChannel();
+    channel->clearMessages();
+
+    const auto rows = EmoteUsageStats::instance().personalRows();
+    if (rows.empty())
+    {
+        channel->addMessage(
+            makeInfoTextMessage(
+                "No emotes sent yet. This counts emotes in messages you send."),
+            MessageContext::Original);
+    }
+    else
+    {
+        for (const auto &row : rows)
+        {
+            MessageBuilder builder;
+            builder->flags.set(MessageFlag::DisableCompactEmotes);
+            builder
+                .emplace<TextElement>(QString::number(row.count),
+                                      MessageElementFlag::Text,
+                                      MessageColor::System)
+                ->setTrailingSpace(true);
+            builder
+                .emplace<TextElement>(
+                    row.name,
+                    MessageElementFlags{MessageElementFlag::EmoteText,
+                                        MessageElementFlag::AlwaysShow})
+                ->setLink(Link(Link::InsertText, row.name))
+                ->setTrailingSpace(true);
+            builder.emplace<TextElement>(
+                QStringLiteral("(%1)").arg(row.provider),
+                MessageElementFlag::Text, MessageColor::System);
+            channel->addMessage(builder.release(), MessageContext::Original);
+        }
+    }
+
+    MessageBuilder reset;
+    reset->flags.set(MessageFlag::Centered);
+    reset
+        .emplace<TextElement>("Reset stats", MessageElementFlag::Text,
+                              MessageColor::Link)
+        ->setLink(
+            Link(Link::UserAction, QStringLiteral("\u001Freset-emote-stats")));
+    channel->addMessage(reset.release(), MessageContext::Original);
+}
+
 void EmotePopup::releaseLoadedEmotes()
 {
     if (this->channelEmotesView_)
@@ -1257,6 +1325,10 @@ void EmotePopup::releaseLoadedEmotes()
     {
         this->favouritesView_->underlyingChannel()->clearMessages();
         this->favouritesLoaded_ = false;
+    }
+    if (this->statsView_)
+    {
+        this->statsView_->underlyingChannel()->clearMessages();
     }
 
     this->favouriteEmotes_.clear();

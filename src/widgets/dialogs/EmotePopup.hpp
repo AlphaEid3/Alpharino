@@ -52,6 +52,7 @@ private:
     ChannelView *subEmotesView_{};
     ChannelView *viewEmojis_{};
     ChannelView *favouritesView_{};
+    ChannelView *statsView_{};
 
     ChannelView *searchView_{};
 
@@ -78,6 +79,7 @@ private:
     void populateGlobalEmotes();
     void populateEmojis();
     void populateFavourites();
+    void populateStats();
     void releaseLoadedEmotes();
     std::optional<EmotePtr> findEmote(const EmoteName &name);
     void addFavouriteEmoji(const QString &shortCode);
