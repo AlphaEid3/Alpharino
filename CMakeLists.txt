@@ -101,6 +101,16 @@ if(BUILD_BENCHMARKS)
     list(APPEND VCPKG_MANIFEST_FEATURES "benchmarks")
 endif()
 
+# The ccache action exports CMAKE_CXX_COMPILER_LAUNCHER before CMake runs.
+# That value is copied into the resource-compiler rule when project() enables
+# the languages. clang-cl then sees rc.exe's /fo flag and the build stops.
+if(CMAKE_CXX_COMPILER MATCHES "clang-cl")
+    unset(ENV{CMAKE_C_COMPILER_LAUNCHER})
+    unset(ENV{CMAKE_CXX_COMPILER_LAUNCHER})
+    set(CMAKE_C_COMPILER_LAUNCHER "" CACHE STRING "C compiler launcher" FORCE)
+    set(CMAKE_CXX_COMPILER_LAUNCHER "" CACHE STRING "CXX compiler launcher" FORCE)
+endif()
+
 project(chatterino
     VERSION 15.5.1
     DESCRIPTION "Alpharino chat client"
