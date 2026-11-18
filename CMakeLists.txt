@@ -102,13 +102,19 @@ if(BUILD_BENCHMARKS)
 endif()
 
 # The ccache action exports CMAKE_CXX_COMPILER_LAUNCHER before CMake runs.
-# That value is copied into the resource-compiler rule when project() enables
-# the languages. clang-cl then sees rc.exe's /fo flag and the build stops.
+# CMake copies that normal variable into the resource-compiler rule when
+# project() enables the languages. set(CACHE) does not clear the normal
+# variable, so clang-cl still receives rc.exe's /fo flag unless it is unset.
 if(CMAKE_CXX_COMPILER MATCHES "clang-cl")
     unset(ENV{CMAKE_C_COMPILER_LAUNCHER})
     unset(ENV{CMAKE_CXX_COMPILER_LAUNCHER})
+    unset(CMAKE_C_COMPILER_LAUNCHER)
+    unset(CMAKE_CXX_COMPILER_LAUNCHER)
     set(CMAKE_C_COMPILER_LAUNCHER "" CACHE STRING "C compiler launcher" FORCE)
     set(CMAKE_CXX_COMPILER_LAUNCHER "" CACHE STRING "CXX compiler launcher" FORCE)
+    unset(CMAKE_C_COMPILER_LAUNCHER)
+    unset(CMAKE_CXX_COMPILER_LAUNCHER)
+    message(STATUS "clang-cl compiler launcher cleared before project()")
 endif()
 
 project(chatterino
@@ -207,6 +213,18 @@ if(_compiler_launcher AND NOT _moltorino_clang_cl)
             string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
         endif()
     endif()
+endif()
+
+if(_moltorino_clang_cl)
+    unset(ENV{CMAKE_C_COMPILER_LAUNCHER})
+    unset(ENV{CMAKE_CXX_COMPILER_LAUNCHER})
+    unset(CMAKE_C_COMPILER_LAUNCHER)
+    unset(CMAKE_CXX_COMPILER_LAUNCHER)
+    set(CMAKE_C_COMPILER_LAUNCHER "" CACHE STRING "C compiler launcher" FORCE)
+    set(CMAKE_CXX_COMPILER_LAUNCHER "" CACHE STRING "CXX compiler launcher" FORCE)
+    unset(CMAKE_C_COMPILER_LAUNCHER)
+    unset(CMAKE_CXX_COMPILER_LAUNCHER)
+    message(STATUS "clang-cl compiler launcher after setup: '${CMAKE_CXX_COMPILER_LAUNCHER}'")
 endif()
 
 set(_moltorino_pathmap_pairs "${CMAKE_SOURCE_DIR}=." "${CMAKE_BINARY_DIR}=./build")
