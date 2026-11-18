@@ -165,6 +165,15 @@ jobs:
         run: |
           windeployqt bin/Alpharino.exe --release --no-compiler-runtime --no-translations --no-opengl-sw --dir Alpharino/ --force-openssl
           Copy-Item bin/Alpharino.exe Alpharino/
+          # Alpharino opens SQLite only. The other Qt SQL plugins need client
+          # libraries (libpq, OCI, Firebird, Mimer) that are not part of the app.
+          $sqlDrivers = Join-Path Alpharino "sqldrivers"
+          if (Test-Path $sqlDrivers) {
+            Get-ChildItem $sqlDrivers -File | Where-Object { $_.BaseName -ne "qsqlite" } | ForEach-Object {
+              Write-Host "Removing unused SQL driver $($_.Name)"
+              Remove-Item $_.FullName
+            }
+          }
           if (Test-Path bin/licenses) { Copy-Item -Recurse bin/licenses Alpharino/ }
           if (Test-Path bin/support) { Copy-Item -Recurse bin/support Alpharino/ }
           # windeployqt does not see Conan's OpenSSL DLLs. Stage them, then
