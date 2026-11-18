@@ -494,4 +494,42 @@ if(BUILD_BENCHMARKS)
     add_subdirectory(benchmarks)
 endif()
 
+# ccache is injected as RULE_LAUNCH_COMPILE, which CMake prepends to every
+# compile rule, including the resource compiler. Emptying
+# CMAKE_CXX_COMPILER_LAUNCHER does not touch that property. With cmcldeps,
+# the resulting command is "ccache cmcldeps clang-cl rc /fo ...", and ccache
+# then runs clang-cl on rc.exe's /fo flag.
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
+    set(CMAKE_NINJA_CMCLDEPS_RC 0 CACHE BOOL "Use cmcldeps for ninja RC rules" FORCE)
+
+    function(_alpharino_clear_compile_launchers dir)
+        if(dir STREQUAL CMAKE_SOURCE_DIR)
+            get_property(_alpharino_rule_launch GLOBAL PROPERTY RULE_LAUNCH_COMPILE)
+            get_property(_alpharino_dir_launch DIRECTORY "${dir}" PROPERTY RULE_LAUNCH_COMPILE)
+            message(STATUS "clang-cl RULE_LAUNCH_COMPILE before clear: global='${_alpharino_rule_launch}' directory='${_alpharino_dir_launch}'")
+            set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "")
+            set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK "")
+            set_property(GLOBAL PROPERTY RULE_LAUNCH_CUSTOM "")
+        endif()
+        set_property(DIRECTORY "${dir}" PROPERTY RULE_LAUNCH_COMPILE "")
+        set_property(DIRECTORY "${dir}" PROPERTY RULE_LAUNCH_LINK "")
+        set_property(DIRECTORY "${dir}" PROPERTY RULE_LAUNCH_CUSTOM "")
+        get_property(_targets DIRECTORY "${dir}" PROPERTY BUILDSYSTEM_TARGETS)
+        foreach(_target IN LISTS _targets)
+            set_property(TARGET "${_target}" PROPERTY RULE_LAUNCH_COMPILE "")
+            set_property(TARGET "${_target}" PROPERTY RULE_LAUNCH_LINK "")
+            set_property(TARGET "${_target}" PROPERTY RULE_LAUNCH_CUSTOM "")
+            set_property(TARGET "${_target}" PROPERTY C_COMPILER_LAUNCHER "")
+            set_property(TARGET "${_target}" PROPERTY CXX_COMPILER_LAUNCHER "")
+        endforeach()
+        get_property(_subdirs DIRECTORY "${dir}" PROPERTY SUBDIRECTORIES)
+        foreach(_subdir IN LISTS _subdirs)
+            _alpharino_clear_compile_launchers("${_subdir}")
+        endforeach()
+    endfunction()
+
+    # Run after every deferred hook so a dependency cannot put ccache back.
+    cmake_language(DEFER CALL _alpharino_clear_compile_launchers "${CMAKE_SOURCE_DIR}")
+endif()
+
 feature_summary(WHAT ALL)

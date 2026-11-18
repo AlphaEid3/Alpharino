@@ -120,17 +120,18 @@ jobs:
           rm httpbox.zip
 
       # MSVC 14.51 still aborts twitch-eventsub-ws-test.exe with 0xc0000409
-      # during gtest discovery after the segment heap is left off and the
-      # desktop CRT is beside the executable. Build the tests with clang-cl
-      # and lld, without ccache. ccache wraps rc.exe's helper and clang-cl
-      # then rejects rc's /fo flag.
+      # during gtest discovery. Build the tests with clang-cl and lld.
+      # cmcldeps plus a ccache RULE_LAUNCH_COMPILE prefix makes clang-cl
+      # receive rc.exe's /fo flag, so compile resources with rc.exe directly.
       - name: Build
         run: |
+          Remove-Item Env:RULE_LAUNCH_COMPILE, Env:RULE_LAUNCH_LINK, Env:RULE_LAUNCH_CUSTOM, Env:CMAKE_C_COMPILER_LAUNCHER, Env:CMAKE_CXX_COMPILER_LAUNCHER, Env:CMAKE_RC_COMPILER_LAUNCHER -ErrorAction SilentlyContinue
           cmake `
               -G Ninja `
               -DCMAKE_CXX_COMPILER=clang-cl `
               -DCMAKE_C_COMPILER=clang-cl `
               -DCMAKE_RC_COMPILER=rc.exe `
+              -DCMAKE_NINJA_CMCLDEPS_RC=OFF `
               -DCMAKE_LINKER_TYPE=LLD `
               -DCMAKE_BUILD_TYPE=RelWithDebInfo `
               -DBUILD_TESTS=On `
