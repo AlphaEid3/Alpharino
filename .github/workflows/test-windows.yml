@@ -122,8 +122,8 @@ jobs:
       # MSVC 14.51 still aborts twitch-eventsub-ws-test.exe with 0xc0000409
       # during gtest discovery after the segment heap is left off and the
       # desktop CRT is beside the executable. Build the tests with clang-cl
-      # and lld. Use rc.exe: llvm-rc is launched through ccache, which turns
-      # the command into a response file CMake cannot open.
+      # and lld, without ccache. ccache wraps rc.exe's helper and clang-cl
+      # then rejects rc's /fo flag.
       - name: Build
         run: |
           cmake `

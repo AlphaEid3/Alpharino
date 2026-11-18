@@ -175,7 +175,14 @@ if(USE_ALTERNATE_LINKER)
     endif()
 endif()
 
-if(_compiler_launcher)
+# ccache is prepended to CMake's rc.exe helper. clang-cl then receives the
+# resource compiler's /fo flag and the Windows resource build stops.
+set(_moltorino_clang_cl FALSE)
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
+    set(_moltorino_clang_cl TRUE)
+endif()
+
+if(_compiler_launcher AND NOT _moltorino_clang_cl)
     set(CMAKE_CXX_COMPILER_LAUNCHER "${_compiler_launcher}" CACHE STRING "CXX compiler launcher")
     message(STATUS "Using ${_compiler_launcher} for speeding up build")
 
