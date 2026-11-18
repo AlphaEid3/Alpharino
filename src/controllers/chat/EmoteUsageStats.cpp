@@ -6,6 +6,7 @@
 
 #include "Application.hpp"
 #include "common/Channel.hpp"
+#include "controllers/accounts/AccountController.hpp"
 #include "messages/Emote.hpp"
 #include "messages/Message.hpp"
 #include "messages/MessageElement.hpp"
@@ -144,7 +145,7 @@ public:
             {
                 continue;
             }
-            this->personal_.insert({provider, name}, count);
+            this->personal_.insert_or_assign(Key{provider, name}, count);
         }
     }
 
@@ -263,7 +264,8 @@ private:
         this->personal_.clear();
         for (const auto &row : rows)
         {
-            this->personal_.insert({row.provider, row.name}, row.count);
+            this->personal_.insert_or_assign(Key{row.provider, row.name},
+                                             row.count);
         }
     }
 
