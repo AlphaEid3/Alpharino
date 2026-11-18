@@ -167,14 +167,32 @@ jobs:
           Copy-Item bin/Alpharino.exe Alpharino/
           if (Test-Path bin/licenses) { Copy-Item -Recurse bin/licenses Alpharino/ }
           if (Test-Path bin/support) { Copy-Item -Recurse bin/support Alpharino/ }
+          # windeployqt does not see Conan's OpenSSL DLLs. Stage them, then
+          # the CRT, so libssl/libcrypto and their runtime imports are packaged.
+          ..\.CI\stage-runtime-dlls.ps1 -BuildBin bin -InstallDir Alpharino
           ..\.CI\deploy-crt.ps1 Alpharino -Architecture x64
           7z a bin/alpharino-windows-x64-symbols.pdb.7z bin/Alpharino.pdb
+
+      - name: Verify Windows package
+        working-directory: build
+        shell: pwsh
+        run: |
+          ..\.CI\verify-windows-package.ps1 -InstallDir Alpharino
 
       - name: Package (windows)
         working-directory: build
         shell: pwsh
         run: |
           7z a alpharino-windows-x64-portable.zip Alpharino/
+          $listing = (7z l alpharino-windows-x64-portable.zip | Out-String)
+          foreach ($name in @("libssl-3-x64.dll", "libcrypto-3-x64.dll")) {
+            if ($listing -notmatch [regex]::Escape($name)) {
+              Write-Host "ERROR: alpharino-windows-x64-portable.zip does not contain $name"
+              Write-Host $listing
+              exit 1
+            }
+            Write-Host "Archive contains $name"
+          }
 
       - name: Upload artifact (Windows - portable zip)
         if: ${{ !matrix.skip-artifact }}
