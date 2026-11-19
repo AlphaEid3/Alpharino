@@ -147,6 +147,8 @@ jobs:
               -o with_openssl3=True
           conan cache clean --source --build --download "*"
 
+      # USE_PRECOMPILED_HEADERS is off because sccache 0.14 cannot cache
+      # MSVC /Fp and /Yc compilations.
       - name: Build (Windows)
         shell: pwsh
         run: |
@@ -157,7 +159,6 @@ jobs:
               -DCMAKE_C_COMPILER_LAUNCHER=sccache `
               -DCMAKE_CXX_COMPILER_LAUNCHER=sccache `
               -DCMAKE_TOOLCHAIN_FILE="conan_toolchain.cmake" `
-              # sccache 0.14 cannot cache MSVC /Fp and /Yc (precompiled headers).
               -DUSE_PRECOMPILED_HEADERS=OFF `
               -DBUILD_WITH_CRASHPAD=Off `
               -DCHATTERINO_LTO="$Env:C2_ENABLE_LTO" `
