@@ -88,7 +88,7 @@ sccache --show-stats
 
 CMake also detects `sccache` or `ccache` on `PATH` and uses it as the C++ launcher. When it does, it rewrites MSVC `/Zi` to `/Z7`, because program debug info in a PDB cannot be cached. Passing `-DCMAKE_C_COMPILER_LAUNCHER` and `-DCMAKE_CXX_COMPILER_LAUNCHER` is what CI does as well.
 
-`USE_PRECOMPILED_HEADERS` is OFF in this command. sccache 0.14 refuses MSVC precompiled-header compilations (`/Fp`, `/Yc`), so a clean build would recompile everything and the cache would stay empty. CI sets the same option.
+`USE_PRECOMPILED_HEADERS` is OFF in this command. sccache 0.14 refuses MSVC precompiled-header compilations (`/Fp`, `/Yc`), so a clean build would recompile everything and the cache would stay empty. CI sets the same option. The `/pathmap` remapping flags are also left off when `sccache` or `ccache` is the launcher: sccache 0.14 reads each unknown `/pathmap` option as a second input file and then refuses the compile.
 
 The executable is `build\bin\Alpharino.exe`.
 

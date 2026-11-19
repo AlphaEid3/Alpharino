@@ -248,7 +248,8 @@ endif()
 foreach(_moltorino_pathmap_pair IN LISTS _moltorino_pathmap_pairs)
     # clang-cl sets MSVC and rejects both /pathmap and -f*-prefix-map.
     # Crashpad compiles with /WX, so either form stops the test build.
-    # The Windows application build still uses cl and /pathmap.
+    # A plain cl.exe build still uses /pathmap. A sccache or ccache launch
+    # skips it; see the MSVC branch below.
     if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
         # No path remapping for clang-cl.
     elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
@@ -256,7 +257,13 @@ foreach(_moltorino_pathmap_pair IN LISTS _moltorino_pathmap_pairs)
         add_compile_options("$<${_moltorino_public_config}:-fdebug-prefix-map=${_moltorino_pathmap_pair}>")
         add_compile_options("$<${_moltorino_public_config}:-fmacro-prefix-map=${_moltorino_pathmap_pair}>")
     elseif(MSVC)
-        add_compile_options("$<${_moltorino_public_config}:/pathmap:${_moltorino_pathmap_pair}>")
+        # sccache 0.14 does not know /pathmap. It treats that unknown /option
+        # as another input file, so every compile is non-cacheable
+        # ("multiple input files") and the cache stays empty. Keep the flag
+        # for plain cl.exe builds, where it still remaps absolute paths.
+        if(NOT _compiler_launcher AND NOT CMAKE_CXX_COMPILER_LAUNCHER)
+            add_compile_options("$<${_moltorino_public_config}:/pathmap:${_moltorino_pathmap_pair}>")
+        endif()
     endif()
 endforeach()
 
