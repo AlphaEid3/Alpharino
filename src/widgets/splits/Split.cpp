@@ -35,6 +35,7 @@
 #include "util/CustomPlayer.hpp"
 #include "util/IncognitoBrowser.hpp"
 #include "util/MultiChannel.hpp"
+#include "util/StartupTrace.hpp"
 #include "util/StreamLink.hpp"
 #include "widgets/ChatterListWidget.hpp"
 #include "widgets/dialogs/SelectChannelDialog.hpp"
@@ -1705,9 +1706,13 @@ void Split::showEvent(QShowEvent *event)
         this->addShortcuts();
         this->shortcutsActive_ = true;
     }
+    startupTrace(QStringLiteral("Split::showEvent header"));
     this->ensureHeader();
+    startupTrace(QStringLiteral("Split::showEvent input"));
     this->ensureInput();
+    startupTrace(QStringLiteral("Split::showEvent base"));
     BaseWidget::showEvent(event);
+    startupTrace(QStringLiteral("Split::showEvent done"));
     this->scheduleDeferredTwitchRefresh(!shouldUseColdTwitchFeatureDelay());
     this->refreshSelectedYouTube();
 }
