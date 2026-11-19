@@ -95,12 +95,17 @@ jobs:
 
       - name: Setup sccache (Windows)
         # A transient GitHub download failure should not fail the build.
+        # sccache 0.14.0. Pull-request builds must save too: this branch is
+        # built from pull_request, and a constant key is not updated by
+        # actions/cache. append-timestamp stores a new entry each run and the
+        # restore prefix picks up the previous one on this branch.
         continue-on-error: true
-        # sccache v0.7.4
         uses: hendrikmuhs/ccache-action@v1.2.23
         with:
           variant: sccache
-          save: ${{ github.event_name == 'push' }}
+          save: true
+          max-size: 4G
+          append-timestamp: true
           key: sccache-build-${{ matrix.os }}-${{ runner.arch }}-${{ matrix.qt-version }}
           restore-keys: |
             sccache-build-${{ matrix.os }}-${{ runner.arch }}-${{ matrix.qt-version }}
@@ -109,6 +114,8 @@ jobs:
         uses: actions/cache@v5
         with:
           key: ${{ runner.os }}-${{ runner.arch }}-conan-user-${{ hashFiles('**/conanfile.py') }}-QT6
+          restore-keys: |
+            ${{ runner.os }}-${{ runner.arch }}-conan-user-
           path: ~/.conan2/
 
       - name: Setup Python (Windows)
@@ -147,6 +154,8 @@ jobs:
           cmake `
               -G Ninja `
               -DCMAKE_BUILD_TYPE=RelWithDebInfo `
+              -DCMAKE_C_COMPILER_LAUNCHER=sccache `
+              -DCMAKE_CXX_COMPILER_LAUNCHER=sccache `
               -DCMAKE_TOOLCHAIN_FILE="conan_toolchain.cmake" `
               -DUSE_PRECOMPILED_HEADERS=ON `
               -DBUILD_WITH_CRASHPAD=Off `
@@ -158,6 +167,9 @@ jobs:
               -DMOLTORINO_VELOPACK=Off `
               ..
           cmake --build . --parallel 4
+          if (Get-Command sccache -ErrorAction SilentlyContinue) {
+            sccache --show-stats
+          }
 
       - name: Prepare build dir (windows)
         working-directory: build
