@@ -43,6 +43,8 @@ public:
     void updateIcons();
 
     void updateRoomModes();
+    bool toggleSharedChatSourceMute(const QString &sourceId);
+    void populateSharedChatMuteMenu(QMenu *menu);
 
 protected:
     void scaleChangedEvent(float scale) override;

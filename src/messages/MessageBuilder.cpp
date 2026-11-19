@@ -3596,9 +3596,21 @@ void MessageBuilder::appendTwitchBadges(Communi::TagsRef tags,
             }
         }
 
-        this->emplace<BadgeElement>(
+        auto *sharedBadge = this->emplace<BadgeElement>(
             makeSharedChatBadge(sourceName, sourceProfilePicture, sourceLogin),
             MessageElementFlag::BadgeSharedChannel);
+        if (!sourceId.isEmpty())
+        {
+            auto tooltip = QStringLiteral("Shared message");
+            if (!sourceName.isEmpty())
+            {
+                tooltip += QStringLiteral(" from ") + sourceName;
+            }
+            tooltip += QStringLiteral(
+                ". Click to hide messages from this channel in this split.");
+            sharedBadge->setTooltip(tooltip);
+            sharedBadge->setLink({Link::MuteSharedChatSource, sourceId});
+        }
 
         const auto sourceBadges = parseBadgeTag(tags, "source-badges");
         auto sourceAuthorityBadges = std::vector<TwitchBadge>{};

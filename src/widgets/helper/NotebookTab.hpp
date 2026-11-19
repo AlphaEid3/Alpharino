@@ -73,6 +73,10 @@ public:
      **/
     bool setLive(bool isLive);
 
+    /// Amber mark while this tab's chat is moving much faster than usual.
+    void setHotChat(bool hot);
+    bool isHotChat() const;
+
     /**
      * @brief Sets the rerun status of this tab
      *
@@ -229,6 +233,7 @@ private:
 
     bool isLive_{};
     bool isRerun_{};
+    bool hotChat_{};
     bool alwaysVisible_{};
     QAction *alwaysVisibleAction_{};
 

@@ -2268,6 +2268,127 @@ void TwitchChannel::sendMessage(const QString &message)
     sendNormally();
 }
 
+void TwitchChannel::sendAsAccount(const QString &message,
+                                  const QString &replyId,
+                                  const std::shared_ptr<TwitchAccount> &account)
+{
+    auto current = getApp()->getAccounts()->twitch.getCurrent();
+    if (!account || account->isAnon() || account.get() == current.get())
+    {
+        if (replyId.isEmpty())
+        {
+            this->sendMessage(message);
+        }
+        else
+        {
+            this->sendReply(message, replyId);
+        }
+        return;
+    }
+
+    if (message.trimmed().isEmpty())
+    {
+        return;
+    }
+
+    const auto parsedMessage = this->prepareMessage(message);
+    if (parsedMessage.isEmpty())
+    {
+        return;
+    }
+    if (isUnknownCommand(parsedMessage))
+    {
+        this->addSystemMessage(QStringLiteral("%1 is not a known command.")
+                                   .arg(parsedMessage.split(' ').first()));
+        return;
+    }
+    if (this->roomId().isEmpty())
+    {
+        this->addSystemMessage(
+            QStringLiteral("Sending messages in this channel isn't possible."));
+        return;
+    }
+
+    auto token = account->getOAuthToken();
+    if (token.startsWith(QStringLiteral("oauth:")))
+    {
+        token.remove(0, 6);
+    }
+    const auto clientId = account->getOAuthClient();
+    if (token.isEmpty() || clientId.isEmpty() || account->getUserId().isEmpty())
+    {
+        this->addSystemMessage(QStringLiteral(
+            "That account cannot send until you log in with it again."));
+        return;
+    }
+
+    QJsonObject json{
+        {QStringLiteral("broadcaster_id"), this->roomId()},
+        {QStringLiteral("sender_id"), account->getUserId()},
+        {QStringLiteral("message"), parsedMessage},
+    };
+    if (!replyId.isEmpty())
+    {
+        json.insert(QStringLiteral("reply_parent_message_id"), replyId);
+    }
+
+    const auto senderName = account->getUserName();
+    NetworkRequest(QStringLiteral("https://api.twitch.tv/helix/chat/messages"),
+                   NetworkRequestType::Post)
+        .timeout(10000)
+        .maximumResponseSize(64 * 1024)
+        .followRedirects(false)
+        .header("Authorization", "Bearer " + token)
+        .header("Client-Id", clientId)
+        .header("Content-Type", "application/json")
+        .payload(QJsonDocument(json).toJson())
+        .onSuccess([weak = weakOf<Channel>(this), parsedMessage,
+                    senderName](const NetworkResult &result) {
+            auto channel =
+                std::dynamic_pointer_cast<TwitchChannel>(weak.lock());
+            if (!channel)
+            {
+                return;
+            }
+            const auto data = result.parseJson().value("data").toArray();
+            if (!data.isEmpty())
+            {
+                const auto first = data.first().toObject();
+                if (!first.value("is_sent").toBool())
+                {
+                    const auto reason =
+                        first.value("drop_reason").toObject().value("message");
+                    channel->addSystemMessage(
+                        reason.toString().isEmpty()
+                            ? QStringLiteral("%1's message was not sent.")
+                                  .arg(senderName)
+                            : reason.toString());
+                    return;
+                }
+            }
+            channel->updateBttvActivity();
+            channel->updateSevenTVActivity();
+            channel->lastSentMessage_ = parsedMessage;
+        })
+        .onError([weak = weakOf<Channel>(this),
+                  senderName](const NetworkResult &result) {
+            auto channel =
+                std::dynamic_pointer_cast<TwitchChannel>(weak.lock());
+            if (!channel)
+            {
+                return;
+            }
+            auto text = result.parseJson().value("message").toString();
+            if (text.isEmpty())
+            {
+                text = result.formatError();
+            }
+            channel->addSystemMessage(QStringLiteral("Could not send as %1: %2")
+                                          .arg(senderName, text));
+        })
+        .execute();
+}
+
 void TwitchChannel::sendReply(const QString &message, const QString &replyId)
 {
     if (this->isReadingAnonymously())

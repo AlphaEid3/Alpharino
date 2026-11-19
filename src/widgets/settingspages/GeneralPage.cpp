@@ -355,6 +355,19 @@ void GeneralPage::initLayout(GeneralPageView &layout)
         ->setTooltip("Shows a red dot in the top right corner of a tab to "
                      "indicate one of the channels in the tab is live.")
         ->addTo(layout);
+    SettingWidget::checkbox("Show when a chat suddenly gets busy",
+                            s.hotChatIndicator)
+        ->setTooltip(
+            "A small glow appears on a tab when that channel's messages jump "
+            "well above its recent pace. It clears when you open the tab or "
+            "the burst ends.")
+        ->addTo(layout);
+    SettingWidget::intInput("Busy-chat sensitivity", s.hotChatSensitivity,
+                            {.min = 1, .max = 10})
+        ->setTooltip("1 reacts only to large spikes. 10 reacts to smaller "
+                     "ones. 5 is the default.")
+        ->conditionallyEnabledBy(s.hotChatIndicator)
+        ->addTo(layout);
 
     layout.addTitle("Chat");
 

@@ -34,6 +34,7 @@ public:
         ViewThread,
         JumpToMessage,
         AcknowledgeChatWarning,
+        MuteSharedChatSource,
     };
 
     Link();

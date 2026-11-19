@@ -312,6 +312,8 @@ public:
     BoolSetting keepTabWidthWhenLocked = {
         "/appearance/tabs/keepWidthWhenLocked", true};
     BoolSetting showTabLive = {"/appearance/showTabLiveButton", true};
+    BoolSetting hotChatIndicator = {"/appearance/hotChatIndicator", true};
+    IntSetting hotChatSensitivity = {"/appearance/hotChatSensitivity", 5};
     BoolSetting colorTabHighlightsByMessage = {
         "/appearance/tabs/colorHighlightsByMessage",
         false,
@@ -878,6 +880,10 @@ public:
         "/notifications/suppressInitialLive", false};
 
     BoolSetting notificationToast = {"/notifications/enableToast", false};
+    BoolSetting toastModerationActions = {
+        "/notifications/toastModerationActions", false};
+    BoolSetting toastModerationActionsConfirm = {
+        "/notifications/toastModerationActionsConfirm", true};
     BoolSetting createShortcutForToasts;
     IntSetting openFromToast = {"/notifications/openFromToast",
                                 static_cast<int>(ToastReaction::OpenInBrowser)};
@@ -1344,7 +1350,7 @@ public:
                                        true};
     BoolSetting showCommandArgumentHints{"/moltorino/showCommandArgumentHints",
                                          true};
-    BoolSetting showEmoteTabCarousel{"/moltorino/showEmoteTabCarousel", false};
+    BoolSetting showEmoteTabCarousel{"/moltorino/showEmoteTabCarousel", true};
     QStringSetting emoteTabCarouselSize{"/moltorino/emoteTabCarouselSize",
                                         "standard"};
     BoolSetting showEmoteTabCarouselNames{

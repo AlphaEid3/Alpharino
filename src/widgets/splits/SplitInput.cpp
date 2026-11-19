@@ -1602,6 +1602,75 @@ void SplitInput::updateMultiChannelDestinationButton()
     }
 }
 
+void SplitInput::updateSendAccountButton()
+{
+    auto *button = this->ui_.sendAccountButton;
+    if (button == nullptr)
+    {
+        return;
+    }
+    if (!this->split_->sendAccountLogin().isEmpty())
+    {
+        auto &twitch = getApp()->getAccounts()->twitch;
+        // An empty name list means accounts are still loading. Keep the pin.
+        if (!twitch.getUsernames().empty())
+        {
+            auto pinned =
+                twitch.findUserByUsername(this->split_->sendAccountLogin());
+            if (!pinned || pinned->isAnon())
+            {
+                this->split_->setSendAccountLogin({});
+                return;
+            }
+        }
+    }
+
+    auto channel = this->split_->getChannel();
+    auto account = this->split_->sendTwitchAccount();
+    const bool show =
+        channel && channel->isTwitchChannel() && account && !account->isAnon();
+    button->setVisible(show);
+    if (!show)
+    {
+        return;
+    }
+
+    const auto current = getApp()->getAccounts()->twitch.getCurrent();
+    const bool pinned = !this->split_->sendAccountLogin().isEmpty() &&
+                        current && account.get() != current.get();
+    auto login = account->getUserName();
+    if (login.size() > 14)
+    {
+        login = login.left(12) + QStringLiteral("…");
+    }
+    button->setText((pinned ? QStringLiteral("● ") : QStringLiteral("as ")) +
+                    login + QStringLiteral(" ▾"));
+    button->setToolTip(
+        pinned ? QStringLiteral(
+                     "This split sends as %1, not the current account. Click "
+                     "to change it.")
+                     .arg(account->getUserName())
+               : QStringLiteral(
+                     "Messages in this split send as %1, the current account. "
+                     "Click to pin a different account.")
+                     .arg(account->getUserName()));
+}
+
+void SplitInput::openSendAccountMenu()
+{
+    auto *menu = new QMenu(this);
+    this->split_->populateSendAccountMenu(menu);
+    if (menu->isEmpty())
+    {
+        delete menu;
+        return;
+    }
+    QObject::connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);
+    const auto bottomLeft = this->ui_.sendAccountButton->mapToGlobal(
+        QPoint{0, this->ui_.sendAccountButton->height()});
+    menu->popup(bottomLeft);
+}
+
 void SplitInput::handleImagePaste(const QMimeData *source)
 {
     if (!getSettings()->imageUploaderEnabled)
@@ -2007,6 +2076,18 @@ void SplitInput::initLayout()
         makeInputActionLabelCompressible(this->ui_.sendWaitStatus);
         this->ui_.sendWaitStatus->setHidden(true);
 
+        this->ui_.sendAccountButton =
+            new LabelButton(QString{}, nullptr, QSize{3, 0});
+        this->ui_.sendAccountButton->setToolTip(
+            "Choose which logged-in account sends messages from this split");
+        this->ui_.sendAccountButton->setSizePolicy(QSizePolicy::Maximum,
+                                                   QSizePolicy::Fixed);
+        this->ui_.sendAccountButton->hide();
+        QObject::connect(this->ui_.sendAccountButton, &Button::leftClicked,
+                         this, [this] {
+                             this->openSendAccountMenu();
+                         });
+
         this->ui_.pauseHoldLabel = new QLabel();
         this->ui_.pauseHoldLabel->setAlignment(Qt::AlignRight |
                                                Qt::AlignBottom);
@@ -2088,6 +2169,7 @@ void SplitInput::initLayout()
         this->ui_.buttonsRow = buttonsRow;
         buttonsRow->setContentsMargins(0, 0, 0, 0);
         buttonsRow->setSpacing(0);
+        buttonsRow->addWidget(this->ui_.sendAccountButton, 0, Qt::AlignBottom);
         buttonsRow->addWidget(this->ui_.pauseHoldLabel, 0, Qt::AlignBottom);
         buttonsRow->addWidget(this->ui_.sendWaitStatus, 0, Qt::AlignBottom);
         buttonsRow->addWidget(this->ui_.channelPointsLabel, 0, Qt::AlignBottom);
@@ -2114,6 +2196,14 @@ void SplitInput::initLayout()
                                              [this] {
                                                  this->updateFonts();
                                              });
+    this->managedConnections_.managedConnect(
+        app->getAccounts()->twitch.currentUserChanged, [this] {
+            this->updateSendAccountButton();
+        });
+    this->managedConnections_.managedConnect(
+        app->getAccounts()->twitch.userListUpdated, [this] {
+            this->updateSendAccountButton();
+        });
 
     // open emote popup
     QObject::connect(this->ui_.emoteButton, &Button::leftClicked, [this] {
@@ -2741,7 +2831,15 @@ QString SplitInput::handleSendMessage(const std::vector<QString> &arguments)
             c->sendMessage(sendMessage);
             return "";
         }
-        c->sendMessage(sendMessage);
+        if (auto *twitch = dynamic_cast<TwitchChannel *>(c.get()))
+        {
+            twitch->sendAsAccount(sendMessage, {},
+                                  this->split_->sendTwitchAccount());
+        }
+        else
+        {
+            c->sendMessage(sendMessage);
+        }
 
         this->postMessageSend(message, arguments);
         return "";
@@ -2766,7 +2864,8 @@ QString SplitInput::handleSendMessage(const std::vector<QString> &arguments)
     // Reply within TwitchChannel
     if (tc)
     {
-        tc->sendReply(sendMessage, this->replyTarget_->id);
+        tc->sendAsAccount(sendMessage, this->replyTarget_->id,
+                          this->split_->sendTwitchAccount());
     }
     else if (kc)
     {
@@ -5791,6 +5890,7 @@ void SplitInput::updateChannel()
     ++this->draftRevision_;
     this->channelConnections_.clear();
     this->updateMultiChannelDestinationButton();
+    this->updateSendAccountButton();
 
     auto refreshSelectedChannelState = [this] {
         auto selected = this->split_->getSelectedChannel();

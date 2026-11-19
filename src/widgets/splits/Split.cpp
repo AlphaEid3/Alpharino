@@ -2793,6 +2793,99 @@ bool Split::getModerationMode() const
     return this->moderationMode_;
 }
 
+void Split::setSendAccountLogin(const QString &login)
+{
+    const auto trimmed = login.trimmed();
+    if (this->sendAccountLogin_ == trimmed)
+    {
+        return;
+    }
+    this->sendAccountLogin_ = trimmed;
+    if (this->input_ != nullptr)
+    {
+        this->input_->updateSendAccountButton();
+    }
+    getApp()->getWindows()->queueSave();
+}
+
+QString Split::sendAccountLogin() const
+{
+    return this->sendAccountLogin_;
+}
+
+std::shared_ptr<TwitchAccount> Split::sendTwitchAccount() const
+{
+    auto &accounts = getApp()->getAccounts()->twitch;
+    if (!this->sendAccountLogin_.isEmpty())
+    {
+        if (auto pinned = accounts.findUserByUsername(this->sendAccountLogin_);
+            pinned && !pinned->isAnon())
+        {
+            return pinned;
+        }
+    }
+    return accounts.getCurrent();
+}
+
+void Split::populateSendAccountMenu(QMenu *menu)
+{
+    if (menu == nullptr)
+    {
+        return;
+    }
+    auto &accounts = getApp()->getAccounts()->twitch;
+    const auto current = accounts.getCurrent();
+    const auto pinned = this->sendAccountLogin_;
+    auto *follow = menu->addAction(QStringLiteral("Current account"));
+    follow->setCheckable(true);
+    follow->setChecked(pinned.isEmpty());
+    QObject::connect(follow, &QAction::triggered, this, [this] {
+        this->setSendAccountLogin({});
+    });
+    menu->addSeparator();
+    const auto names = accounts.getUsernames();
+    if (names.empty())
+    {
+        auto *empty = menu->addAction(QStringLiteral("No logged-in accounts"));
+        empty->setEnabled(false);
+        return;
+    }
+    for (const auto &name : names)
+    {
+        auto account = accounts.findUserByUsername(name);
+        if (!account || account->isAnon())
+        {
+            continue;
+        }
+        const bool isCurrent =
+            current && account->getUserName().compare(current->getUserName(),
+                                                      Qt::CaseInsensitive) == 0;
+        auto label = account->getUserName();
+        if (isCurrent)
+        {
+            label += QStringLiteral(" (current)");
+        }
+        auto *action = menu->addAction(label);
+        action->setCheckable(true);
+        action->setChecked(
+            pinned.compare(account->getUserName(), Qt::CaseInsensitive) == 0);
+        const auto login = account->getUserName();
+        QObject::connect(action, &QAction::triggered, this, [this, login] {
+            this->setSendAccountLogin(login);
+        });
+    }
+}
+
+void Split::toggleSharedChatSourceMute(const QString &sourceId)
+{
+    this->ensureHeader()->toggleSharedChatSourceMute(sourceId);
+}
+
+void Split::populateSharedChatMuteMenu(QMenu *menu)
+{
+    this->ensureHeader()->populateSharedChatMuteMenu(menu);
+}
+
 std::optional<bool> Split::checkSpellingOverride() const
 {
     return this->input_ != nullptr ? this->input_->checkSpellingOverride()

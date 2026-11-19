@@ -1462,6 +1462,34 @@ bool NotebookTab::isLive() const
     return this->isLive_;
 }
 
+void NotebookTab::setHotChat(bool hot)
+{
+    if (this->hotChat_ == hot)
+    {
+        return;
+    }
+    this->hotChat_ = hot;
+    if (this->role_ != Role::GroupHeader)
+    {
+        const auto hotTip =
+            QStringLiteral("Chat is moving much faster than usual");
+        if (hot)
+        {
+            this->setToolTip(hotTip);
+        }
+        else if (this->toolTip() == hotTip)
+        {
+            this->setToolTip({});
+        }
+    }
+    this->update();
+}
+
+bool NotebookTab::isHotChat() const
+{
+    return this->hotChat_;
+}
+
 HighlightState NotebookTab::highlightState() const
 {
     return this->highlightState_;
@@ -1717,6 +1745,27 @@ void NotebookTab::paintEvent(QPaintEvent *)
                           individual || this->isLastVisible_);
     painter.setRenderHint(QPainter::Antialiasing, tabRadius > 0);
     painter.fillPath(backgroundPath, tabBackground);
+
+    if (this->hotChat_ && !this->selected_)
+    {
+        QColor glow(255, 150, 40, 72);
+        painter.fillPath(backgroundPath, glow);
+        painter.setPen(
+            QPen(QColor(255, 140, 32, 210), std::max(1.0F, 1.4F * scale)));
+        painter.setBrush(Qt::NoBrush);
+        painter.drawPath(backgroundPath);
+
+        painter.setRenderHint(QPainter::Antialiasing);
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(QColor(255, 140, 32));
+        const auto diameter = std::max(4.0F, 5.0F * scale);
+        QRect hotDot(qRound(4 * scale),
+                     qRound(this->height() - diameter - 3 * scale),
+                     qRound(diameter), qRound(diameter));
+        translateRectForLocation(hotDot, this->tabLocation_,
+                                 this->selected_ ? 0 : -1);
+        painter.drawEllipse(hotDot);
+    }
 
     QColor groupTint;
     if (this->role_ == Role::GroupHeader && this->groupColorMode_ == "theme")

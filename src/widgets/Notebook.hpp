@@ -16,6 +16,7 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QPointer>
+#include <QTimer>
 #include <QWidget>
 
 #include <functional>
@@ -110,6 +111,7 @@ public:
     bool commitTabGroupDrop(QWidget *sourcePage);
     void cancelTabGroupDrop();
     void tabStatusChanged(NotebookTab *tab);
+    void refreshHotChat();
 
     std::vector<TabGroupSnapshot> tabGroups() const;
     void restoreTabGroup(const TabGroupSnapshot &group);
@@ -260,6 +262,7 @@ private:
     QPointer<NotebookTab> groupDropVisual_;
     QMenu *menu_ = nullptr;
     QWidget *selectedPage_ = nullptr;
+    QTimer *hotChatTimer_ = nullptr;
 
     TabHistory tabHistory_;
 

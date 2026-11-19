@@ -302,6 +302,10 @@ public:
     void showBotBadgeSetup();
     void sendBotMessage(const QString &message);
     void sendReply(const QString &message, const QString &replyId);
+    /// Sends as `account` when it is a different logged-in user. Otherwise
+    /// this uses the normal send path. `replyId` may be empty.
+    void sendAsAccount(const QString &message, const QString &replyId,
+                       const std::shared_ptr<TwitchAccount> &account);
     bool isMod() const override;
     std::uint64_t moderatorStatusRevision() const;
     bool isLeadMod() const;

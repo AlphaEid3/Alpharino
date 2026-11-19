@@ -929,6 +929,10 @@ std::unique_ptr<QMenu> SplitHeader::createMainMenu()
         channel && channel->isTwitchChannel())
     {
         addEmoteStatsMenu(*menu, channel->getName());
+        auto *sendAs = menu->addMenu(QStringLiteral("Send messages as"));
+        this->split_->populateSendAccountMenu(sendAs);
+        auto *shared = menu->addMenu(QStringLiteral("Shared chat sources"));
+        this->split_->populateSharedChatMuteMenu(shared);
     }
     menu->addAction("Set filters",
                     h->getDisplaySequence(HotkeyCategory::Split, "pickFilters"),
@@ -1711,6 +1715,108 @@ void SplitHeader::applySharedChatFilter()
                 message->sharedChatSourceId);
         });
     this->sharedChatFilterActive_ = true;
+}
+
+bool SplitHeader::toggleSharedChatSourceMute(const QString &sourceId)
+{
+    const auto id = sourceId.trimmed();
+    if (id.isEmpty())
+    {
+        return false;
+    }
+    if (!this->sharedChatSources_.contains(id))
+    {
+        this->sharedChatSources_.insert(
+            id, getApp()->getTwitchUsers()->resolveID({id}));
+    }
+    if (this->hiddenSharedChatSources_.contains(id))
+    {
+        this->hiddenSharedChatSources_.remove(id);
+    }
+    else
+    {
+        const auto visible = this->sharedChatSources_.size() -
+                             this->hiddenSharedChatSources_.size();
+        if (this->sharedChatSources_.size() > 1 && visible <= 1)
+        {
+            if (auto channel = this->split_->getChannel())
+            {
+                channel->addSystemMessage(QStringLiteral(
+                    "At least one shared chat stays visible. Unmute all to "
+                    "reset the filter."));
+            }
+            return false;
+        }
+        this->hiddenSharedChatSources_.insert(id);
+    }
+    this->applySharedChatFilter();
+    this->updateSharedChatButton();
+    return true;
+}
+
+void SplitHeader::populateSharedChatMuteMenu(QMenu *menu)
+{
+    if (menu == nullptr)
+    {
+        return;
+    }
+    if (this->sharedChatSources_.size() < 2)
+    {
+        auto *empty =
+            menu->addAction(QStringLiteral("No shared chat right now"));
+        empty->setEnabled(false);
+        return;
+    }
+
+    auto *unmute = menu->addAction(QStringLiteral("Unmute all shared chats"));
+    unmute->setEnabled(!this->hiddenSharedChatSources_.isEmpty());
+    QObject::connect(unmute, &QAction::triggered, this, [this] {
+        this->hiddenSharedChatSources_.clear();
+        this->applySharedChatFilter();
+        this->updateSharedChatButton();
+    });
+    menu->addSeparator();
+
+    QString homeId;
+    if (auto *home =
+            dynamic_cast<TwitchChannel *>(this->split_->getChannel().get()))
+    {
+        homeId = home->roomId();
+    }
+    for (auto it = this->sharedChatSources_.cbegin();
+         it != this->sharedChatSources_.cend(); ++it)
+    {
+        QString label = it.key();
+        if (it.value())
+        {
+            const auto display = it.value()->displayName.trimmed();
+            const auto login = it.value()->name.trimmed();
+            if (!display.isEmpty())
+            {
+                label = display;
+            }
+            else if (!login.isEmpty())
+            {
+                label = login;
+            }
+        }
+        if (it.key() == homeId)
+        {
+            label += QStringLiteral(" (this channel)");
+        }
+        auto *action = menu->addAction(QStringLiteral("Hide %1").arg(label));
+        action->setCheckable(true);
+        action->setChecked(this->hiddenSharedChatSources_.contains(it.key()));
+        const auto id = it.key();
+        QObject::connect(action, &QAction::triggered, this, [this, id, action] {
+            const bool hiddenBefore =
+                this->hiddenSharedChatSources_.contains(id);
+            if (!this->toggleSharedChatSourceMute(id) && !hiddenBefore)
+            {
+                action->setChecked(false);
+            }
+        });
+    }
 }
 
 void SplitHeader::syncSharedChatParticipants()

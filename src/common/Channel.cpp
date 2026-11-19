@@ -7,6 +7,7 @@
 #include "Application.hpp"
 #include "controllers/chat/ChatPace.hpp"
 #include "controllers/chat/EmoteUsageStats.hpp"
+#include "controllers/chat/HotChat.hpp"
 #include "messages/Emote.hpp"
 #include "messages/Message.hpp"
 #include "messages/MessageBuilder.hpp"
@@ -177,6 +178,7 @@ void Channel::addMessage(MessagePtr message, MessageContext context,
                 noteTwitchIdentity(message->userID, message->loginName,
                                    message->displayName);
                 EmoteUsageStats::instance().observeMessage(*this, *message);
+                HotChat::instance().note(this->name_);
             }
         }
     }

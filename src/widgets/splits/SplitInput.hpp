@@ -169,6 +169,8 @@ protected:
     void addMultiChannelDestinationActions(QMenu *menu, bool createSubmenu);
     void openMultiChannelDestinationMenu();
     void updateMultiChannelDestinationButton();
+    void updateSendAccountButton();
+    void openSendAccountMenu();
     void updateCompletionPopup();
     void updateOutgoingTranslationPreview();
     void scheduleOutgoingTranslationPreview(const QString &text);
@@ -262,6 +264,7 @@ protected:
         QWidget *inputWrapper;
         QHBoxLayout *inputHbox;
         LabelButton *multiChannelDestinationButton;
+        LabelButton *sendAccountButton;
         ResizingTextEdit *textEdit;
         QLabel *textEditLength;
         LabelButton *sendButton;

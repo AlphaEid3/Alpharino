@@ -156,6 +156,7 @@ void SplitDescriptor::loadFromJSON(SplitDescriptor &descriptor,
     descriptor.server_ = data.value("server").toInt(-1);
     descriptor.anonymous_ = data.value("anonymous").toBool(false);
     descriptor.moderationMode_ = root.value("moderationMode").toBool();
+    descriptor.sendAccount_ = root.value("sendAccount").toString().trimmed();
     descriptor.autoModChannelFilter_ =
         data.value("autoModChannel").toString().trimmed().toLower();
     if (data.contains("channel"))

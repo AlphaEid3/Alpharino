@@ -152,6 +152,10 @@ void TrayController::notifyHighlight(const Channel *channel,
     ping.displayName = pingDisplayName(message);
     ping.messageText = cleanForTray(message->messageText);
     ping.messageId = message->id;
+    ping.loginName = message->loginName;
+    ping.canModerate = getSettings()->toastModerationActions &&
+                       channel->hasModRights() &&
+                       !message->loginName.trimmed().isEmpty();
     ping.createdAt = QDateTime::currentDateTimeUtc();
 
     this->recentPings_.push_front(ping);
@@ -351,7 +355,8 @@ void TrayController::showTrayPingNotification(const RecentPing &ping)
                                 .arg(ping.channelName);
 
     bool shown = getApp()->getToasts()->sendHighlightNotification(
-        ping.channelName, title, body, ping.messageId);
+        ping.channelName, title, body, ping.messageId, ping.loginName,
+        ping.canModerate);
 
     if (!shown && this->trayIcon_ != nullptr &&
         QSystemTrayIcon::supportsMessages())

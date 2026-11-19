@@ -96,6 +96,8 @@ set(SOURCE_FILES
         controllers/chat/ChatPace.hpp
         controllers/chat/EmoteUsageStats.cpp
         controllers/chat/EmoteUsageStats.hpp
+        controllers/chat/HotChat.cpp
+        controllers/chat/HotChat.hpp
         controllers/commands/builtin/chatterino/Debugging.cpp
         controllers/commands/builtin/chatterino/Debugging.hpp
         controllers/commands/builtin/Misc.cpp

@@ -41,6 +41,8 @@ private:
         QString displayName;
         QString messageText;
         QString messageId;
+        QString loginName;
+        bool canModerate = false;
         QDateTime createdAt;
     };
 

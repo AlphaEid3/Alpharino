@@ -8503,6 +8503,14 @@ void ChannelView::handleLinkClick(QMouseEvent *event, const Link &link,
             SettingsDialog::showDialog(SettingsDialogPreference::Accounts);
         }
         break;
+
+        case Link::MuteSharedChatSource: {
+            if (this->split_ != nullptr)
+            {
+                this->split_->toggleSharedChatSourceMute(link.value);
+            }
+        }
+        break;
         case Link::JumpToChannel: {
             // Get all currently open pages
             QList<SplitContainer *> openPages;

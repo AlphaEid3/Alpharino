@@ -9,8 +9,10 @@
 #include "common/Literals.hpp"
 #include "common/QLogging.hpp"
 #include "common/Version.hpp"
+#include "controllers/commands/CommandController.hpp"
 #include "controllers/notifications/NotificationController.hpp"
 #include "providers/twitch/api/Helix.hpp"
+#include "providers/twitch/TwitchChannel.hpp"
 #include "providers/twitch/TwitchIrcServer.hpp"
 #include "singletons/Paths.hpp"
 #include "singletons/Settings.hpp"
@@ -31,6 +33,7 @@
 #include <QDesktopServices>
 #include <QDir>
 #include <QFileInfo>
+#include <QMessageBox>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QStringBuilder>
@@ -326,12 +329,16 @@ void Toasts::sendChannelNotification(const QString &channelName,
 bool Toasts::sendHighlightNotification(const QString &channelName,
                                        const QString &title,
                                        const QString &body,
-                                       const QString &messageId)
+                                       const QString &messageId,
+                                       const QString &authorLogin,
+                                       bool moderationActions)
 {
 #ifdef Q_OS_WIN
-    return this->sendWindowsHighlightNotification(channelName, title, body,
-                                                  messageId);
+    return this->sendWindowsHighlightNotification(
+        channelName, title, body, messageId, authorLogin, moderationActions);
 #elif defined(CHATTERINO_WITH_LIBNOTIFY)
+    (void)authorLogin;
+    (void)moderationActions;
     return this->sendLibnotifyHighlightNotification(channelName, title, body,
                                                     messageId);
 #else
@@ -339,6 +346,8 @@ bool Toasts::sendHighlightNotification(const QString &channelName,
     (void)title;
     (void)body;
     (void)messageId;
+    (void)authorLogin;
+    (void)moderationActions;
     return false;
 #endif
 }
@@ -393,16 +402,84 @@ public:
     }
 };
 
+void performToastModeration(const QString &channelName, const QString &login,
+                            const QString &messageId, int actionIndex)
+{
+    auto channel = getApp()->getTwitch()->getChannelOrEmpty(channelName);
+    if (!channel || channel->isEmpty())
+    {
+        return;
+    }
+    if (!channel->hasModRights())
+    {
+        channel->addSystemMessage(
+            QStringLiteral("You are not a moderator in #%1.").arg(channelName));
+        return;
+    }
+    if (login.trimmed().isEmpty())
+    {
+        return;
+    }
+
+    QString command;
+    QString confirmText;
+    switch (actionIndex)
+    {
+        case 0:
+            command = QStringLiteral("/timeout %1 10m").arg(login);
+            confirmText = QStringLiteral("Timeout %1 for 10 minutes in #%2?")
+                              .arg(login, channelName);
+            break;
+        case 1:
+            command = QStringLiteral("/ban %1").arg(login);
+            confirmText =
+                QStringLiteral("Ban %1 in #%2?").arg(login, channelName);
+            break;
+        case 2: {
+            if (messageId.isEmpty())
+            {
+                channel->addSystemMessage(
+                    QStringLiteral("That message cannot be deleted."));
+                return;
+            }
+            command = QStringLiteral("/delete %1").arg(messageId);
+            confirmText =
+                QStringLiteral("Delete that message in #%1?").arg(channelName);
+            break;
+        }
+        default:
+            return;
+    }
+
+    if (getSettings()->toastModerationActionsConfirm)
+    {
+        const auto answer = QMessageBox::question(
+            nullptr, QStringLiteral("Confirm moderation"), confirmText,
+            QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+        if (answer != QMessageBox::Yes)
+        {
+            return;
+        }
+    }
+
+    getApp()->getCommands()->execCommand(command, channel, false);
+}
+
 class HighlightHandler : public WinToastLib::IWinToastHandler
 {
 private:
     QString channelName_;
     QString messageId_;
+    QString authorLogin_;
+    bool moderationActions_ = false;
 
 public:
-    HighlightHandler(QString channelName, QString messageId)
+    HighlightHandler(QString channelName, QString messageId,
+                     QString authorLogin, bool moderationActions)
         : channelName_(std::move(channelName))
         , messageId_(std::move(messageId))
+        , authorLogin_(std::move(authorLogin))
+        , moderationActions_(moderationActions)
     {
     }
 
@@ -418,8 +495,17 @@ public:
 
     void toastActivated(int actionIndex) const override
     {
-        (void)actionIndex;
-        this->toastActivated();
+        if (!this->moderationActions_)
+        {
+            this->toastActivated();
+            return;
+        }
+        const auto channelName = this->channelName_;
+        const auto messageId = this->messageId_;
+        const auto login = this->authorLogin_;
+        runInGuiThread([channelName, login, messageId, actionIndex] {
+            performToastModeration(channelName, login, messageId, actionIndex);
+        });
     }
 
     void toastActivated(std::wstring response) const override
@@ -539,7 +625,9 @@ void Toasts::sendWindowsNotification(const QString &channelName,
 bool Toasts::sendWindowsHighlightNotification(const QString &channelName,
                                               const QString &title,
                                               const QString &body,
-                                              const QString &messageId)
+                                              const QString &messageId,
+                                              const QString &authorLogin,
+                                              bool moderationActions)
 {
     if (!WinToast::isCompatible())
     {
@@ -558,10 +646,19 @@ bool Toasts::sendWindowsHighlightNotification(const QString &channelName,
     templ.setTextField(title.toStdWString(), WinToastTemplate::FirstLine);
     templ.setTextField(body.toStdWString(), WinToastTemplate::SecondLine);
     templ.setAudioOption(WinToastTemplate::AudioOption::Silent);
+    const bool actions = moderationActions && !authorLogin.trimmed().isEmpty();
+    if (actions)
+    {
+        templ.addAction(L"Timeout 10m");
+        templ.addAction(L"Ban");
+        templ.addAction(L"Delete message");
+    }
 
     WinToast::WinToastError error = WinToast::NoError;
     const auto toastID = WinToast::instance()->showToast(
-        templ, new HighlightHandler(channelName, messageId), &error);
+        templ,
+        new HighlightHandler(channelName, messageId, authorLogin, actions),
+        &error);
 
     if (toastID < 0 || error != WinToast::NoError)
     {
