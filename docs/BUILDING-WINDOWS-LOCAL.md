@@ -10,21 +10,21 @@ Conan. OpenSSL is the Conan package, not a separate installer.
 
 ## Tools
 
-| Tool | Version in CI | Where it lives |
-| --- | --- | --- |
-| Windows | Windows Server 2025, 10.0.26100 | — |
-| Visual Studio | Enterprise 2026, 18.12 (`VSCMD_VER` 18.12.0) | `C:\Program Files\Microsoft Visual Studio\18\Enterprise` |
-| MSVC | 19.52.37029.0, toolset 14.52.37025 | `...\VC\Tools\MSVC\14.52.37025` |
-| Windows SDK | 10.0.26100.0 | Windows Kits 10 |
-| CMake | 4.5.0 | `C:\Program Files\CMake\bin` |
-| Ninja | 1.13.2 | On `PATH`. Visual Studio also ships a copy under `Common7\IDE\CommonExtensions\Microsoft\CMake\Ninja` |
-| Python | 3.13 (the job's `actions/setup-python` version) | Used only to `pip install` Conan |
-| Conan | 2.28.1 | `pip install conan==2.28.1` |
-| Qt | 6.9.3, architecture `win64_msvc2022_64` | CI: `D:\a\Alpharino\Qt\6.9.3\msvc2022_64`. Local installer path: `C:\Qt\6.9.3\msvc2022_64` |
-| aqtinstall | 3.3.0 (what `jurplel/install-qt-action@v4.3.1` runs) | Only needed if you install Qt from the command line |
-| OpenSSL | Conan `openssl/3.6.1`, shared (`with_openssl3=True`) | Built or restored by `conan install`. The Windows package copies `libssl-3-x64.dll` and `libcrypto-3-x64.dll` from this package |
-| sccache | 0.14.0 | https://github.com/mozilla/sccache/releases/download/v0.14.0/sccache-v0.14.0-x86_64-pc-windows-msvc.tar.gz |
-| Git | Current Git for Windows, submodules required | `git clone --recurse-submodules` |
+| Tool          | Version in CI                                        | Where it lives                                                                                                                  |
+| ------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Windows       | Windows Server 2025, 10.0.26100                      | —                                                                                                                               |
+| Visual Studio | Enterprise 2026, 18.12 (`VSCMD_VER` 18.12.0)         | `C:\Program Files\Microsoft Visual Studio\18\Enterprise`                                                                        |
+| MSVC          | 19.52.37029.0, toolset 14.52.37025                   | `...\VC\Tools\MSVC\14.52.37025`                                                                                                 |
+| Windows SDK   | 10.0.26100.0                                         | Windows Kits 10                                                                                                                 |
+| CMake         | 4.5.0                                                | `C:\Program Files\CMake\bin`                                                                                                    |
+| Ninja         | 1.13.2                                               | On `PATH`. Visual Studio also ships a copy under `Common7\IDE\CommonExtensions\Microsoft\CMake\Ninja`                           |
+| Python        | 3.13 (the job's `actions/setup-python` version)      | Used only to `pip install` Conan                                                                                                |
+| Conan         | 2.28.1                                               | `pip install conan==2.28.1`                                                                                                     |
+| Qt            | 6.9.3, architecture `win64_msvc2022_64`              | CI: `D:\a\Alpharino\Qt\6.9.3\msvc2022_64`. Local installer path: `C:\Qt\6.9.3\msvc2022_64`                                      |
+| aqtinstall    | 3.3.0 (what `jurplel/install-qt-action@v4.3.1` runs) | Only needed if you install Qt from the command line                                                                             |
+| OpenSSL       | Conan `openssl/3.6.1`, shared (`with_openssl3=True`) | Built or restored by `conan install`. The Windows package copies `libssl-3-x64.dll` and `libcrypto-3-x64.dll` from this package |
+| sccache       | 0.14.0                                               | https://github.com/mozilla/sccache/releases/download/v0.14.0/sccache-v0.14.0-x86_64-pc-windows-msvc.tar.gz                      |
+| Git           | Current Git for Windows, submodules required         | `git clone --recurse-submodules`                                                                                                |
 
 ### Visual Studio workload
 
@@ -81,12 +81,14 @@ git submodule update --init --recursive
 mkdir build
 cd build
 conan install .. -s build_type=RelWithDebInfo -c tools.cmake.cmaketoolchain:generator="Ninja" -b missing -c tools.build:jobs=4 --output-folder=. -o with_openssl3=True
-cmake -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache -DCMAKE_PREFIX_PATH=C:\Qt\6.9.3\msvc2022_64 -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DUSE_PRECOMPILED_HEADERS=ON -DBUILD_WITH_CRASHPAD=Off -DCHATTERINO_LTO=OFF -DFORCE_JSON_GENERATION=Off -DSKIP_JSON_GENERATION=Off -DCHATTERINO_NIGHTLY_BUILD=On -DCHATTERINO_SPELLCHECK=On -DMOLTORINO_VELOPACK=Off ..
+cmake -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache -DCMAKE_PREFIX_PATH=C:\Qt\6.9.3\msvc2022_64 -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DUSE_PRECOMPILED_HEADERS=OFF -DBUILD_WITH_CRASHPAD=Off -DCHATTERINO_LTO=OFF -DFORCE_JSON_GENERATION=Off -DSKIP_JSON_GENERATION=Off -DCHATTERINO_NIGHTLY_BUILD=On -DCHATTERINO_SPELLCHECK=On -DMOLTORINO_VELOPACK=Off ..
 cmake --build . --parallel 4
 sccache --show-stats
 ```
 
 CMake also detects `sccache` or `ccache` on `PATH` and uses it as the C++ launcher. When it does, it rewrites MSVC `/Zi` to `/Z7`, because program debug info in a PDB cannot be cached. Passing `-DCMAKE_C_COMPILER_LAUNCHER` and `-DCMAKE_CXX_COMPILER_LAUNCHER` is what CI does as well.
+
+`USE_PRECOMPILED_HEADERS` is OFF in this command. sccache 0.14 refuses MSVC precompiled-header compilations (`/Fp`, `/Yc`), so a clean build would recompile everything and the cache would stay empty. CI sets the same option.
 
 The executable is `build\bin\Alpharino.exe`.
 
@@ -98,7 +100,9 @@ Leave the `build` directory in place. After editing sources, run:
 cmake --build build --parallel 4
 ```
 
-Ninja rebuilds only the targets whose inputs changed. sccache still wraps the compiler: a wiped `build` directory compiles again, but unchanged translation units are served from `%SCCACHE_DIR%` instead of invoking `cl.exe`. `sccache --show-stats` prints `Cache hits` and `Cache misses`.
+Ninja rebuilds only the targets whose inputs changed. For that local loop you can turn precompiled headers back on (`-DUSE_PRECOMPILED_HEADERS=ON`) and skip sccache; Ninja will not rebuild unchanged files.
+
+sccache matters when the `build` directory is new, which is every GitHub-hosted run. Unchanged translation units are served from `%SCCACHE_DIR%` instead of invoking `cl.exe`. `sccache --show-stats` prints `Cache hits` and `Cache misses`. A hit rate near zero with `Non-cacheable reasons: /Fp` means precompiled headers are still on.
 
 CI keeps three caches between runs on the same branch:
 
