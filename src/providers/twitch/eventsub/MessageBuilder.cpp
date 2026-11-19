@@ -57,10 +57,53 @@ QString stringifyAutomodReason(const lib::automod::AutomodReason &reason,
     return reason.category.qt() % u" level " % QString::number(reason.level);
 }
 
+/// Twitch currently reports AutoMod Baseline holds as reason "unknown", with
+/// automod and blocked_term null. "baseline" is accepted for a future tag.
+bool isAutoModBaselineReason(QStringView reason)
+{
+    return reason.compare(u"unknown"_s, Qt::CaseInsensitive) == 0 ||
+           reason.compare(u"baseline"_s, Qt::CaseInsensitive) == 0;
+}
+
+bool isBlockedLinkReason(QStringView reason)
+{
+    return reason.compare(u"blocked_link"_s, Qt::CaseInsensitive) == 0;
+}
+
+QString displayStringAutomodReason(const QString &reason)
+{
+    if (isAutoModBaselineReason(reason))
+    {
+        return u"AutoMod Baseline"_s;
+    }
+    if (isBlockedLinkReason(reason))
+    {
+        return u"a blocked link"_s;
+    }
+    return QString(reason).replace(u'_', u' ');
+}
+
+MessageColor stringAutomodReasonColor(const QString &displayedReason)
+{
+    // System text is an existing theme color, distinct from normal chat text.
+    if (displayedReason == u"AutoMod Baseline"_s)
+    {
+        return MessageColor::System;
+    }
+    return MessageColor::Text;
+}
+
+const QString &autoModBaselineTooltip()
+{
+    static const QString tooltip =
+        u"AutoMod Baseline. This message may violate Twitch's Community Guidelines."_s;
+    return tooltip;
+}
+
 QString stringifyAutomodReason(const std::string &reason,
                                QStringView /* message */)
 {
-    return QString::fromStdString(reason).replace(u'_', u' ');
+    return displayStringAutomodReason(QString::fromStdString(reason));
 }
 
 QString stringifyAutomodReason(const lib::automod::BlockedTermReason &reason,
@@ -342,8 +385,19 @@ void fillAutoModReason(automod::HoldData &data,
 
 void fillAutoModReason(automod::HoldData &data, const std::string &reason)
 {
-    data.reasonCategory =
-        displayAutoModCategory(QString::fromStdString(reason));
+    const auto raw = QString::fromStdString(reason);
+    const auto label = displayStringAutomodReason(raw);
+    data.blockedTerm = false;
+    data.baseline = isAutoModBaselineReason(raw);
+    // Baseline holds have no category or level. Do not invent "Level 0".
+    data.reasonLevel = 0;
+    if (data.baseline || isBlockedLinkReason(raw))
+    {
+        data.reasonCategory = label;
+        data.reasonSummary = label;
+        return;
+    }
+    data.reasonCategory = displayAutoModCategory(raw);
     data.reasonSummary = data.reasonCategory;
 }
 
@@ -860,9 +914,14 @@ MessagePtr makeAutomodHoldMessageHeader(
             return stringifyAutomodReason(r, event.message.text.qt());
         },
         event.reason);
-    builder.emplace<TextElement>(u"Held a message for reason: " % reason %
-                                     u". Allow will post it in chat. ",
-                                 MessageElementFlag::Text, MessageColor::Text);
+    auto *held = builder.emplace<TextElement>(
+        u"Held a message for reason: " % reason %
+            u". Allow will post it in chat. ",
+        MessageElementFlag::Text, stringAutomodReasonColor(reason));
+    if (reason == u"AutoMod Baseline"_s)
+    {
+        held->setTooltip(autoModBaselineTooltip());
+    }
     // Allow link button
     builder
         .emplace<TextElement>("Allow", MessageElementFlag::Text,
@@ -951,8 +1010,13 @@ MessagePtr makeAutomodMessageUpdateHeader(
         },
         event.reason);
     QString text = u"AutoMod: Held a message for reason: " % reason % u". ";
-    builder.emplace<TextElement>(u"Held a message for reason: " % reason % u".",
-                                 MessageElementFlag::Text, MessageColor::Text);
+    auto *held = builder.emplace<TextElement>(
+        u"Held a message for reason: " % reason % u".",
+        MessageElementFlag::Text, stringAutomodReasonColor(reason));
+    if (reason == u"AutoMod Baseline"_s)
+    {
+        held->setTooltip(autoModBaselineTooltip());
+    }
 
     const auto status = QString::fromStdString(event.status).toLower();
     const auto moderatorLogin =
@@ -1109,9 +1173,13 @@ MessagePtr makeAutoModReviewMessage(TwitchChannel *channel,
             .emplace<TextElement>(u"AutoMod:"_s, metadataTextFlags,
                                   QColor(0, 0, 255), FontStyle::ChatMediumBold)
             ->addFlags(MessageElementFlag::Username);
-        builder.emplace<TextElement>(
+        auto *held = builder.emplace<TextElement>(
             u"Held a message for "_s % item.reasonSummary % u'.',
-            metadataTextFlags, MessageColor::Text);
+            metadataTextFlags, stringAutomodReasonColor(item.reasonSummary));
+        if (item.baseline)
+        {
+            held->setTooltip(autoModBaselineTooltip());
+        }
 
         const bool pending = item.state == automod::ReviewState::Approving ||
                              item.state == automod::ReviewState::Denying ||
@@ -1256,9 +1324,16 @@ MessagePtr makeAutoModReviewMessage(TwitchChannel *channel,
             builder.emplace<TextElement>(u"\u00b7"_s, metadataTextFlags,
                                          MessageColor::System,
                                          FontStyle::ChatSmall);
-            builder.emplace<TextElement>(reviewReason, metadataTextFlags,
-                                         MessageColor::System,
-                                         FontStyle::ChatSmall);
+            // Link text is an existing theme color. Other reasons stay System.
+            const auto reasonColor =
+                item.baseline ? MessageColor::Link : MessageColor::System;
+            auto *reasonElement =
+                builder.emplace<TextElement>(reviewReason, metadataTextFlags,
+                                             reasonColor, FontStyle::ChatSmall);
+            if (item.baseline)
+            {
+                reasonElement->setTooltip(autoModBaselineTooltip());
+            }
         }
         builder.emplace<LinebreakElement>(metadataTextFlags);
         builder.emplace<TimestampElement>(item.receivedAt.time());
@@ -1267,9 +1342,15 @@ MessagePtr makeAutoModReviewMessage(TwitchChannel *channel,
     {
         if (getSettings()->autoModReviewShowReason && !reviewReason.isEmpty())
         {
-            builder.emplace<TextElement>(reviewReason, metadataTextFlags,
-                                         MessageColor::System,
-                                         FontStyle::ChatSmall);
+            const auto reasonColor =
+                item.baseline ? MessageColor::Link : MessageColor::System;
+            auto *reasonElement =
+                builder.emplace<TextElement>(reviewReason, metadataTextFlags,
+                                             reasonColor, FontStyle::ChatSmall);
+            if (item.baseline)
+            {
+                reasonElement->setTooltip(autoModBaselineTooltip());
+            }
             builder.emplace<LinebreakElement>(metadataTextFlags);
         }
 

@@ -281,6 +281,7 @@ void AutoModReviewController::ingestHold(
     item.receivedAt = data.receivedAt;
     item.updatedAt = data.receivedAt;
     item.blockedTerm = data.blockedTerm;
+    item.baseline = data.baseline;
     item.reasonSummary = std::move(data.reasonSummary);
     item.reasonCategory = std::move(data.reasonCategory);
     item.reasonLevel = data.reasonLevel;
@@ -393,6 +394,7 @@ void AutoModReviewController::ingestUpdate(
     item.messageText = std::move(data.messageText);
     item.updatedAt = data.receivedAt;
     item.blockedTerm = data.blockedTerm;
+    item.baseline = data.baseline;
     item.reasonSummary = std::move(data.reasonSummary);
     item.reasonCategory = std::move(data.reasonCategory);
     item.reasonLevel = data.reasonLevel;

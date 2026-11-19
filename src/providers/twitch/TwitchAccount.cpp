@@ -287,7 +287,10 @@ void TwitchAccount::autoModAllow(const QString &msgID, ChannelPtr channel) const
                 break;
             }
 
-            channel->addSystemMessage(errorMessage);
+            if (channel)
+            {
+                channel->addSystemMessage(errorMessage);
+            }
         });
 }
 
@@ -331,7 +334,10 @@ void TwitchAccount::autoModDeny(const QString &msgID, ChannelPtr channel) const
                 break;
             }
 
-            channel->addSystemMessage(errorMessage);
+            if (channel)
+            {
+                channel->addSystemMessage(errorMessage);
+            }
         });
 }
 

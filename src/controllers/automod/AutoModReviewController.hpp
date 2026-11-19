@@ -72,6 +72,8 @@ struct HoldData {
     QDateTime receivedAt;
 
     bool blockedTerm = false;
+    /// True for Twitch AutoMod Baseline (EventSub reason "unknown" or "baseline").
+    bool baseline = false;
     QString reasonSummary;
     QString reasonCategory;
     int reasonLevel = 0;
@@ -101,6 +103,8 @@ struct ReviewItem {
     QDateTime updatedAt;
 
     bool blockedTerm = false;
+    /// True for Twitch AutoMod Baseline (EventSub reason "unknown" or "baseline").
+    bool baseline = false;
     QString reasonSummary;
     QString reasonCategory;
     int reasonLevel = 0;

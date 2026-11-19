@@ -447,16 +447,25 @@ void Connection::onAutomodMessageHold(
         return;
     }
 
+    auto time = chronoToQDateTime(metadata.messageTimestamp);
     auto data = makeAutoModReviewHoldData(
-        QString::fromStdString(metadata.messageID),
-        chronoToQDateTime(metadata.messageTimestamp), payload.event);
-    runInGuiThread(
-        [channel = std::move(channel), data = std::move(data)]() mutable {
-            if (auto *review = getApp()->getAutoModReview())
-            {
-                review->ingestHold(std::move(data), channel);
-            }
-        });
+        QString::fromStdString(metadata.messageID), time, payload.event);
+    // The hold event is move-only, so build the stock messages here.
+    auto header =
+        makeAutomodHoldMessageHeader(channel.get(), time, payload.event);
+    auto body = makeAutomodHoldMessageBody(channel.get(), time, payload.event);
+    runInGuiThread([channel = std::move(channel), data = std::move(data),
+                    header, body]() mutable {
+        if (auto *review = getApp()->getAutoModReview())
+        {
+            review->ingestHold(std::move(data), channel);
+            return;
+        }
+
+        // Tests and a missing review controller still show the stock hold.
+        channel->addMessage(header, MessageContext::Original);
+        channel->addMessage(body, MessageContext::Original);
+    });
 }
 void Connection::onAutomodMessageUpdate(
     const lib::messages::Metadata &metadata,

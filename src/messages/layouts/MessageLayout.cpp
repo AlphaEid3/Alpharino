@@ -5,6 +5,7 @@
 #include "messages/layouts/MessageLayout.hpp"
 
 #include "Application.hpp"
+#include "controllers/automod/AutoModReviewController.hpp"
 #include "controllers/highlights/HighlightPhrase.hpp"
 #include "messages/layouts/MessageLayoutContainer.hpp"
 #include "messages/layouts/MessageLayoutContext.hpp"
@@ -630,8 +631,13 @@ void MessageLayout::updateBuffer(QPixmap *buffer,
             {
                 if (ctx.preferences.enableAutomodHighlight)
                 {
-                    auto accent =
-                        *ctx.colorProvider.color(ColorType::AutomodHighlight);
+                    // Baseline uses the first-message theme color so it is
+                    // distinct from a normal AutoMod hold without new colors.
+                    const auto accentType =
+                        this->message_->autoModReview->baseline
+                            ? ColorType::FirstMessageHighlight
+                            : ColorType::AutomodHighlight;
+                    auto accent = *ctx.colorProvider.color(accentType);
                     if (this->flags.has(
                             MessageLayoutFlag::AutoModReviewChannel))
                     {
@@ -719,9 +725,11 @@ void MessageLayout::updateBuffer(QPixmap *buffer,
     {
         const bool selected =
             this->flags.has(MessageLayoutFlag::AutoModReviewSelected);
-        auto accent =
-            selected ? ctx.messageColors.linkText
-                     : *ctx.colorProvider.color(ColorType::AutomodHighlight);
+        const auto accentType = this->message_->autoModReview->baseline
+                                    ? ColorType::FirstMessageHighlight
+                                    : ColorType::AutomodHighlight;
+        auto accent = selected ? ctx.messageColors.linkText
+                               : *ctx.colorProvider.color(accentType);
         accent.setAlpha(selected ? 205 : 110);
         painter.fillRect(
             QRectF(0, 0, std::max(1.0, (selected ? 2.0 : 1.0) * this->scale_),
