@@ -203,15 +203,18 @@ if(_compiler_launcher AND NOT _moltorino_clang_cl)
     message(STATUS "Using ${_compiler_launcher} for speeding up build")
 
     if(MSVC)
-        # /Zi can't be used with (s)ccache
-        # Use /Z7 instead (debug info in object files)
-        if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-            string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
-        elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
-            string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
-        elseif(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-            string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
-        endif()
+        # /Zi writes one PDB per target. sccache removes /FS, so parallel
+        # cl.exe processes fail with C1041. /Z7 stores debug info in each
+        # .obj instead. C and C++ both need this; quirc is built as C.
+        foreach(_moltorino_lang C CXX)
+            if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+                string(REPLACE "/Zi" "/Z7" CMAKE_${_moltorino_lang}_FLAGS_DEBUG "${CMAKE_${_moltorino_lang}_FLAGS_DEBUG}")
+            elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+                string(REPLACE "/Zi" "/Z7" CMAKE_${_moltorino_lang}_FLAGS_RELEASE "${CMAKE_${_moltorino_lang}_FLAGS_RELEASE}")
+            elseif(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+                string(REPLACE "/Zi" "/Z7" CMAKE_${_moltorino_lang}_FLAGS_RELWITHDEBINFO "${CMAKE_${_moltorino_lang}_FLAGS_RELWITHDEBINFO}")
+            endif()
+        endforeach()
     endif()
 endif()
 

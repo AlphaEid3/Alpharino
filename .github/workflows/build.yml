@@ -169,6 +169,7 @@ jobs:
               -DMOLTORINO_VELOPACK=Off `
               ..
           cmake --build . --parallel 4
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           if (Get-Command sccache -ErrorAction SilentlyContinue) {
             sccache --show-stats
           }
