@@ -14,8 +14,8 @@
 #include <QLineEdit>
 #include <QPaintEvent>
 #include <QPointer>
-#include <QPropertyAnimation>
 #include <QProgressBar>
+#include <QPropertyAnimation>
 #include <QTextEdit>
 #include <QTimer>
 #include <QVBoxLayout>
@@ -158,9 +158,9 @@ protected:
     void updateRaidStatus();
     bool trySendMessageAsWarning(const QString &message,
                                  const ChannelPtr &channel);
-    bool maybeSendMessageAsWarning(
-        const QString &message, const std::vector<QString> &arguments,
-        const ChannelPtr &channel);
+    bool maybeSendMessageAsWarning(const QString &message,
+                                   const std::vector<QString> &arguments,
+                                   const ChannelPtr &channel);
     void updateEmoteButton();
     void bindChannelPoints(TwitchChannel *channel);
     void clearChannelPointsDisplay();
@@ -169,6 +169,8 @@ protected:
     void addMultiChannelDestinationActions(QMenu *menu, bool createSubmenu);
     void openMultiChannelDestinationMenu();
     void updateMultiChannelDestinationButton();
+    void updateSendAccountButton();
+    void openSendAccountMenu();
     void updateCompletionPopup();
     void updateOutgoingTranslationPreview();
     void scheduleOutgoingTranslationPreview(const QString &text);
@@ -181,9 +183,9 @@ protected:
     QString outgoingTranslationTargetLanguage() const;
     bool shouldTranslateOutgoingMessage(const QString &message) const;
     QString currentOutgoingMessageBody() const;
-    bool maybeSendTranslatedMessage(
-        const QString &message, const std::vector<QString> &arguments,
-        const ChannelPtr &channel);
+    bool maybeSendTranslatedMessage(const QString &message,
+                                    const std::vector<QString> &arguments,
+                                    const ChannelPtr &channel);
     void postTranslatedMessageSend(const QString &message,
                                    const std::vector<QString> &arguments,
                                    uint64_t draftRevision);
@@ -198,8 +200,7 @@ protected:
     void hideCompletionPopup();
     void insertCompletionText(const QString &input_);
     bool handleCommandCompletionKey(QKeyEvent *event);
-    void insertCommandCompletionText(const QString &completion,
-                                     bool keepPopup);
+    void insertCommandCompletionText(const QString &completion, bool keepPopup);
     void resetCommandCompletionSession();
     void openEmotePopup();
     void clearReplyTarget();
@@ -250,6 +251,9 @@ protected:
         std::array<QLabel *, 3> commandCompletionRows{};
         QWidget *translationPreviewWidget;
         QLabel *translationPreviewLabel;
+        QWidget *blockedTermWidget;
+        QLabel *blockedTermLabel;
+        QLabel *pauseHoldLabel;
         EmoteTabCompletionCarousel *emoteTabCompletionCarousel;
 #if MOLTORINO_ENABLE_CHANNEL_POINT_REWARDS
         QWidget *channelPointRewardPromptWidget;
@@ -260,6 +264,7 @@ protected:
         QWidget *inputWrapper;
         QHBoxLayout *inputHbox;
         LabelButton *multiChannelDestinationButton;
+        LabelButton *sendAccountButton;
         ResizingTextEdit *textEdit;
         QLabel *textEditLength;
         LabelButton *sendButton;
@@ -329,6 +334,29 @@ protected:
     QPropertyAnimation raidStatusProgressAnimation_;
     pajlada::Signals::ScopedConnection raidStatusConnection_;
     bool sendWaitStatusWanted_ = false;
+    bool updatingSendAccountButton_ = false;
+    bool applyingScale_ = false;
+    bool handlingResize_ = false;
+    bool guardOutgoingMessage(const QString &message, const ChannelPtr &channel,
+                              const std::vector<QString> &arguments);
+    bool shouldHoldForChatPause(const ChannelPtr &channel,
+                                const QString &message) const;
+    void startPauseHold(const std::vector<QString> &arguments,
+                        const ChannelPtr &channel);
+    void cancelPauseHold();
+    void tickPauseHold();
+    void showBlockedTermWarning(const QString &term);
+    void clearBlockedTermWarning();
+
+    QTimer pauseHoldTimer_;
+    bool pauseHoldActive_ = false;
+    bool releasingPauseHold_ = false;
+    std::vector<QString> pauseHoldArguments_;
+    std::weak_ptr<Channel> pauseHoldChannel_;
+    QString pauseHoldText_;
+    qint64 pauseHoldStartedMs_ = 0;
+    bool blockedTermConfirmed_ = false;
+    QString blockedTermText_;
     bool channelPointsLabelWanted_ = false;
     bool channelPointsManualRefreshLoading_ = false;
     qint64 lastManualChannelPointsRefreshMs_ = 0;

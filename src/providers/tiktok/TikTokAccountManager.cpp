@@ -29,8 +29,7 @@ QString credentialKey(const QString &userID, const QString &revision, int part)
 bool validRevision(const QString &revision)
 {
     const QUuid uuid(revision);
-    return !uuid.isNull() &&
-           uuid.toString(QUuid::WithoutBraces) == revision;
+    return !uuid.isNull() && uuid.toString(QUuid::WithoutBraces) == revision;
 }
 std::string metadataPath(const QString &userID)
 {
@@ -59,7 +58,7 @@ void restoreMetadata(const std::string &path, const QString &value)
         QStringSetting::set(path, value);
     }
 }
-}
+}  // namespace
 
 struct TikTokAccountManager::Save {
     TikTokAccountData data;
@@ -650,4 +649,4 @@ void TikTokAccountManager::reportCredentialError(const QString &text)
     this->credentialError_ = text;
     this->credentialErrorChanged.invoke();
 }
-}
+}  // namespace chatterino

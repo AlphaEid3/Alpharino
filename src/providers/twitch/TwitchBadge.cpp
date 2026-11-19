@@ -64,4 +64,4 @@ QString TwitchBadge::vanitySlotKey() const
     return vanitySlotKeyForSet(this->key_);
 }
 
-}
+}  // namespace chatterino

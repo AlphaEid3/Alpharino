@@ -391,8 +391,7 @@ void WindowManager::updateWordTypeMask()
     flags.set(settings->showBadgesHomiesCustom.getValue()
                   ? MEF::BadgeHomiesCustom
                   : MEF::None);
-    flags.set(settings->showBadgesMoltorino ? MEF::BadgeMoltorino
-                                            : MEF::None);
+    flags.set(settings->showBadgesMoltorino ? MEF::BadgeMoltorino : MEF::None);
 
     // username
     flags.set(MEF::Username);
@@ -519,7 +518,6 @@ bool WindowManager::shouldSuppressTabGroupAlerts(const Channel *channel) const
             const auto *tab = page->getTab();
             if (tab == nullptr || !tab->isGroupMuted())
             {
-
                 return false;
             }
         }
@@ -753,8 +751,8 @@ void WindowManager::openChannelOrMessageFromTray(const QString &channelName,
         return;
     }
 
-    split->setChannel(getApp()->getTwitch()->getOrAddChannel(
-        normalizedChannel));
+    split->setChannel(
+        getApp()->getTwitch()->getOrAddChannel(normalizedChannel));
     mainWindow.getNotebook().select(page);
     page->setSelected(split);
     split->setFocus();
@@ -822,14 +820,14 @@ bool WindowManager::hideMainWindowToTray()
         return false;
     }
 
-#ifndef QT_NO_SESSIONMANAGER
+#    ifndef QT_NO_SESSIONMANAGER
     if (qApp != nullptr && qApp->isSavingSession())
     {
         qCDebug(chatterinoWindowmanager)
             << "Skipping tray hide during session shutdown";
         return false;
     }
-#endif
+#    endif
 
     if (this->trayController_ == nullptr ||
         !this->trayController_->canHideToTray())
@@ -933,7 +931,6 @@ void WindowManager::initialize()
     }
     else if (this->mainWindow_->getNotebook().getPageCount() == 0)
     {
-
         qCWarning(chatterinoWindowmanager)
             << "Loaded a main window without tabs; creating an empty tab";
         this->mainWindow_->getNotebook().addPage(true);
@@ -1222,6 +1219,10 @@ void WindowManager::encodeNodeRecursively(SplitNode *node, QJsonObject &obj)
         case SplitNode::Type::Split: {
             obj.insert("type", "split");
             obj.insert("moderationMode", node->getSplit()->getModerationMode());
+            if (!node->getSplit()->sendAccountLogin().isEmpty())
+            {
+                obj.insert("sendAccount", node->getSplit()->sendAccountLogin());
+            }
 
             QJsonObject split;
             WindowManager::encodeChannel(node->getSplit()->getIndirectChannel(),

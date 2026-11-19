@@ -13,7 +13,6 @@ class LinkInfo : public QObject
     Q_OBJECT
 
 public:
-
     enum class State {
 
         Created,
@@ -83,4 +82,4 @@ private:
     int maximumThumbnailSize_ = 0;
 };
 
-}
+}  // namespace chatterino

@@ -312,6 +312,8 @@ public:
     BoolSetting keepTabWidthWhenLocked = {
         "/appearance/tabs/keepWidthWhenLocked", true};
     BoolSetting showTabLive = {"/appearance/showTabLiveButton", true};
+    BoolSetting hotChatIndicator = {"/appearance/hotChatIndicator", true};
+    IntSetting hotChatSensitivity = {"/appearance/hotChatSensitivity", 5};
     BoolSetting colorTabHighlightsByMessage = {
         "/appearance/tabs/colorHighlightsByMessage",
         false,
@@ -347,10 +349,9 @@ public:
     BoolSetting colorUsernames = {"/appearance/messages/colorUsernames", true};
     BoolSetting linkChannelNames = {"/appearance/messages/linkChannelNames",
                                     false};
-    BoolSetting blockDomainHighlights = {
-        "/client/blockDomainHighlights", false};
-    QStringSetting yourDomain = {
-        "/client/yourDomain", ""};
+    BoolSetting blockDomainHighlights = {"/client/blockDomainHighlights",
+                                         false};
+    QStringSetting yourDomain = {"/client/yourDomain", ""};
     BoolSetting findAllUsernames = {"/appearance/messages/findAllUsernames",
                                     false};
     // BoolSetting customizable splitheader
@@ -401,7 +402,9 @@ public:
     BoolSetting showBadgesFfzAp = {"/appearance/badges/ffzap", true};
     BoolSetting showBadgesBluzyrino = {"/appearance/badges/bluzyrino", true};
     BoolSetting showBadgesJilChat = {"/appearance/badges/jilchat", true};
-    BoolSetting showBadgesWydios = {"/appearance/badges/wydios", false}; // False because it's my self-project that not many users use
+    BoolSetting showBadgesWydios = {
+        "/appearance/badges/wydios",
+        false};  // False because it's my self-project that not many users use
     BoolSetting showBadgesBadgeHQ = {"/appearance/badges/badgehq", true};
     BoolSetting useCustomFfzModeratorBadges = {
         "/appearance/badges/useCustomFfzModeratorBadges", true};
@@ -551,6 +554,12 @@ public:
     FloatSetting pauseOnHoverDuration = {"/behaviour/pauseOnHoverDuration", 0};
     EnumSetting<Qt::KeyboardModifier> pauseChatModifier = {
         "/behaviour/pauseChatModifier", Qt::KeyboardModifier::NoModifier};
+    BoolSetting timeMessagesBeforeChatPauses = {
+        "/behaviour/timeMessagesBeforeChatPauses", false};
+    IntSetting timeMessagesBeforeChatPausesTimeout = {
+        "/behaviour/timeMessagesBeforeChatPausesTimeout", 3};
+    IntSetting timeMessagesBeforeChatPausesRate = {
+        "/behaviour/timeMessagesBeforeChatPausesRate", 5};
     BoolSetting autorun = {"/behaviour/autorun", false};
     BoolSetting mentionUsersWithComma = {"/behaviour/mentionUsersWithComma",
                                          true};
@@ -668,6 +677,7 @@ public:
     IntSetting showBlockedUsersMessages = {"/ignore/showBlockedUsers", 0};
 
     /// Moderation
+    QStringSetting localBlockedTerms = {"/moderation/localBlockedTerms", ""};
     IntSetting defaultCommercialDuration = {
         "/moltorino/moderation/defaultCommercialDuration", 30};
     QStringSetting timeoutAction = {"/moderation/timeoutAction", "Disable"};
@@ -870,6 +880,10 @@ public:
         "/notifications/suppressInitialLive", false};
 
     BoolSetting notificationToast = {"/notifications/enableToast", false};
+    BoolSetting toastModerationActions = {
+        "/notifications/toastModerationActions", false};
+    BoolSetting toastModerationActionsConfirm = {
+        "/notifications/toastModerationActionsConfirm", true};
     BoolSetting createShortcutForToasts;
     IntSetting openFromToast = {"/notifications/openFromToast",
                                 static_cast<int>(ToastReaction::OpenInBrowser)};
@@ -901,11 +915,9 @@ public:
         "/external/imageUploader/deletionLink", ""};
 
     // Short Uploder
-    BoolSetting urlShortenerEnabled = {"/external/urlShortener/enabled", 
-                                        false};
+    BoolSetting urlShortenerEnabled = {"/external/urlShortener/enabled", false};
     QStringSetting urlShortenerUrl = {"/external/urlShortener/url", ""};
-    QStringSetting urlShortenerHeaders = {
-        "/external/urlShortener/headers", ""};
+    QStringSetting urlShortenerHeaders = {"/external/urlShortener/headers", ""};
     QStringSetting urlShortenerLink = {"/external/urlShortener/link", ""};
     QStringSetting urlShortenerDeletionLink = {
         "/external/urlShortener/deletionLink", ""};
@@ -964,8 +976,8 @@ public:
     BoolSetting showPronounsInChat = {"/misc/showPronounsInChat", false};
     BoolSetting showUsercardBadges = {"/usercard/showBadges", true};
     BoolSetting showUsercardSevenTVPaint = {"/usercard/showSevenTVPaint", true};
-    BoolSetting showUsercardFollowerCount = {
-        "/usercard/showFollowerCount", true};
+    BoolSetting showUsercardFollowerCount = {"/usercard/showFollowerCount",
+                                             true};
     BoolSetting showUsercardCreatedDate = {"/usercard/showCreatedDate", true};
     BoolSetting showUsercardFollowage = {"/usercard/showFollowage", true};
     BoolSetting showUsercardFollowageRelativeTime = {
@@ -975,13 +987,12 @@ public:
         "/usercard/showSubageRelativeTime", true};
     BoolSetting showUsercardSubGiftSource = {"/usercard/showSubGiftSource",
                                              true};
-    BoolSetting showUsercardChatterCount = {
-        "/usercard/showChatterCount", true};
+    BoolSetting showUsercardChatterCount = {"/usercard/showChatterCount", true};
     BoolSetting showUsercardLastLive = {"/usercard/showLastLive", true};
     BoolSetting showUsercardColor = {"/usercard/showColor", true};
     BoolSetting showUsercardStatus = {"/usercard/showStatus", true};
-    BoolSetting showSevenTVUsercardButton = {
-        "/usercard/showSevenTVButton", true};
+    BoolSetting showSevenTVUsercardButton = {"/usercard/showSevenTVButton",
+                                             true};
     BoolSetting showUsercardNameHistoryButton = {
         "/usercard/showNameHistoryButton", true};
     BoolSetting showUsercardLoadMoreMessagesButton = {
@@ -1026,8 +1037,8 @@ public:
                                               true};
     BoolSetting showUsercardCrossUnbanAction = {
         "/usercard/showCrossUnbanAction", true};
-    BoolSetting showLeadModRoleButtons = {
-        "/usercard/showLeadModRoleButtons", true};
+    BoolSetting showLeadModRoleButtons = {"/usercard/showLeadModRoleButtons",
+                                          true};
     BoolSetting showUsercardRoleManagementMenu = {
         "/usercard/showRoleManagementMenu", false};
     BoolSetting hideModActionsOnModUsercards = {
@@ -1096,8 +1107,8 @@ public:
         "/timeouts/reasonPromptPrefillSavedReason", true};
 
     BoolSetting pluginsEnabled = {"/plugins/supportEnabled", false};
-    ChatterinoSetting<QStringList> enabledPlugins = {
-        "/plugins/enabledPlugins", {}};
+    ChatterinoSetting<QStringList> enabledPlugins = {"/plugins/enabledPlugins",
+                                                     {}};
 
     // Sound
     EnumStringSetting<SoundBackend> soundBackend = {
@@ -1117,40 +1128,54 @@ public:
 
     /// Moltorino Settings
     BoolSetting enablePinnedMessages{"/moltorino/pinnedMessages/enabled", true};
-    BoolSetting alwaysExpandPinnedMessages{"/moltorino/pinnedMessages/alwaysExpand", false};
+    BoolSetting alwaysExpandPinnedMessages{
+        "/moltorino/pinnedMessages/alwaysExpand", false};
     /// Content text scale for the embedded pinned chat message.
     FloatSetting pinnedMessageScale{"/moltorino/pinnedMessages/scale", 1.f};
     /// Header controls and banner chrome scale, separate from message text.
     FloatSetting pinnedContentScale{"/moltorino/pinnedMessages/contentScale",
                                     1.1f};
-    BoolSetting showUnpinNotifications{"/moltorino/pinnedMessages/showUnpinNotifications", true};
-    IntSetting defaultPinDuration{"/moltorino/pinnedMessages/defaultDuration", -1};
+    BoolSetting showUnpinNotifications{
+        "/moltorino/pinnedMessages/showUnpinNotifications", true};
+    IntSetting defaultPinDuration{"/moltorino/pinnedMessages/defaultDuration",
+                                  -1};
     /// 0 = Dismiss (hide banner), 1 = Unpin message
-    IntSetting pinCloseButtonAction{"/moltorino/pinnedMessages/closeButtonAction", 1};
-    BoolSetting enablePinCommandMessages{"/moltorino/pinnedMessages/enablePinCommandMessages", true};
-    BoolSetting enablePinUserCommand{"/moltorino/pinnedMessages/enablePinUserCommand", true};
-    BoolSetting requireAtForPinUserCommand{"/moltorino/pinnedMessages/requireAtForPinUserCommand", false};
+    IntSetting pinCloseButtonAction{
+        "/moltorino/pinnedMessages/closeButtonAction", 1};
+    BoolSetting enablePinCommandMessages{
+        "/moltorino/pinnedMessages/enablePinCommandMessages", true};
+    BoolSetting enablePinUserCommand{
+        "/moltorino/pinnedMessages/enablePinUserCommand", true};
+    BoolSetting requireAtForPinUserCommand{
+        "/moltorino/pinnedMessages/requireAtForPinUserCommand", false};
     /// 0 = Time + Countdown, 1 = Time only, 2 = Countdown only, 3 = Hover only, 4 = Hidden
     IntSetting pinTimerDisplay{"/moltorino/pinnedMessages/timerDisplay", 0};
     /// "Relative" = "12m ago", or a QDateTime format like "h:mm a"
-    QStringSetting pinTimestampFormat{"/moltorino/pinnedMessages/timestampFormat", "Relative"};
+    QStringSetting pinTimestampFormat{
+        "/moltorino/pinnedMessages/timestampFormat", "Relative"};
     /// Custom banner background color (HexArgb). Empty = use theme default.
-    QStringSetting pinBannerBackgroundColor{"/moltorino/pinnedMessages/customBackgroundColor", ""};
+    QStringSetting pinBannerBackgroundColor{
+        "/moltorino/pinnedMessages/customBackgroundColor", ""};
     // Compatibility-only legacy master toggle. Pin/mod GQL actions now use
     // their own feature settings and Moltorino auth directly.
-    BoolSetting enablePinUnpinning{"/moltorino/pinnedMessages/enablePinUnpinning", true};
-    BoolSetting movePinToModerateMenu{"/moltorino/pinnedMessages/movePinToModerateMenu", false};
+    BoolSetting enablePinUnpinning{
+        "/moltorino/pinnedMessages/enablePinUnpinning", true};
+    BoolSetting movePinToModerateMenu{
+        "/moltorino/pinnedMessages/movePinToModerateMenu", false};
     /// 0 = Never, 1 = Only in moderation mode, 2 = Always
     IntSetting showPinButtonOnModeratorsMode{
         "/moltorino/pinnedMessages/showPinButtonOnModeratorsMode", 1};
-    QStringSetting customPinAuthToken{"/moltorino/pinnedMessages/customAuthToken", ""};
+    QStringSetting customPinAuthToken{
+        "/moltorino/pinnedMessages/customAuthToken", ""};
     QStringSetting moltorinoAuthAccounts{"/moltorino/auth/accounts", ""};
 
     /// Bot badge / Helix chat message sender configuration
     QStringSetting botBadgeClientID{"/moltorino/botBadge/clientId", ""};
     QStringSetting botBadgeClientSecret{"/moltorino/botBadge/clientSecret", ""};
-    QStringSetting botBadgeAppAccessToken{"/moltorino/botBadge/appAccessToken", ""};
-    QStringSetting botBadgeAppTokenExpiry{"/moltorino/botBadge/appTokenExpiry", ""};
+    QStringSetting botBadgeAppAccessToken{"/moltorino/botBadge/appAccessToken",
+                                          ""};
+    QStringSetting botBadgeAppTokenExpiry{"/moltorino/botBadge/appTokenExpiry",
+                                          ""};
     QStringSetting botBadgeUserID{"/moltorino/botBadge/userId", ""};
     QStringSetting botBadgeUserLogin{"/moltorino/botBadge/userLogin", ""};
     QStringSetting botBadgeUserName{"/moltorino/botBadge/userName", ""};
@@ -1196,8 +1221,7 @@ public:
         "/moltorino/predictions/showSystemMessages", true};
     BoolSetting predictionAutoCloseDialog{
         "/moltorino/predictions/autoCloseDialog", true};
-    BoolSetting pollAutoCloseDialog{"/moltorino/polls/autoCloseDialog",
-                                    false};
+    BoolSetting pollAutoCloseDialog{"/moltorino/polls/autoCloseDialog", false};
     /// 0 = Never, 10/30/60 = seconds after resolution to auto-dismiss banner
     IntSetting predictionAutoDismissSeconds{
         "/moltorino/predictions/autoDismissSeconds", 300};
@@ -1254,10 +1278,9 @@ public:
         "/moltorino/moderation/showSelfDeleteButton", 1};
     BoolSetting showModerationButtonsWithoutPermission{
         "/moltorino/moderation/showButtonsWithoutPermission", false};
-    BoolSetting nukePreviewEnabled{
-        "/moltorino/moderation/nuke/previewEnabled", true};
-    BoolSetting nukeShowSummary{
-        "/moltorino/moderation/nuke/showSummary", true};
+    BoolSetting nukePreviewEnabled{"/moltorino/moderation/nuke/previewEnabled",
+                                   true};
+    BoolSetting nukeShowSummary{"/moltorino/moderation/nuke/showSummary", true};
     BoolSetting nukeSkipVips{"/moltorino/moderation/nuke/skipVips", false};
     QStringSetting nukeModerationMessage{
         "/moltorino/moderation/nuke/moderationMessage", ""};
@@ -1265,8 +1288,8 @@ public:
         "/moltorino/moderation/raid/showStatusAboveInput", true};
 
     /// Client
-    BoolSetting spoofIrcMessagesAsWeb{
-        "/moltorino/client/spoofIrcMessagesAsWeb", true};
+    BoolSetting spoofIrcMessagesAsWeb{"/moltorino/client/spoofIrcMessagesAsWeb",
+                                      true};
     BoolSetting showClientDetectionHighlights{
         "/moltorino/client/showDetectionHighlights", false};
 
@@ -1316,18 +1339,19 @@ public:
     BoolSetting spamCommandUseIrc{"/moltorino/fun/spam/useIrc", false};
     BoolSetting showSpamPyramidStatusMessages{
         "/moltorino/fun/spam/showStatusMessages", true};
-    BoolSetting sendMessageAsWarnings{
-        "/moltorino/fun/sendMessageAsWarnings", false};
+    BoolSetting sendMessageAsWarnings{"/moltorino/fun/sendMessageAsWarnings",
+                                      false};
 
     /// Others
     BoolSetting showInputPlaceholder{"/moltorino/showInputPlaceholder", true};
     BoolSetting showMultiChannelDestinationSelector{
         "/moltorino/showMultiChannelDestinationSelector", true};
-    BoolSetting showCommandSuggestions{
-        "/moltorino/showCommandSuggestions", true};
+    BoolSetting showCommandSuggestions{"/moltorino/showCommandSuggestions",
+                                       true};
     BoolSetting showCommandArgumentHints{"/moltorino/showCommandArgumentHints",
                                          true};
-    BoolSetting showEmoteTabCarousel{"/moltorino/showEmoteTabCarousel", false};
+    // Separate key so an older saved "false" does not hide the Tab emote row.
+    BoolSetting showEmoteTabCarousel{"/moltorino/showTabEmotePopup", true};
     QStringSetting emoteTabCarouselSize{"/moltorino/emoteTabCarouselSize",
                                         "standard"};
     BoolSetting showEmoteTabCarouselNames{

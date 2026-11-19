@@ -22,7 +22,6 @@ class NetworkData;
 class [[nodiscard("NetworkRequests don't do anything unless sent. Call "
                   "execute() to send the request.")]] NetworkRequest final
 {
-
     std::shared_ptr<NetworkData> data;
 
     bool executed_ = false;
@@ -89,4 +88,4 @@ private:
     void initializeDefaultValues();
 };
 
-}
+}  // namespace chatterino

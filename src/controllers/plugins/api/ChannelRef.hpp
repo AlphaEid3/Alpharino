@@ -243,5 +243,5 @@ private:
 sol::table toTable(lua_State *L, const TwitchChannel::RoomModes &modes);
 sol::table toTable(lua_State *L, const TwitchChannel::StreamStatus &status);
 
-}
+}  // namespace chatterino::lua::api
 #endif

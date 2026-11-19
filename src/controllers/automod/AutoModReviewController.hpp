@@ -72,6 +72,8 @@ struct HoldData {
     QDateTime receivedAt;
 
     bool blockedTerm = false;
+    /// True for Twitch AutoMod Baseline (EventSub reason "unknown" or "baseline").
+    bool baseline = false;
     QString reasonSummary;
     QString reasonCategory;
     int reasonLevel = 0;
@@ -101,6 +103,8 @@ struct ReviewItem {
     QDateTime updatedAt;
 
     bool blockedTerm = false;
+    /// True for Twitch AutoMod Baseline (EventSub reason "unknown" or "baseline").
+    bool baseline = false;
     QString reasonSummary;
     QString reasonCategory;
     int reasonLevel = 0;
@@ -201,8 +205,7 @@ private:
     void handleDecisionFailure(const QString &key, std::uint64_t generation,
                                ReviewAction action,
                                HelixAutoModMessageError error);
-    void handleSecondaryFailure(const QString &key,
-                                std::uint64_t generation,
+    void handleSecondaryFailure(const QString &key, std::uint64_t generation,
                                 ReviewAction action, HelixBanUserError error,
                                 const QString &message);
 
@@ -228,5 +231,5 @@ private:
     pajlada::Signals::SignalHolder signalHolder_;
 };
 
-}
-}
+}  // namespace automod
+}  // namespace chatterino

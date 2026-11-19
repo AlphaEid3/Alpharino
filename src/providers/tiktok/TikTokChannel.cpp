@@ -277,8 +277,7 @@ void TikTokChannel::protocolFailed(quint64 generation)
 {
     if (generation == this->generation_ && !this->stopped_)
     {
-        this->retry(
-            u"TikTok sent an unsupported chat response. Retrying…"_s);
+        this->retry(u"TikTok sent an unsupported chat response. Retrying…"_s);
     }
 }
 
@@ -547,4 +546,4 @@ void TikTokChannel::sendMessage(const QString &message)
     this->server_.send(this->weakFromThis().lock(), message);
 }
 
-}
+}  // namespace chatterino

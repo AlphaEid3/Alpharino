@@ -23,25 +23,23 @@ IrcConnection::IrcConnection(QObject *parent)
                          qCDebug(chatterinoIrc) << "Connection error:" << error;
                      });
 
-    QObject::connect(
-        this, &Communi::IrcConnection::socketStateChanged, this,
-        [this](QAbstractSocket::SocketState state) {
-            if (state == QAbstractSocket::UnconnectedState)
-            {
-                this->pingTimer_.stop();
+    QObject::connect(this, &Communi::IrcConnection::socketStateChanged, this,
+                     [this](QAbstractSocket::SocketState state) {
+                         if (state == QAbstractSocket::UnconnectedState)
+                         {
+                             this->pingTimer_.stop();
 
-                if (!this->expectConnectionLoss_.load())
-                {
-                    this->connectionLost.invoke(false);
-                }
-            }
-        });
+                             if (!this->expectConnectionLoss_.load())
+                             {
+                                 this->connectionLost.invoke(false);
+                             }
+                         }
+                     });
 
     this->reconnectTimer_.setSingleShot(true);
     QObject::connect(&this->reconnectTimer_, &QTimer::timeout, [this] {
         if (this->isConnected())
         {
-
             qCDebug(chatterinoIrc) << "Reconnect: already reconnected";
         }
         else
@@ -59,7 +57,6 @@ IrcConnection::IrcConnection(QObject *parent)
         {
             if (this->recentlyReceivedMessage_.load())
             {
-
                 this->recentlyReceivedMessage_ = false;
                 this->waitingForPong_ = false;
 
@@ -85,7 +82,6 @@ IrcConnection::IrcConnection(QObject *parent)
 
             if (this->waitingForPong_.load())
             {
-
                 this->close();
                 this->connectionLost.invoke(true);
             }
@@ -122,7 +118,6 @@ IrcConnection::IrcConnection(QObject *parent)
 
 IrcConnection::~IrcConnection()
 {
-
     this->disconnect();
 }
 
@@ -130,7 +125,6 @@ void IrcConnection::smartReconnect()
 {
     if (this->reconnectTimer_.isActive())
     {
-
         return;
     }
 
@@ -153,4 +147,4 @@ void IrcConnection::close()
     Communi::IrcConnection::close();
 }
 
-}
+}  // namespace chatterino

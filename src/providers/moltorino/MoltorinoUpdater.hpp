@@ -1,15 +1,14 @@
 #pragma once
 
-#include <QObject>
+#include <pajlada/signals/signal.hpp>
 #include <QElapsedTimer>
+#include <QObject>
 #include <QPointer>
 #include <QProcessEnvironment>
 #include <QThreadPool>
 #include <QTimer>
 
 #include <optional>
-
-#include <pajlada/signals/signal.hpp>
 
 class QJsonObject;
 
@@ -115,8 +114,7 @@ private:
     static std::optional<bool> shouldAcceptPackageVersion(
         const QString &targetVersion, const QString &currentVersion,
         bool rollback);
-    void setStatus(MoltorinoUpdateStatus status,
-                   const QString &error = {});
+    void setStatus(MoltorinoUpdateStatus status, const QString &error = {});
 
     MoltorinoUpdateStatus status_{MoltorinoUpdateStatus::Disabled};
     QString channel_;
@@ -146,4 +144,4 @@ private:
 
 MoltorinoUpdater *getMoltorinoUpdater();
 
-}
+}  // namespace chatterino

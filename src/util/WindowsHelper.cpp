@@ -105,7 +105,7 @@ void repairStartupRegistration(QSettings &settings, const QString &exePath)
     settings.setValue("Chatterino", replacement);
 }
 
-}
+}  // namespace detail
 
 void repairStartupRegistration()
 {
@@ -150,12 +150,10 @@ void setRegisteredForStartup(bool isRegistered)
 
 QString getAssociatedExecutable(AssociationQueryType queryType, LPCWSTR query)
 {
-
     ASSOCF flags = ASSOCF_NOTRUNCATE;
 
     if (queryType == AssociationQueryType::Protocol)
     {
-
         if (IsWindows8OrGreater())
         {
             flags |= ASSOCF_IS_PROTOCOL;
@@ -175,7 +173,6 @@ QString getAssociatedExecutable(AssociationQueryType queryType, LPCWSTR query)
 
     if (resultSize <= 1)
     {
-
         return {};
     }
 
@@ -184,13 +181,12 @@ QString getAssociatedExecutable(AssociationQueryType queryType, LPCWSTR query)
     if (SUCCEEDED(AssocQueryStringW(flags, ASSOCSTR_EXECUTABLE, query, nullptr,
                                     buf, &resultSize)))
     {
-
         result = QString::fromWCharArray(buf, resultSize - 1);
     }
     delete[] buf;
     return result;
 }
 
-}
+}  // namespace chatterino
 
 #endif

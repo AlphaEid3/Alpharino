@@ -129,7 +129,7 @@ void openExternalUrl(const QUrl &url)
     QDesktopServices::openUrl(url);
 }
 
-}
+}  // namespace
 
 class CompactPeriodComboBox final : public QComboBox
 {
@@ -313,7 +313,7 @@ private:
     QString timeStyle_;
 };
 
-}
+}  // namespace
 
 UserLogsView::UserLogsView(QWidget *parent)
     : QWidget(parent)
@@ -1010,7 +1010,7 @@ void UserLogsView::updateControls()
     this->searchInput_->setEnabled(!busy && hasPeriods);
 
     this->allHistoryButton_->setText(currentSearch ? "Search this period"
-                                                  : "Search all history");
+                                                   : "Search all history");
     this->allHistoryButton_->setEnabled(
         !busy && hasPeriods && (!currentQuery.isEmpty() || currentSearch));
     this->retryButton_->setVisible(this->retryAction_ != RetryAction::None);
@@ -1046,8 +1046,7 @@ void UserLogsView::updateStatus()
     }
     if (this->periodsLoaded_ && this->periods_.isEmpty())
     {
-        this->statusLabel_->setText(
-            "No logs for this user in this channel.");
+        this->statusLabel_->setText("No logs for this user in this channel.");
         return;
     }
     if (this->periodsLoaded_ && !this->activated_ && !this->periodPageLoaded_)
@@ -1215,9 +1214,9 @@ void UserLogsView::showMessageMenu(const QPoint &position)
     }
     this->list_->setCurrentIndex(index);
     const auto message = *this->visibleMessages_.at(index.row());
-    const auto withTime = copyText(message, true, this->showDate_,
-                                    this->dateStyle_, this->timeStyle_,
-                                    this->mode_ == Mode::AllHistory);
+    const auto withTime =
+        copyText(message, true, this->showDate_, this->dateStyle_,
+                 this->timeStyle_, this->mode_ == Mode::AllHistory);
     auto *menu = new QMenu(this);
     menu->addAction("Copy message", this, [text = message.text] {
         crossPlatformCopy(text);
@@ -1229,20 +1228,23 @@ void UserLogsView::showMessageMenu(const QPoint &position)
         twitch_user_logs::detail::messageUrl(this->channel_, message);
     if (messageUrl.isValid() && !messageUrl.isEmpty())
     {
-        const auto resolveLink =
-            [this, message, generation = this->generation_,
-             period = this->selectedPeriod_, mode = this->mode_,
-             query = this->allHistoryQuery_](std::function<void(QUrl)> callback) {
-                if (generation == this->generation_ &&
-                    period == this->selectedPeriod_ && mode == this->mode_ &&
-                    query == this->allHistoryQuery_)
-                {
-                    this->resolveMessageLink(message, std::move(callback));
-                }
-            };
+        const auto resolveLink = [this, message, generation = this->generation_,
+                                  period = this->selectedPeriod_,
+                                  mode = this->mode_,
+                                  query = this->allHistoryQuery_](
+                                     std::function<void(QUrl)> callback) {
+            if (generation == this->generation_ &&
+                period == this->selectedPeriod_ && mode == this->mode_ &&
+                query == this->allHistoryQuery_)
+            {
+                this->resolveMessageLink(message, std::move(callback));
+            }
+        };
         menu->addSeparator();
         menu->addAction("Open message on web", this, [resolveLink] {
-            resolveLink([](const QUrl &url) { openExternalUrl(url); });
+            resolveLink([](const QUrl &url) {
+                openExternalUrl(url);
+            });
         });
         menu->addAction("Copy message link", this, [resolveLink] {
             resolveLink([](const QUrl &url) {
@@ -1254,4 +1256,4 @@ void UserLogsView::showMessageMenu(const QPoint &position)
     menu->popup(this->list_->viewport()->mapToGlobal(position));
 }
 
-}
+}  // namespace chatterino

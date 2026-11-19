@@ -8,6 +8,7 @@
 #include "common/Channel.hpp"
 #include "common/Common.hpp"
 #include "common/QLogging.hpp"
+#include "controllers/chat/EmoteUsageStats.hpp"
 #include "controllers/hotkeys/HotkeyCategory.hpp"
 #include "controllers/hotkeys/HotkeyController.hpp"
 #include "controllers/recording/ChatRecordingController.hpp"
@@ -17,6 +18,7 @@
 #include "singletons/WindowManager.hpp"
 #include "util/Helpers.hpp"
 #include "widgets/dialogs/ColorPickerDialog.hpp"
+#include "widgets/dialogs/LogSearchDialog.hpp"
 #include "widgets/dialogs/MoltorinoDialogTheme.hpp"
 #include "widgets/dialogs/SettingsDialog.hpp"
 #include "widgets/Notebook.hpp"
@@ -442,24 +444,51 @@ NotebookTab::NotebookTab(Notebook *notebook, Role role)
                      });
     this->menu_.addAction(this->highlightNewMessagesAction_);
 
+    this->menu_.addSeparator();
+    this->menu_.addAction("Search saved logs...", [this] {
+        QString channelName;
+        if (auto *container = dynamic_cast<SplitContainer *>(this->page))
+        {
+            if (auto *split = container->getSelectedSplit())
+            {
+                if (const auto channel = split->getChannel())
+                {
+                    channelName = channel->getName();
+                }
+            }
+        }
+        LogSearchDialog::open(this->window(), channelName);
+    });
+    auto *emoteStats = this->menu_.addMenu("Show emote stats");
+    QObject::connect(emoteStats, &QMenu::aboutToShow, this, [this, emoteStats] {
+        QString channelName;
+        if (auto *container = dynamic_cast<SplitContainer *>(this->page))
+        {
+            if (auto *split = container->getSelectedSplit())
+            {
+                const auto channel = split->getChannel();
+                if (channel && channel->isTwitchChannel())
+                {
+                    channelName = channel->getName();
+                }
+            }
+        }
+        fillEmoteStatsMenu(*emoteStats, channelName);
+    });
+
     auto *tabColorMenu = this->menu_.addMenu("Tab Color");
     const std::vector<std::pair<QString, QColor>> tabColorPresets = {
-        {"Blue", QColor(91, 157, 255)},
-        {"Orange", QColor(255, 148, 67)},
-        {"Red", QColor(244, 91, 91)},
-        {"Yellow", QColor(244, 190, 72)},
-        {"Green", QColor(76, 196, 120)},
-        {"Purple", QColor(172, 123, 255)},
-        {"Pink", QColor(238, 95, 161)},
-        {"Cyan", QColor(73, 205, 214)},
+        {"Blue", QColor(91, 157, 255)},  {"Orange", QColor(255, 148, 67)},
+        {"Red", QColor(244, 91, 91)},    {"Yellow", QColor(244, 190, 72)},
+        {"Green", QColor(76, 196, 120)}, {"Purple", QColor(172, 123, 255)},
+        {"Pink", QColor(238, 95, 161)},  {"Cyan", QColor(73, 205, 214)},
     };
     for (const auto &[name, color] : tabColorPresets)
     {
         auto *action = tabColorMenu->addAction(tabColorIcon(color), name);
-        QObject::connect(action, &QAction::triggered, this,
-                         [this, color] {
-                             this->setCustomTabColor(color);
-                         });
+        QObject::connect(action, &QAction::triggered, this, [this, color] {
+            this->setCustomTabColor(color);
+        });
     }
 
     tabColorMenu->addSeparator();
@@ -484,11 +513,10 @@ NotebookTab::NotebookTab(Notebook *notebook, Role role)
         tabColorMenu->addAction("Reset to Default", this, [this] {
             this->resetCustomTabColor();
         });
-    QObject::connect(tabColorMenu, &QMenu::aboutToShow, this,
-                     [this, resetTabColorAction] {
-                         resetTabColorAction->setEnabled(
-                             this->hasCustomTabColor());
-                     });
+    QObject::connect(
+        tabColorMenu, &QMenu::aboutToShow, this, [this, resetTabColorAction] {
+            resetTabColorAction->setEnabled(this->hasCustomTabColor());
+        });
 
     this->menu_.addSeparator();
 
@@ -1434,6 +1462,34 @@ bool NotebookTab::isLive() const
     return this->isLive_;
 }
 
+void NotebookTab::setHotChat(bool hot)
+{
+    if (this->hotChat_ == hot)
+    {
+        return;
+    }
+    this->hotChat_ = hot;
+    if (this->role_ != Role::GroupHeader)
+    {
+        const auto hotTip =
+            QStringLiteral("Chat is moving much faster than usual");
+        if (hot)
+        {
+            this->setToolTip(hotTip);
+        }
+        else if (this->toolTip() == hotTip)
+        {
+            this->setToolTip({});
+        }
+    }
+    this->update();
+}
+
+bool NotebookTab::isHotChat() const
+{
+    return this->hotChat_;
+}
+
 HighlightState NotebookTab::highlightState() const
 {
     return this->highlightState_;
@@ -1500,12 +1556,11 @@ void NotebookTab::updateHighlightState(const TabHighlight &highlight,
         case HighlightState::Highlighted:
             // override lower states
             this->highlightSources_.insert_or_assign(
-                channelViewId,
-                HighlightSource{
-                    .state = newHighlightStyle,
-                    .color = highlight.color,
-                    .sequence = ++this->lastHighlightSequence_,
-                });
+                channelViewId, HighlightSource{
+                                   .state = newHighlightStyle,
+                                   .color = highlight.color,
+                                   .sequence = ++this->lastHighlightSequence_,
+                               });
             break;
         case HighlightState::NewMessage: {
             // only insert if no state already there to avoid overriding
@@ -1690,6 +1745,27 @@ void NotebookTab::paintEvent(QPaintEvent *)
                           individual || this->isLastVisible_);
     painter.setRenderHint(QPainter::Antialiasing, tabRadius > 0);
     painter.fillPath(backgroundPath, tabBackground);
+
+    if (this->hotChat_ && !this->selected_)
+    {
+        QColor glow(255, 150, 40, 72);
+        painter.fillPath(backgroundPath, glow);
+        painter.setPen(
+            QPen(QColor(255, 140, 32, 210), std::max(1.0F, 1.4F * scale)));
+        painter.setBrush(Qt::NoBrush);
+        painter.drawPath(backgroundPath);
+
+        painter.setRenderHint(QPainter::Antialiasing);
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(QColor(255, 140, 32));
+        const auto diameter = std::max(4.0F, 5.0F * scale);
+        QRect hotDot(qRound(4 * scale),
+                     qRound(this->height() - diameter - 3 * scale),
+                     qRound(diameter), qRound(diameter));
+        translateRectForLocation(hotDot, this->tabLocation_,
+                                 this->selected_ ? 0 : -1);
+        painter.drawEllipse(hotDot);
+    }
 
     QColor groupTint;
     if (this->role_ == Role::GroupHeader && this->groupColorMode_ == "theme")
@@ -1927,8 +2003,8 @@ void NotebookTab::paintEvent(QPaintEvent *)
                                  std::max(0, textRect.width()))
             : this->getTitle();
     int width = metrics.horizontalAdvance(displayTitle);
-    const bool alignLeft = this->role_ == Role::GroupHeader ||
-                           width > textRect.width();
+    const bool alignLeft =
+        this->role_ == Role::GroupHeader || width > textRect.width();
     Qt::Alignment alignment = alignLeft ? Qt::AlignLeft | Qt::AlignVCenter
                                         : Qt::AlignHCenter | Qt::AlignVCenter;
 

@@ -23,7 +23,9 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest]
-        qt-version: [6.7.1]
+        # The vendored kimageformats uses Qt 6.8 color-space APIs. The
+        # Windows build ships Qt 6.9.3, so tests use that same version.
+        qt-version: [6.9.3]
         skip-artifact: [false]
         skip-crashpad: [false]
       fail-fast: false
@@ -53,8 +55,12 @@ jobs:
 
       - name: Enable Developer Command Prompt
         uses: Chatterino/msvc-dev-cmd@v2.0.5
+        with:
+          arch: x64
 
       - name: Setup sccache
+        # A transient GitHub download failure should not fail the tests.
+        continue-on-error: true
         # sccache v0.7.4
         uses: hendrikmuhs/ccache-action@v1.2.23
         with:
@@ -83,20 +89,28 @@ jobs:
 
       - name: Install dependencies
         run: |
+          $hookDir = Join-Path $env:USERPROFILE ".conan2\extensions\hooks"
+          New-Item -ItemType Directory -Force -Path $hookDir | Out-Null
+          Copy-Item .github/conan/hooks/hook_libwebm_msvc.py $hookDir
           mkdir build-test
           cd build-test
           conan install .. `
               -s build_type=RelWithDebInfo `
-              -c tools.cmake.cmaketoolchain:generator="NMake Makefiles" `
+              -c tools.cmake.cmaketoolchain:generator="Ninja" `
               -b missing `
               --output-folder=. `
               -o with_openssl3="$Env:C2_USE_OPENSSL3"
 
-      # The Windows runners currently use an older version of the CRT
+      # The image CRT can be older than the compiler. Copy the OneCore redist
+      # next to the test binaries, matching the upstream Windows test job.
       - name: Install CRT
         run: |
           mkdir -Force build-test/bin
-          cp "$((ls $Env:VCToolsRedistDir/onecore/x64 -Filter '*.CRT')[0].FullName)/*" build-test/bin
+          $crt = (Get-ChildItem $Env:VCToolsRedistDir/onecore/x64 -Filter '*.CRT')[0].FullName
+          echo "VCToolsRedistDir=$Env:VCToolsRedistDir"
+          echo "Copying CRT from $crt"
+          Copy-Item "$crt/*" build-test/bin
+          Get-ChildItem build-test/bin | ForEach-Object { echo $_.FullName }
 
       - name: Install httpbox
         run: |
@@ -105,10 +119,20 @@ jobs:
           Expand-Archive httpbox.zip -DestinationPath httpbox
           rm httpbox.zip
 
+      # MSVC 14.51 still aborts twitch-eventsub-ws-test.exe with 0xc0000409
+      # during gtest discovery. Build the tests with clang-cl and lld.
+      # cmcldeps plus a ccache RULE_LAUNCH_COMPILE prefix makes clang-cl
+      # receive rc.exe's /fo flag, so compile resources with rc.exe directly.
       - name: Build
         run: |
+          Remove-Item Env:RULE_LAUNCH_COMPILE, Env:RULE_LAUNCH_LINK, Env:RULE_LAUNCH_CUSTOM, Env:CMAKE_C_COMPILER_LAUNCHER, Env:CMAKE_CXX_COMPILER_LAUNCHER, Env:CMAKE_RC_COMPILER_LAUNCHER -ErrorAction SilentlyContinue
           cmake `
-              -G"NMake Makefiles" `
+              -G Ninja `
+              -DCMAKE_CXX_COMPILER=clang-cl `
+              -DCMAKE_C_COMPILER=clang-cl `
+              -DCMAKE_RC_COMPILER=rc.exe `
+              -DCMAKE_NINJA_CMCLDEPS_RC=OFF `
+              -DCMAKE_LINKER_TYPE=LLD `
               -DCMAKE_BUILD_TYPE=RelWithDebInfo `
               -DBUILD_TESTS=On `
               -DBUILD_APP=OFF `
@@ -117,8 +141,7 @@ jobs:
               -DBUILD_WITH_CRASHPAD="$Env:C2_ENABLE_CRASHPAD" `
               -DCHATTERINO_SPELLCHECK=On `
               ..
-          set cl=/MP
-          nmake /S /NOLOGO
+          ninja
         working-directory: build-test
 
       - name: Download and extract Twitch PubSub Server Test

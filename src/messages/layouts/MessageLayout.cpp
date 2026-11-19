@@ -5,6 +5,7 @@
 #include "messages/layouts/MessageLayout.hpp"
 
 #include "Application.hpp"
+#include "controllers/automod/AutoModReviewController.hpp"
 #include "controllers/highlights/HighlightPhrase.hpp"
 #include "messages/layouts/MessageLayoutContainer.hpp"
 #include "messages/layouts/MessageLayoutContext.hpp"
@@ -86,7 +87,7 @@ std::optional<ClientDetectionMarker> clientDetectionMarker(
 
     return std::nullopt;
 }
-}
+}  // namespace
 
 MessageLayout::MessageLayout(MessagePtr message)
     : message_(std::move(message))
@@ -308,7 +309,6 @@ void MessageLayout::actuallyLayout(const MessageLayoutContext &ctx)
         if (hideBlockedTermAutomodMessages &&
             this->message_->flags.has(MessageFlag::AutoModBlockedTerm))
         {
-
             continue;
         }
 
@@ -316,7 +316,6 @@ void MessageLayout::actuallyLayout(const MessageLayoutContext &ctx)
         {
             if (getApp()->getStreamerMode()->shouldHideRestrictedUsers())
             {
-
                 continue;
             }
         }
@@ -326,7 +325,6 @@ void MessageLayout::actuallyLayout(const MessageLayoutContext &ctx)
             if (hideModerationActions ||
                 getApp()->getStreamerMode()->shouldHideModActions())
             {
-
                 continue;
             }
         }
@@ -460,8 +458,8 @@ MessagePaintResult MessageLayout::paint(const MessagePaintContext &ctx)
 
     if (!ctx.selection.isEmpty())
     {
-        container.paintSelection(ctx.painter, ctx.messageIndex,
-                                 ctx.selection, ctx.y);
+        container.paintSelection(ctx.painter, ctx.messageIndex, ctx.selection,
+                                 ctx.y);
     }
 
     if (ctx.preferences.separateMessages)
@@ -633,8 +631,13 @@ void MessageLayout::updateBuffer(QPixmap *buffer,
             {
                 if (ctx.preferences.enableAutomodHighlight)
                 {
-                    auto accent =
-                        *ctx.colorProvider.color(ColorType::AutomodHighlight);
+                    // Baseline uses the first-message theme color so it is
+                    // distinct from a normal AutoMod hold without new colors.
+                    const auto accentType =
+                        this->message_->autoModReview->baseline
+                            ? ColorType::FirstMessageHighlight
+                            : ColorType::AutomodHighlight;
+                    auto accent = *ctx.colorProvider.color(accentType);
                     if (this->flags.has(
                             MessageLayoutFlag::AutoModReviewChannel))
                     {
@@ -722,9 +725,11 @@ void MessageLayout::updateBuffer(QPixmap *buffer,
     {
         const bool selected =
             this->flags.has(MessageLayoutFlag::AutoModReviewSelected);
-        auto accent =
-            selected ? ctx.messageColors.linkText
-                     : *ctx.colorProvider.color(ColorType::AutomodHighlight);
+        const auto accentType = this->message_->autoModReview->baseline
+                                    ? ColorType::FirstMessageHighlight
+                                    : ColorType::AutomodHighlight;
+        auto accent = selected ? ctx.messageColors.linkText
+                               : *ctx.colorProvider.color(accentType);
         accent.setAlpha(selected ? 205 : 110);
         painter.fillRect(
             QRectF(0, 0, std::max(1.0, (selected ? 2.0 : 1.0) * this->scale_),
@@ -818,14 +823,12 @@ bool MessageLayout::hasCache() const
 
 const MessageLayoutElement *MessageLayout::getElementAt(QPointF point) const
 {
-
     return this->container_ ? this->container_->getElementAt(point) : nullptr;
 }
 
 std::pair<int, int> MessageLayout::getWordBounds(
     const MessageLayoutElement *hoveredElement, QPointF relativePos) const
 {
-
     if (hoveredElement->getWordId() != -1)
     {
         assert(this->container_);
@@ -865,4 +868,4 @@ void MessageLayout::addSelectionText(QString &str, uint32_t from, uint32_t to,
     }
 }
 
-}
+}  // namespace chatterino

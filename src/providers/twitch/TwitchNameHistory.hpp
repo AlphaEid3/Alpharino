@@ -34,4 +34,18 @@ void fetchTwitchNameHistoryByUserId(
     std::function<void(TwitchNameHistory)> successCallback,
     std::function<void(const QString &)> failureCallback);
 
+struct LocalTwitchNameSighting {
+    QString login;
+    QString name;
+    QString fromText;
+    QString untilText;
+};
+
+/// Remember a login or display name Alpharino has seen for this user id.
+void noteTwitchIdentity(const QString &userId, const QString &login,
+                        const QString &displayName);
+
+std::vector<LocalTwitchNameSighting> localTwitchNameSightings(
+    const QString &userId);
+
 }  // namespace chatterino

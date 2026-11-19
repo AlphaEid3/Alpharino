@@ -15,19 +15,19 @@
 #include "widgets/Window.hpp"
 
 #include <QAbstractListModel>
+#include <QBuffer>
 #include <QComboBox>
 #include <QDateTime>
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QHeaderView>
+#include <QImageReader>
 #include <QItemSelectionModel>
 #include <QKeySequence>
 #include <QLabel>
 #include <QListView>
 #include <QLocale>
 #include <QMessageBox>
-#include <QBuffer>
-#include <QImageReader>
 #include <QPainter>
 #include <QPlainTextEdit>
 #include <QPushButton>
@@ -227,7 +227,7 @@ QPixmap squareAvatar(const QByteArray &data, int size)
     return source.copy(x, y, size, size);
 }
 
-}
+}  // namespace
 
 class UnbanRequestListModel final : public QAbstractListModel
 {
@@ -343,11 +343,10 @@ public:
         painter->setClipRect(option.rect);
         const bool selected = option.state & QStyle::State_Selected;
         const bool hovered = option.state & QStyle::State_MouseOver;
-        painter->fillRect(
-            option.rect,
-            selected ? option.palette.highlight()
-            : hovered ? option.palette.alternateBase()
-                      : option.palette.base());
+        painter->fillRect(option.rect, selected ? option.palette.highlight()
+                                       : hovered
+                                           ? option.palette.alternateBase()
+                                           : option.palette.base());
         const auto foreground = selected
                                     ? option.palette.highlightedText().color()
                                     : option.palette.text().color();
@@ -364,7 +363,7 @@ public:
             QRect(textLeft, option.rect.top() + 3, textWidth, 21),
             Qt::AlignVCenter | Qt::AlignLeft,
             QFontMetrics(nameFont).elidedText(unbanUserName(request->requester),
-                                          Qt::ElideRight, textWidth));
+                                              Qt::ElideRight, textWidth));
 
         QFont detailFont = option.font;
         detailFont.setPointSizeF(std::max(7.0, detailFont.pointSizeF() - 1));
@@ -475,9 +474,8 @@ UnbanRequestsDialog::UnbanRequestsDialog(QString channelId,
     emptyTitle->setFont(emptyTitleFont);
     emptyTitle->setAlignment(Qt::AlignCenter);
     emptyLayout->addWidget(emptyTitle);
-    auto *emptyHint =
-        new QLabel(QStringLiteral("Choose a request from the queue to review it."),
-                   empty);
+    auto *emptyHint = new QLabel(
+        QStringLiteral("Choose a request from the queue to review it."), empty);
     emptyHint->setObjectName(QStringLiteral("SecondaryText"));
     emptyHint->setAlignment(Qt::AlignCenter);
     emptyLayout->addWidget(emptyHint);
@@ -705,10 +703,9 @@ UnbanRequestsDialog::UnbanRequestsDialog(QString channelId,
         this, [this](int value) {
             const auto *bar = this->chatHistory_->verticalScrollBar();
             const auto *cache = this->currentCache();
-            if (this->rebuildingChatHistory_ ||
-                cache == nullptr || cache->chatLoading ||
-                !cache->chatHasNextPage || bar->maximum() <= bar->minimum() ||
-                value > bar->minimum() + 24)
+            if (this->rebuildingChatHistory_ || cache == nullptr ||
+                cache->chatLoading || !cache->chatHasNextPage ||
+                bar->maximum() <= bar->minimum() || value > bar->minimum() + 24)
             {
                 return;
             }
@@ -745,10 +742,9 @@ UnbanRequestsDialog::UnbanRequestsDialog(QString channelId,
     QObject::connect(
         this->moderatorNote_, &QPlainTextEdit::textChanged, this, [this] {
             const auto text = this->moderatorNote_->toPlainText();
-            this->noteCount_->setText(
-                QStringLiteral("%1 / %2")
-                    .arg(QLocale().toString(text.size()),
-                         QLocale().toString(MAX_MODERATOR_NOTE_LENGTH)));
+            this->noteCount_->setText(QStringLiteral("%1 / %2").arg(
+                QLocale().toString(text.size()),
+                QLocale().toString(MAX_MODERATOR_NOTE_LENGTH)));
             if (this->selectedRequestId_.isEmpty())
             {
                 return;
@@ -812,10 +808,11 @@ UnbanRequestsDialog::UnbanRequestsDialog(QString channelId,
     getSettings()->moltorinoAuthAccounts.connect(checkAuth,
                                                  this->authConnections_, false);
 
-    for (auto *label : {this->countLabel_, this->queueStatusLabel_,
-                        this->displayName_, this->login_, this->accountCreated_,
-                        this->banStatus_, this->historyCounts_, this->requestDate_,
-                        this->detailStatus_, this->noteCount_})
+    for (auto *label :
+         {this->countLabel_, this->queueStatusLabel_, this->displayName_,
+          this->login_, this->accountCreated_, this->banStatus_,
+          this->historyCounts_, this->requestDate_, this->detailStatus_,
+          this->noteCount_})
     {
         label->setTextFormat(Qt::PlainText);
     }
@@ -1097,11 +1094,10 @@ void UnbanRequestsDialog::showRequest(const GqlUnbanRequest &request)
     this->historyCounts_->setToolTip({});
     this->requestDate_->setText(shortRequestAge(request.createdAt));
     this->requestDate_->setToolTip(localDateTime(request.createdAt));
-    setDialogLinkLabelText(
-        this->requestText_,
-        request.requesterMessage.trimmed().isEmpty()
-            ? QStringLiteral("No message was included.")
-            : request.requesterMessage.trimmed());
+    setDialogLinkLabelText(this->requestText_,
+                           request.requesterMessage.trimmed().isEmpty()
+                               ? QStringLiteral("No message was included.")
+                               : request.requesterMessage.trimmed());
     this->avatar_->setPixmap(
         cache.avatar.isNull() ? initialAvatar(unbanUserName(request.requester),
                                               SELECTED_AVATAR_SIZE)
@@ -1425,8 +1421,8 @@ void UnbanRequestsDialog::updateViewerHistoryLine()
 }
 
 void UnbanRequestsDialog::loadAvatar(const QString &requestId,
-                                      const QString &url,
-                                      const QString &fallbackName)
+                                     const QString &url,
+                                     const QString &fallbackName)
 {
     const QUrl avatarUrl(url);
     if (!avatarUrl.isValid() || avatarUrl.scheme() != QStringLiteral("https") ||
@@ -1557,8 +1553,9 @@ void UnbanRequestsDialog::loadChatHistoryFor(const GqlUnbanRequest &request,
             const bool cursorAdvanced =
                 !page.nextCursor.isEmpty() && page.nextCursor != cursor;
             cache.chatCursor = cursorAdvanced ? page.nextCursor : QString();
-            cache.chatHasNextPage = page.hasNextPage && cursorAdvanced &&
-                                    cache.chatMessages.size() < MAX_CHAT_HISTORY;
+            cache.chatHasNextPage =
+                page.hasNextPage && cursorAdvanced &&
+                cache.chatMessages.size() < MAX_CHAT_HISTORY;
             if (requestId == self->selectedRequestId_)
             {
                 self->refreshDetailStatus();
@@ -1827,8 +1824,7 @@ void UnbanRequestsDialog::resolveCurrentRequest(bool approve)
     }
     const bool confirmed = confirmation->clickedButton() == resolveButton;
     delete confirmation;
-    if (!confirmed ||
-        authGeneration != this->authGeneration_ ||
+    if (!confirmed || authGeneration != this->authGeneration_ ||
         generation != this->queueGeneration_ ||
         requestId != this->selectedRequestId_ ||
         this->requestModel_->rowForId(requestId) < 0)
@@ -2000,4 +1996,4 @@ void UnbanRequestsDialog::publishResult(const QString &text) const
     }
 }
 
-}
+}  // namespace chatterino

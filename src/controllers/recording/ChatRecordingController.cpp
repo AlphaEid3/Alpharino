@@ -93,7 +93,7 @@ QJsonArray sourceMetadata(Split *pane)
     }
     return result;
 }
-}
+}  // namespace
 
 SplitContainer *recordingTabFor(Split *pane)
 {
@@ -586,7 +586,7 @@ ChatRecordingController::ChatRecordingController(const Paths &paths)
                       .left(16)),
           QDir(paths.settingsDirectory).filePath("chat-recording.json"),
           QDir(QStandardPaths::writableLocation(QStandardPaths::MoviesLocation))
-              .filePath("Moltorino Recordings"))
+              .filePath("Alpharino Recordings"))
 {
 }
 
@@ -670,10 +670,9 @@ ChatRecordingController::ChatRecordingController(QString recoveryRoot,
                 {
                     group->second->failed = true;
                 }
-                impl_->notify(
-                    file.pane,
-                    "Chat recording stopped: " + error +
-                        ". Any chat already saved can be recovered.");
+                impl_->notify(file.pane,
+                              "Chat recording stopped: " + error +
+                                  ". Any chat already saved can be recovered.");
                 impl_->stopFile(id);
             });
     connect(impl_->writer, &recording::Writer::finished, this,
@@ -761,8 +760,8 @@ QString ChatRecordingController::setOptions(QJsonObject options)
     options.insert("folder", QDir::cleanPath(folder));
     const auto data = QJsonDocument(options).toJson();
     QSaveFile file(impl_->optionsPath);
-    if (!file.open(QIODevice::WriteOnly) ||
-        file.write(data) != data.size() || !file.commit())
+    if (!file.open(QIODevice::WriteOnly) || file.write(data) != data.size() ||
+        !file.commit())
     {
         return "Recording preferences could not be saved: " +
                file.errorString();
@@ -1243,4 +1242,4 @@ QWidget *makeChatRecordingSettings(QWidget *parent)
     return widget;
 }
 
-}
+}  // namespace chatterino

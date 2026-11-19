@@ -13,8 +13,8 @@
 #include <QFontMetrics>
 #include <QFrame>
 #include <QHBoxLayout>
-#include <QLabel>
 #include <QKeyEvent>
+#include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
 #include <QListWidgetItem>
@@ -71,11 +71,10 @@ public:
         painter->save();
         painter->setClipRect(option.rect);
 
-        const auto background = option.state & QStyle::State_Selected
-                                    ? this->selected_
-                                : option.state & QStyle::State_MouseOver
-                                    ? this->hover_
-                                    : this->background_;
+        const auto background =
+            option.state & QStyle::State_Selected    ? this->selected_
+            : option.state & QStyle::State_MouseOver ? this->hover_
+                                                     : this->background_;
         painter->fillRect(option.rect, background);
 
         constexpr auto SIDE_PADDING = 8;
@@ -91,8 +90,8 @@ public:
         const auto locked = !otherGroup.isEmpty() && !moving;
         if (locked)
         {
-            painter->setPen(QPen(this->muted_, 1.2, Qt::SolidLine,
-                                 Qt::RoundCap, Qt::RoundJoin));
+            painter->setPen(QPen(this->muted_, 1.2, Qt::SolidLine, Qt::RoundCap,
+                                 Qt::RoundJoin));
             painter->setBrush(Qt::NoBrush);
             const QRectF shackle(checkRect.left() + checkSize * 0.27,
                                  checkRect.top() + checkSize * 0.13,
@@ -109,8 +108,7 @@ public:
             auto checkedBackground = this->accent_;
             checkedBackground.setAlpha(38);
             painter->setBrush(checked ? checkedBackground : Qt::NoBrush);
-            painter->drawRect(
-                QRectF(checkRect).adjusted(0.5, 0.5, -0.5, -0.5));
+            painter->drawRect(QRectF(checkRect).adjusted(0.5, 0.5, -0.5, -0.5));
             if (checked)
             {
                 QPainterPath tick;
@@ -132,10 +130,10 @@ public:
         const auto left = checkRect.right() + 9;
         const auto right = option.rect.right() - SIDE_PADDING;
         const QFontMetrics metrics(option.font);
-        const auto groupStatusWidth = otherGroup.isEmpty()
-                                          ? 0
-                                          : std::clamp(option.rect.width() / 3,
-                                                       135, 205);
+        const auto groupStatusWidth =
+            otherGroup.isEmpty()
+                ? 0
+                : std::clamp(option.rect.width() / 3, 135, 205);
         const auto contentRight =
             right - (groupStatusWidth == 0 ? 0 : groupStatusWidth + 10);
         const auto available = std::max(0, contentRight - left);
@@ -147,8 +145,9 @@ public:
             channel.isEmpty() ? available : std::max(80, available * 3 / 5));
         const QRect titleRect(left, option.rect.top(), titleWidth,
                               option.rect.height());
-        painter->drawText(titleRect, Qt::AlignLeft | Qt::AlignVCenter,
-                          metrics.elidedText(title, Qt::ElideRight, titleWidth));
+        painter->drawText(
+            titleRect, Qt::AlignLeft | Qt::AlignVCenter,
+            metrics.elidedText(title, Qt::ElideRight, titleWidth));
 
         if (!channel.isEmpty() && titleWidth < available)
         {
@@ -218,8 +217,7 @@ QPalette tabGroupPalette()
     auto palette = theme->palette;
     palette.setColor(QPalette::Window, theme->window.background);
     palette.setColor(QPalette::WindowText, theme->window.text);
-    palette.setColor(QPalette::Base,
-                     theme->tabs.regular.backgrounds.regular);
+    palette.setColor(QPalette::Base, theme->tabs.regular.backgrounds.regular);
     palette.setColor(QPalette::AlternateBase,
                      theme->tabs.regular.backgrounds.hover);
     palette.setColor(QPalette::Text, theme->window.text);
@@ -245,7 +243,7 @@ QPalette tabGroupPalette()
     return palette;
 }
 
-}
+}  // namespace
 
 TabGroupDialog::TabGroupDialog(QString groupName,
                                const std::vector<TabGroupDialogEntry> &entries,
@@ -267,10 +265,10 @@ TabGroupDialog::TabGroupDialog(QString groupName,
     root->setContentsMargins(12, 11, 12, 11);
     root->setSpacing(8);
 
-    auto *hint = new QLabel(
-        creating ? "Choose at least two tabs for this group."
-                 : "Choose the tabs you want in this group.",
-        this);
+    auto *hint =
+        new QLabel(creating ? "Choose at least two tabs for this group."
+                            : "Choose the tabs you want in this group.",
+                   this);
     hint->setWordWrap(true);
     hint->setPalette(palette);
     root->addWidget(hint);
@@ -315,8 +313,7 @@ TabGroupDialog::TabGroupDialog(QString groupName,
     this->search_->setClearButtonEnabled(true);
     this->search_->setPalette(inputPalette);
     auto *selectAll = new QPushButton("Select shown", this);
-    selectAll->setToolTip(
-        "Select shown tabs that are not in another group");
+    selectAll->setToolTip("Select shown tabs that are not in another group");
     auto *clear = new QPushButton("Deselect shown", this);
     selectAll->setAutoDefault(false);
     clear->setAutoDefault(false);
@@ -334,12 +331,11 @@ TabGroupDialog::TabGroupDialog(QString groupName,
     this->tabs_->setMouseTracking(true);
     this->tabs_->installEventFilter(this);
     auto *delegate = new TabGroupRowDelegate(this->tabs_);
-    delegate->setColors(
-        getTheme()->tabs.regular.backgrounds.regular,
-        getTheme()->tabs.regular.backgrounds.hover,
-        getTheme()->tabs.selected.backgrounds.regular, getTheme()->window.text,
-        getTheme()->tabs.regular.text, getTheme()->tabs.dividerLine,
-        getTheme()->accent);
+    delegate->setColors(getTheme()->tabs.regular.backgrounds.regular,
+                        getTheme()->tabs.regular.backgrounds.hover,
+                        getTheme()->tabs.selected.backgrounds.regular,
+                        getTheme()->window.text, getTheme()->tabs.regular.text,
+                        getTheme()->tabs.dividerLine, getTheme()->accent);
     this->tabs_->setItemDelegate(delegate);
     root->addWidget(this->tabs_, 1);
 
@@ -351,7 +347,8 @@ TabGroupDialog::TabGroupDialog(QString groupName,
                                : entry.title.trimmed();
         const auto channel = entry.channelTitle.trimmed();
         const auto showChannel =
-            !channel.isEmpty() && channel.compare(title, Qt::CaseInsensitive) != 0;
+            !channel.isEmpty() &&
+            channel.compare(title, Qt::CaseInsensitive) != 0;
 
         auto *item = new QListWidgetItem(title, this->tabs_);
         item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
@@ -367,7 +364,8 @@ TabGroupDialog::TabGroupDialog(QString groupName,
                 entry.selected
                     ? QStringLiteral("Moves from %1 when you save.")
                           .arg(entry.otherGroupName)
-                    : QStringLiteral("This tab is in %1. Select it to move here.")
+                    : QStringLiteral(
+                          "This tab is in %1. Select it to move here.")
                           .arg(entry.otherGroupName));
         }
         item->setSizeHint({0, 34});
@@ -504,9 +502,9 @@ void TabGroupDialog::filterTabs(const QString &query)
     const auto needle = query.trimmed();
     for (auto &row : this->rows_)
     {
-        row.item->setHidden(!needle.isEmpty() &&
-                            !row.searchText.contains(needle,
-                                                     Qt::CaseInsensitive));
+        row.item->setHidden(
+            !needle.isEmpty() &&
+            !row.searchText.contains(needle, Qt::CaseInsensitive));
     }
 }
 
@@ -544,20 +542,17 @@ void TabGroupDialog::toggleItem(QListWidgetItem *item)
 
     if (!item->data(OTHER_GROUP_ROLE).toString().isEmpty())
     {
-        this->updateItemTransferState(item,
-                                      item->checkState() != Qt::Checked);
+        this->updateItemTransferState(item, item->checkState() != Qt::Checked);
     }
     else
     {
-        item->setCheckState(item->checkState() == Qt::Checked
-                                ? Qt::Unchecked
-                                : Qt::Checked);
+        item->setCheckState(item->checkState() == Qt::Checked ? Qt::Unchecked
+                                                              : Qt::Checked);
     }
     this->updateSelectionState();
 }
 
-void TabGroupDialog::updateItemTransferState(QListWidgetItem *item,
-                                             bool moving)
+void TabGroupDialog::updateItemTransferState(QListWidgetItem *item, bool moving)
 {
     const auto otherGroup = item->data(OTHER_GROUP_ROLE).toString();
     if (otherGroup.isEmpty())
@@ -568,11 +563,9 @@ void TabGroupDialog::updateItemTransferState(QListWidgetItem *item,
     item->setData(MOVING_GROUP_ROLE, moving);
     item->setCheckState(moving ? Qt::Checked : Qt::Unchecked);
     item->setToolTip(
-        moving
-            ? QStringLiteral("Moves from %1 when you save.")
-                  .arg(otherGroup)
-            : QStringLiteral("This tab is in %1. Select it to move here.")
-                  .arg(otherGroup));
+        moving ? QStringLiteral("Moves from %1 when you save.").arg(otherGroup)
+               : QStringLiteral("This tab is in %1. Select it to move here.")
+                     .arg(otherGroup));
 }
 
 void TabGroupDialog::updateSelectionState()
@@ -602,8 +595,8 @@ void TabGroupDialog::updateSelectionState()
     this->selectionSummary_->setText(summary);
     const auto iconReady =
         this->groupIcon() != "custom" || !this->customIconPath_.isEmpty();
-    this->acceptButton_->setEnabled(
-        selected >= (this->creating_ ? 2 : 1) && iconReady);
+    this->acceptButton_->setEnabled(selected >= (this->creating_ ? 2 : 1) &&
+                                    iconReady);
 }
 
-}
+}  // namespace chatterino

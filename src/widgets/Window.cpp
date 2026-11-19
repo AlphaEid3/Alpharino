@@ -23,6 +23,7 @@
 #include "widgets/buttons/LabelButton.hpp"
 #include "widgets/buttons/PixmapButton.hpp"
 #include "widgets/buttons/TitlebarButton.hpp"
+#include "widgets/dialogs/LogSearchDialog.hpp"
 #include "widgets/dialogs/SettingsDialog.hpp"
 #include "widgets/dialogs/switcher/QuickSwitcherPopup.hpp"
 #include "widgets/dialogs/UpdateDialog.hpp"
@@ -90,7 +91,6 @@ Window::Window(WindowType type, QWidget *parent)
         auto lastPopup = getSettings()->lastPopupSize.getValue();
         if (lastPopup.isEmpty())
         {
-
             lastPopup = getSettings()->lastPopupSize.getDefaultValue();
         }
         this->resize(lastPopup.width(), lastPopup.height());
@@ -288,7 +288,6 @@ void Window::addCustomTitlebarButtons()
 
 void Window::updateStreamerModeIcon()
 {
-
     if (this->streamerModeTitlebarIcon_ == nullptr)
     {
         return;
@@ -309,7 +308,8 @@ void Window::updateStreamerModeIcon()
         getApp()->getStreamerMode()->isEnabled());
 #else
 
-    assert(false && "Streamer mode TitleBar icon should not exist on non-Windows OSes");
+    assert(false &&
+           "Streamer mode TitleBar icon should not exist on non-Windows OSes");
 
 #endif
 }
@@ -608,8 +608,7 @@ void Window::addShortcuts()
                         "or \"previous\")";
              }
              int newIndex = -1;
-             bool indexIsGenerated =
-                 false;
+             bool indexIsGenerated = false;
 
              auto target = arguments.at(0);
              qCDebug(chatterinoHotkeys) << target;
@@ -739,7 +738,6 @@ void Window::addShortcuts()
              }
              else if (arg == "toggleLiveOnly")
              {
-
                  return "toggleLiveOnly is no longer a valid argument for "
                         "setTabVisibility";
              }
@@ -802,6 +800,13 @@ void Window::addMenuBar()
         this->notebook_->selectPreviousTab();
     });
 
+    windowMenu->addSeparator();
+    QAction *searchLogs =
+        windowMenu->addAction(QString("Search saved logs..."));
+    connect(searchLogs, &QAction::triggered, this, [this] {
+        LogSearchDialog::open(this);
+    });
+
     QMenu *helpMenu = mainMenu->addMenu(QString("Help"));
 
     QAction *helpWiki = helpMenu->addAction(QString("Chatterino Wiki"));
@@ -809,8 +814,14 @@ void Window::addMenuBar()
         QDesktopServices::openUrl(QUrl(LINK_CHATTERINO_WIKI.toString()));
     });
 
-    QAction *helpGithub = helpMenu->addAction(QString("Chatterino GitHub"));
+    QAction *helpGithub = helpMenu->addAction(QString("Alpharino on GitHub"));
     connect(helpGithub, &QAction::triggered, this, []() {
+        QDesktopServices::openUrl(
+            QUrl(QStringLiteral("https://github.com/AlphaEid3/Alpharino")));
+    });
+
+    QAction *helpUpstream = helpMenu->addAction(QString("Chatterino 2 source"));
+    connect(helpUpstream, &QAction::triggered, this, []() {
         QDesktopServices::openUrl(QUrl(LINK_CHATTERINO_SOURCE.toString()));
     });
 
@@ -857,4 +868,4 @@ void Window::onAccountSelected()
     }
 }
 
-}
+}  // namespace chatterino

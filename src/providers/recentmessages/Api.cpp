@@ -297,7 +297,7 @@ private:
     }
 };
 
-}
+}  // namespace
 
 void load(
     const QString &channelName, std::weak_ptr<Channel> channelPtr,
@@ -330,4 +330,4 @@ void load(
     });
 }
 
-}
+}  // namespace chatterino::recentmessages

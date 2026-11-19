@@ -316,8 +316,9 @@ QStringList renderPlainTextTable(const QStringList &headers,
             const auto cell = plainTableCell(cells.at(column));
             const bool alignRight =
                 column < rightAligned.size() && rightAligned.at(column);
-            rendered.push_back(alignRight ? cell.rightJustified(widths.at(column))
-                                          : cell.leftJustified(widths.at(column)));
+            rendered.push_back(alignRight
+                                   ? cell.rightJustified(widths.at(column))
+                                   : cell.leftJustified(widths.at(column)));
         }
         return rendered.join(QStringLiteral(" | "));
     };
@@ -540,8 +541,8 @@ public:
         this->addedSince_->addItem(QStringLiteral("Last 7 days"), 7);
         this->addedSince_->addItem(QStringLiteral("Last 30 days"), 30);
         this->addedSince_->addItem(QStringLiteral("Last 90 days"), 90);
-        this->addedSince_->setCurrentIndex(std::max(
-            0, this->addedSince_->findData(defaults.addedWithinDays)));
+        this->addedSince_->setCurrentIndex(
+            std::max(0, this->addedSince_->findData(defaults.addedWithinDays)));
         moderatorLayout->addRow(QStringLiteral("Added:"), this->addedSince_);
 
         this->sort_ = new QComboBox(moderators);
@@ -549,46 +550,43 @@ public:
             const auto current = this->sort_->currentData();
             this->sort_->clear();
             this->sort_->addItem(QStringLiteral("Most actions first"),
-                                int(ModerationReportSort::Total));
+                                 int(ModerationReportSort::Total));
             if (this->bans_->isChecked())
             {
                 this->sort_->addItem(QStringLiteral("Most bans first"),
-                                    int(ModerationReportSort::Bans));
+                                     int(ModerationReportSort::Bans));
             }
             if (this->timeouts_->isChecked())
             {
                 this->sort_->addItem(QStringLiteral("Most timeouts first"),
-                                    int(ModerationReportSort::Timeouts));
+                                     int(ModerationReportSort::Timeouts));
             }
             if (this->deletes_->isChecked())
             {
                 this->sort_->addItem(QStringLiteral("Most deletes first"),
-                                    int(ModerationReportSort::Deletes));
+                                     int(ModerationReportSort::Deletes));
             }
             if (this->unbans_->isChecked())
             {
                 this->sort_->addItem(QStringLiteral("Most unbans first"),
-                                    int(ModerationReportSort::Unbans));
+                                     int(ModerationReportSort::Unbans));
             }
             if (this->untimeouts_->isChecked())
             {
                 this->sort_->addItem(QStringLiteral("Most untimeouts first"),
-                                    int(ModerationReportSort::Untimeouts));
+                                     int(ModerationReportSort::Untimeouts));
             }
             if (this->other_->isChecked())
             {
-                this->sort_->addItem(
-                    QStringLiteral("Most other actions first"),
-                    int(ModerationReportSort::Other));
+                this->sort_->addItem(QStringLiteral("Most other actions first"),
+                                     int(ModerationReportSort::Other));
             }
             if (currentRosterAvailable && this->scope_->currentData().toBool())
             {
-                this->sort_->addItem(
-                    QStringLiteral("Newest moderators first"),
-                    int(ModerationReportSort::AddedNewest));
-                this->sort_->addItem(
-                    QStringLiteral("Oldest moderators first"),
-                    int(ModerationReportSort::AddedOldest));
+                this->sort_->addItem(QStringLiteral("Newest moderators first"),
+                                     int(ModerationReportSort::AddedNewest));
+                this->sort_->addItem(QStringLiteral("Oldest moderators first"),
+                                     int(ModerationReportSort::AddedOldest));
             }
             this->sort_->addItem(QStringLiteral("Name, A to Z"),
                                  int(ModerationReportSort::Name));
@@ -597,8 +595,7 @@ public:
         };
         for (auto *box : actionBoxes)
         {
-            QObject::connect(box, &QCheckBox::toggled, this,
-                             updateSortChoices);
+            QObject::connect(box, &QCheckBox::toggled, this, updateSortChoices);
         }
         QObject::connect(this->scope_,
                          qOverload<int>(&QComboBox::currentIndexChanged), this,
@@ -615,8 +612,8 @@ public:
         moderatorLayout->addRow(QString(), this->includeInactive_);
 
         const auto updateModeratorState = [this, currentRosterAvailable] {
-            this->addedSince_->setEnabled(
-                currentRosterAvailable && this->scope_->currentData().toBool());
+            this->addedSince_->setEnabled(currentRosterAvailable &&
+                                          this->scope_->currentData().toBool());
         };
         QObject::connect(this->scope_,
                          qOverload<int>(&QComboBox::currentIndexChanged), this,
@@ -634,16 +631,15 @@ public:
         this->events_->setChecked(defaults.includeEvents);
         activityLayout->addWidget(this->events_);
 
-        this->targets_ =
-            new QCheckBox(QStringLiteral("Show affected users"),
-                          this->activity_);
+        this->targets_ = new QCheckBox(QStringLiteral("Show affected users"),
+                                       this->activity_);
         this->targets_->setToolTip(
             QStringLiteral("Shows who each action was taken against."));
         this->targets_->setChecked(defaults.includeTargets);
         activityLayout->addWidget(this->targets_);
 
-        this->actionText_ = new QCheckBox(
-            QStringLiteral("Show Twitch details"), this->activity_);
+        this->actionText_ = new QCheckBox(QStringLiteral("Show Twitch details"),
+                                          this->activity_);
         this->actionText_->setToolTip(QStringLiteral(
             "May include moderation reasons and deleted message text."));
         this->actionText_->setChecked(defaults.includeActionText);
@@ -691,9 +687,9 @@ public:
     {
         this->activity_->setEnabled(available);
         this->activity_->setToolTip(
-            available ? QString{}
-                      : QStringLiteral(
-                            "Choose JSON to include activity history."));
+            available
+                ? QString{}
+                : QStringLiteral("Choose JSON to include activity history."));
         if (!available)
         {
             this->events_->setChecked(false);
@@ -797,8 +793,7 @@ public:
 
         auto *layout = new QVBoxLayout(this);
         layout->addWidget(new QLabel(
-            QStringLiteral("Choose what appears in the Haste report."),
-            this));
+            QStringLiteral("Choose what appears in the Haste report."), this));
         this->options_ =
             new ReportOptionsWidget(defaults, currentRosterAvailable, this);
         layout->addWidget(this->options_);
@@ -822,7 +817,7 @@ private:
     ReportOptionsWidget *options_{};
 };
 
-}
+}  // namespace
 
 std::optional<ModerationReportRequest> requestModerationReport(
     QWidget *parent, const QString &defaultChannel)
@@ -1095,10 +1090,10 @@ ModerationReportDialog::ModerationReportDialog(ModerationReportContext context,
     layout->addWidget(splitter, 1);
 
     auto *buttons = new QDialogButtonBox(QDialogButtonBox::Close, this);
-    this->exportButton_ = buttons->addButton(
-        QStringLiteral("Export"), QDialogButtonBox::ActionRole);
-    this->shareButton_ = buttons->addButton(
-        QStringLiteral("Share"), QDialogButtonBox::ActionRole);
+    this->exportButton_ = buttons->addButton(QStringLiteral("Export"),
+                                             QDialogButtonBox::ActionRole);
+    this->shareButton_ = buttons->addButton(QStringLiteral("Share"),
+                                            QDialogButtonBox::ActionRole);
     QObject::connect(buttons, &QDialogButtonBox::rejected, this,
                      &QDialog::close);
     QObject::connect(this->exportButton_, &QPushButton::clicked, this,
@@ -1183,7 +1178,8 @@ void ModerationReportDialog::buildRows()
             if (it != rowByKey.cend())
             {
                 const auto &candidateID = this->rows_.at(*it).summary.id;
-                if (!id.isEmpty() && !candidateID.isEmpty() && candidateID != id)
+                if (!id.isEmpty() && !candidateID.isEmpty() &&
+                    candidateID != id)
                 {
                     continue;
                 }
@@ -1371,8 +1367,7 @@ void ModerationReportDialog::refreshRows()
 void ModerationReportDialog::refreshThemeColors()
 {
     const auto palette = this->moderators_->palette();
-    const auto disabled =
-        palette.color(QPalette::Disabled, QPalette::Text);
+    const auto disabled = palette.color(QPalette::Disabled, QPalette::Text);
     const auto options = this->currentOutputOptions();
     const std::array<bool, 7> enabledColumns{
         true,           options.bans,       options.timeouts, options.deletes,
@@ -1539,8 +1534,7 @@ QVector<int> ModerationReportDialog::rowIndexesForOptions(
         indexes.push_back(index);
     }
 
-    const auto sortValue = [&options](
-                               const ModerationActionLogCounts &source) {
+    const auto sortValue = [&options](const ModerationActionLogCounts &source) {
         const auto counts = selectedCounts(source, options);
         switch (options.sort)
         {
@@ -1579,8 +1573,7 @@ QVector<int> ModerationReportDialog::rowIndexesForOptions(
                 {
                     return leftHasDate;
                 }
-                if (leftHasDate &&
-                    leftRow.grantedAt != rightRow.grantedAt)
+                if (leftHasDate && leftRow.grantedAt != rightRow.grantedAt)
                 {
                     return options.sort == ModerationReportSort::AddedNewest
                                ? leftRow.grantedAt > rightRow.grantedAt
@@ -1605,7 +1598,9 @@ QString ModerationReportDialog::reportText(
 {
     const auto indexes = this->rowIndexesForOptions(options);
     ModerationActionLogCounts totals;
-    const auto number = [](int value) { return QLocale().toString(value); };
+    const auto number = [](int value) {
+        return QLocale().toString(value);
+    };
     auto rangeText = this->context_.rangeText.trimmed();
     if (!rangeText.isEmpty())
     {
@@ -1616,8 +1611,8 @@ QString ModerationReportDialog::reportText(
     for (const int index : indexes)
     {
         const auto &row = this->rows_.at(index);
-        showStatus = showStatus ||
-                     (options.includeOutsideTeam && !row.currentModerator);
+        showStatus =
+            showStatus || (options.includeOutsideTeam && !row.currentModerator);
     }
 
     QStringList headers{QStringLiteral("Rank"), QStringLiteral("Moderator")};
@@ -1708,7 +1703,8 @@ QString ModerationReportDialog::reportText(
     QStringList actionSummary;
     if (options.bans)
     {
-        actionSummary.push_back(QStringLiteral("Bans %1").arg(number(totals.bans)));
+        actionSummary.push_back(
+            QStringLiteral("Bans %1").arg(number(totals.bans)));
     }
     if (options.timeouts)
     {
@@ -1752,9 +1748,9 @@ QString ModerationReportDialog::reportText(
     int statusIndex = 2;
     if (this->context_.snapshot.truncated)
     {
-        lines.insert(statusIndex++, QStringLiteral(
-                                        "Incomplete report: Twitch's history "
-                                        "limit was reached."));
+        lines.insert(statusIndex++,
+                     QStringLiteral("Incomplete report: Twitch's history "
+                                    "limit was reached."));
     }
     if (options.includeEvents && this->context_.snapshot.eventsTruncated)
     {
@@ -1764,10 +1760,10 @@ QString ModerationReportDialog::reportText(
     }
     if (!this->context_.currentRosterAvailable)
     {
-        lines.insert(statusIndex++, QStringLiteral(
-                                        "The channel moderator list was not "
-                                        "available, so everyone in Twitch's "
-                                        "logs is included."));
+        lines.insert(statusIndex++,
+                     QStringLiteral("The channel moderator list was not "
+                                    "available, so everyone in Twitch's "
+                                    "logs is included."));
     }
     if (tableRows.isEmpty())
     {
@@ -1841,7 +1837,8 @@ QString ModerationReportDialog::reportText(
         lines.push_back(QStringLiteral("Activity"));
         if (eventRows.isEmpty())
         {
-            lines.push_back(QStringLiteral("No activity matched these choices."));
+            lines.push_back(
+                QStringLiteral("No activity matched these choices."));
         }
         else
         {
@@ -2070,8 +2067,9 @@ QByteArray ModerationReportDialog::reportCsv(
 void ModerationReportDialog::openExportDialog()
 {
     const QPointer<ModerationReportDialog> self(this);
-    QPointer<ExportReportDialog> dialog = new ExportReportDialog(
-        this->currentOutputOptions(), this->context_.currentRosterAvailable, this);
+    QPointer<ExportReportDialog> dialog =
+        new ExportReportDialog(this->currentOutputOptions(),
+                               this->context_.currentRosterAvailable, this);
     const auto result = dialog->exec();
     if (!self || !dialog)
     {
@@ -2115,8 +2113,8 @@ void ModerationReportDialog::openExportDialog()
     }
 
     QSaveFile file(path);
-    if (!file.open(QIODevice::WriteOnly) ||
-        file.write(data) != data.size() || !file.commit())
+    if (!file.open(QIODevice::WriteOnly) || file.write(data) != data.size() ||
+        !file.commit())
     {
         showReportMessage(
             this, QMessageBox::Warning,
@@ -2132,8 +2130,9 @@ void ModerationReportDialog::openExportDialog()
 void ModerationReportDialog::openShareDialog()
 {
     const QPointer<ModerationReportDialog> self(this);
-    QPointer<ShareReportDialog> dialog = new ShareReportDialog(
-        this->currentOutputOptions(), this->context_.currentRosterAvailable, this);
+    QPointer<ShareReportDialog> dialog =
+        new ShareReportDialog(this->currentOutputOptions(),
+                              this->context_.currentRosterAvailable, this);
     const auto result = dialog->exec();
     if (!self || !dialog)
     {
@@ -2160,19 +2159,19 @@ void ModerationReportDialog::addSharedReportMessage(
     ModerationActionLogCounts totals;
     for (const int index : indexes)
     {
-        addCounts(totals,
-                  selectedCounts(this->rows_.at(index).summary.counts, options));
+        addCounts(totals, selectedCounts(this->rows_.at(index).summary.counts,
+                                         options));
     }
 
-    const auto moderatorCount = indexes.size() == 1
-                                    ? QStringLiteral("1 moderator")
-                                    : QStringLiteral("%1 moderators")
-                                          .arg(QLocale().toString(indexes.size()));
-    const auto actionCount = totals.rawTotal() == 1
-                                 ? QStringLiteral("1 action")
-                                 : QStringLiteral("%1 actions")
-                                       .arg(QLocale().toString(
-                                           totals.rawTotal()));
+    const auto moderatorCount =
+        indexes.size() == 1 ? QStringLiteral("1 moderator")
+                            : QStringLiteral("%1 moderators")
+                                  .arg(QLocale().toString(indexes.size()));
+    const auto actionCount =
+        totals.rawTotal() == 1
+            ? QStringLiteral("1 action")
+            : QStringLiteral("%1 actions")
+                  .arg(QLocale().toString(totals.rawTotal()));
     const auto prefix =
         QStringLiteral("Shared moderation report for #%1, %2. %3, %4. ")
             .arg(this->context_.channelLogin, this->context_.rangeText,
@@ -2251,7 +2250,7 @@ void ModerationReportDialog::shareReport(
             box->setWindowTitle(QStringLiteral("Report ready"));
             box->setText(QStringLiteral("Your sharing link is ready."));
             auto *copy = box->addButton(QStringLiteral("Copy link"),
-                                       QMessageBox::AcceptRole);
+                                        QMessageBox::AcceptRole);
             auto *open =
                 box->addButton(QStringLiteral("Open"), QMessageBox::ActionRole);
             box->addButton(QMessageBox::Close);
@@ -2299,4 +2298,4 @@ void ModerationReportDialog::shareReport(
         .execute();
 }
 
-}
+}  // namespace chatterino

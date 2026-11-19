@@ -4,8 +4,6 @@
 
 #include "messages/Image.hpp"
 
-#include "messages/StreamingGif.hpp"
-
 #include "Application.hpp"
 #include "common/Common.hpp"
 #include "common/network/NetworkRequest.hpp"
@@ -14,6 +12,7 @@
 #include "controllers/emotes/EmoteController.hpp"
 #include "debug/AssertInGuiThread.hpp"
 #include "debug/Benchmark.hpp"
+#include "messages/StreamingGif.hpp"
 #include "singletons/helper/GifTimer.hpp"
 #include "singletons/Settings.hpp"
 #include "singletons/WindowManager.hpp"
@@ -23,14 +22,14 @@
 #include "util/PostToThread.hpp"
 
 #include <boost/functional/hash.hpp>
-#include <QBuffer>
 #include <QApplication>
-#include <QtEndian>
+#include <QBuffer>
 #include <QFile>
 #include <QImageReader>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QtEndian>
 #include <QThreadPool>
 #include <QTimer>
 #include <QUrl>
@@ -110,7 +109,7 @@ private:
     int64_t bytes_ = PER_IMAGE;
 };
 
-}
+}  // namespace chatterino::detail
 
 namespace chatterino {
 namespace {
@@ -153,8 +152,8 @@ void queueImageLayoutInvalidation()
         Qt::QueuedConnection);
 }
 
-}
-}
+}  // namespace
+}  // namespace chatterino
 
 namespace chatterino::detail {
 
@@ -190,8 +189,7 @@ Frames::Frames(QList<Frame> &&frames)
                             [](auto init, auto &&frame) {
                                 return init + frame.duration;
                             });
-        this->lastTimerPosition_ =
-            app->getEmotes()->getGIFTimer()->position();
+        this->lastTimerPosition_ = app->getEmotes()->getGIFTimer()->position();
 
         if (this->totalDuration_ == 0)
         {
@@ -253,8 +251,7 @@ void Frames::synchronizeAnimation()
         return;
     }
 
-    const auto currentPosition =
-        app->getEmotes()->getGIFTimer()->position();
+    const auto currentPosition = app->getEmotes()->getGIFTimer()->position();
     this->synchronizeAnimation(currentPosition);
 }
 
@@ -366,9 +363,8 @@ QList<Frame> readFrames(QImageReader &reader, const Url &url,
         auto pixmap = QPixmap::fromImageReader(&reader);
         if (!pixmap.isNull())
         {
-            if (maxFrameDimension > 0 &&
-                (pixmap.width() > maxFrameDimension ||
-                 pixmap.height() > maxFrameDimension))
+            if (maxFrameDimension > 0 && (pixmap.width() > maxFrameDimension ||
+                                          pixmap.height() > maxFrameDimension))
             {
                 pixmap = pixmap.scaled(maxFrameDimension, maxFrameDimension,
                                        Qt::KeepAspectRatio,
@@ -446,7 +442,6 @@ void assignFrames(std::weak_ptr<Image> weak, QList<Frame> parsed,
         }
         if (shared->autoScale_)
         {
-
             auto firstFrame = shared->frames_->first();
             if (firstFrame)
             {
@@ -475,7 +470,7 @@ void assignFrames(std::weak_ptr<Image> weak, QList<Frame> parsed,
     runInGuiThread(std::move(cb));
 }
 
-}
+}  // namespace chatterino::detail
 
 namespace chatterino {
 
@@ -572,7 +567,7 @@ bool shouldRetryImageLoad(const NetworkResult &result)
     }
 }
 
-}
+}  // namespace
 
 Image::~Image()
 {
@@ -647,8 +642,9 @@ ImagePtr Image::fromUrlCached(const Url &url, qreal scale, QSize expectedSize,
     const auto effectiveExpectedSize = expectedSize.isValid()
                                            ? expectedSize
                                            : defaultExpectedPhysicalSize(scale);
-    const ImageCacheKey key{url, scale, effectiveExpectedSize, autoScale,
-                            firstFrameOnly, maxFrameDimension, streamingGif};
+    const ImageCacheKey key{url,         scale,          effectiveExpectedSize,
+                            autoScale,   firstFrameOnly, maxFrameDimension,
+                            streamingGif};
     const auto fingerprint = ImageCacheKeyHash{}(key);
 
     std::vector<ImagePtr> collisionOwners;
@@ -690,9 +686,9 @@ ImagePtr Image::fromUrlCached(const Url &url, qreal scale, QSize expectedSize,
         }
     }
 
-    auto shared = ImagePtr(
-        new Image(url, scale, effectiveExpectedSize, firstFrameOnly, false,
-                  maxFrameDimension, streamingGif));
+    auto shared =
+        ImagePtr(new Image(url, scale, effectiveExpectedSize, firstFrameOnly,
+                           false, maxFrameDimension, streamingGif));
     shared->autoScale_ = autoScale;
     cache.emplace(fingerprint, shared);
 
@@ -849,8 +845,7 @@ std::optional<QPixmap> Image::pixmapOrLoad() const
         }
 
         const auto pixmap = this->streamingGifPlayer_->current();
-        return pixmap.isNull() ? std::nullopt
-                               : std::optional<QPixmap>{pixmap};
+        return pixmap.isNull() ? std::nullopt : std::optional<QPixmap>{pixmap};
     }
 
     if (!this->frames_)
@@ -960,8 +955,8 @@ void Image::releasePickerFrames()
 
 void Image::setFrameCacheLifetime(std::chrono::milliseconds lifetime)
 {
-    this->frameCacheLifetimeMs_.store(
-        std::max<int64_t>(0, lifetime.count()), std::memory_order_relaxed);
+    this->frameCacheLifetimeMs_.store(std::max<int64_t>(0, lifetime.count()),
+                                      std::memory_order_relaxed);
 }
 
 std::optional<QPixmap> Image::firstPixmapOrLoad() const
@@ -974,8 +969,7 @@ std::optional<QPixmap> Image::firstPixmapOrLoad() const
     if (this->streamingGifPlayer_)
     {
         const auto pixmap = this->streamingGifPlayer_->current();
-        return pixmap.isNull() ? std::nullopt
-                               : std::optional<QPixmap>{pixmap};
+        return pixmap.isNull() ? std::nullopt : std::optional<QPixmap>{pixmap};
     }
 
     if (!this->frames_)
@@ -1519,9 +1513,9 @@ void Image::actuallyLoad(bool gifFallback)
 
         const double originalFrameBytes =
             double(size.width()) * double(size.height()) * 4.0;
-        const double decodedFramesBytes =
-            double(decodedFrameSize.width()) *
-            double(decodedFrameSize.height()) * double(frameCount) * 4.0;
+        const double decodedFramesBytes = double(decodedFrameSize.width()) *
+                                          double(decodedFrameSize.height()) *
+                                          double(frameCount) * 4.0;
 
         const double estimatedBytes =
             std::max(originalFrameBytes, decodedFramesBytes);
@@ -1565,9 +1559,9 @@ void Image::actuallyLoad(bool gifFallback)
              pickerPeak > detail::PickerImageReservation::PER_IMAGE))
         {
             qCDebug(chatterinoImage) << "image too large in RAM";
-            markEmpty(shared, QString("Image exceeded memory limit (%1 MB)")
-                                  .arg(estimatedBytes / (1024.0 * 1024.0),
-                                       0, 'f', 0));
+            markEmpty(shared,
+                      QString("Image exceeded memory limit (%1 MB)")
+                          .arg(estimatedBytes / (1024.0 * 1024.0), 0, 'f', 0));
             return;
         }
 
@@ -1578,8 +1572,8 @@ void Image::actuallyLoad(bool gifFallback)
             makeConditionedOptional(needsLimit, decodedFrameSize));
         if (parsed.empty())
         {
-            markEmpty(shared, "Failed to decode frames (" +
-                                  reader.errorString() + ")");
+            markEmpty(shared,
+                      "Failed to decode frames (" + reader.errorString() + ")");
             return;
         }
 
@@ -1665,8 +1659,7 @@ void Image::actuallyLoad(bool gifFallback)
                                               url = this->url_.string] {
             const auto comma = url.indexOf(u',');
             if (comma <= 0 ||
-                !url.first(comma).endsWith(u";base64",
-                                           Qt::CaseInsensitive))
+                !url.first(comma).endsWith(u";base64", Qt::CaseInsensitive))
             {
                 onError(NetworkResult{
                     NetworkResult::NetworkError::ProtocolInvalidOperationError,
@@ -1676,8 +1669,8 @@ void Image::actuallyLoad(bool gifFallback)
                 return;
             }
 
-            auto data = QByteArray::fromBase64(
-                url.sliced(comma + 1).toLatin1());
+            auto data =
+                QByteArray::fromBase64(url.sliced(comma + 1).toLatin1());
             if (data.isEmpty())
             {
                 onError(NetworkResult{
@@ -1910,7 +1903,7 @@ std::vector<ImagePtr> snapshotPoolImages(ImageExpirationPool &pool)
     return images;
 }
 
-}
+}  // namespace
 
 void ImageExpirationPool::freeAll()
 {
@@ -1939,9 +1932,8 @@ void ImageExpirationPool::freeOld()
             continue;
         }
         ++eligible;
-        const auto diff =
-            std::chrono::duration_cast<std::chrono::milliseconds>(
-                now - img->lastUsed_);
+        const auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(
+            now - img->lastUsed_);
         const auto customLifetimeMs =
             img->frameCacheLifetimeMs_.load(std::memory_order_relaxed);
         const auto lifetime =
@@ -2065,11 +2057,10 @@ bool ImageExpirationPool::enforceBudget(int64_t maxBytes, int64_t targetBytes)
         ++evicted;
     }
 
-#ifndef NDEBUG
-    qCDebug(chatterinoImage)
-        << "decoded image budget evicted" << evicted << "images, leaving"
-        << totalBytes << "bytes";
-#endif
+#    ifndef NDEBUG
+    qCDebug(chatterinoImage) << "decoded image budget evicted" << evicted
+                             << "images, leaving" << totalBytes << "bytes";
+#    endif
 
     if (evictedBytes >= 8 * 1024 * 1024)
     {
@@ -2080,7 +2071,7 @@ bool ImageExpirationPool::enforceBudget(int64_t maxBytes, int64_t targetBytes)
 }
 
 std::vector<ImageExpirationPool::ProviderUsage>
-ImageExpirationPool::getProviderUsageSnapshot()
+    ImageExpirationPool::getProviderUsageSnapshot()
 {
     const auto providerForUrl = [](const QString &url) {
         if (url.isEmpty())
@@ -2188,4 +2179,4 @@ ImageExpirationPool::getProviderUsageSnapshot()
 
 #endif
 
-}
+}  // namespace chatterino

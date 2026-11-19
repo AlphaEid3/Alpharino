@@ -62,6 +62,9 @@ struct SplitDescriptor {
     // Whether "Moderation Mode" (the sword icon) is enabled in this split or not
     bool moderationMode_{false};
 
+    // Twitch login that sends from this split. Empty follows the current account.
+    QString sendAccount_;
+
     QString autoModChannelFilter_;
 
     std::optional<bool> spellCheckOverride;

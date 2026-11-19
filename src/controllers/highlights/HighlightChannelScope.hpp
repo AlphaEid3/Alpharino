@@ -37,8 +37,7 @@ struct HighlightChannelTarget {
 
 QString highlightChannelScopeModeKey(HighlightChannelScopeMode mode);
 QString highlightChannelScopeModeName(HighlightChannelScopeMode mode);
-HighlightChannelScopeMode highlightChannelScopeModeFromKey(
-    const QString &key);
+HighlightChannelScopeMode highlightChannelScopeModeFromKey(const QString &key);
 
 QString highlightChannelTargetPlatformKey(
     HighlightChannelTargetPlatform platform);
@@ -65,8 +64,7 @@ class HighlightChannelScope
 {
 public:
     HighlightChannelScope(
-        HighlightChannelScopeMode mode =
-            HighlightChannelScopeMode::Everywhere,
+        HighlightChannelScopeMode mode = HighlightChannelScopeMode::Everywhere,
         std::vector<HighlightChannelTarget> targets = {});
 
     bool operator==(const HighlightChannelScope &other) const;
@@ -87,4 +85,4 @@ private:
     QSet<QString> targetKeys_;
 };
 
-}
+}  // namespace chatterino

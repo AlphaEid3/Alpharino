@@ -21,4 +21,4 @@ private:
     std::unique_ptr<KickCentrifugoManagerPrivate> private_;
 };
 
-}
+}  // namespace chatterino

@@ -266,8 +266,9 @@ ExpectedStr<void> validateBundleObject(const QJsonObject &bundle)
                 containsPrivateFields(item.value()) ||
                 categoryForSettingPath(item.key()) != category.key())
             {
-                return makeUnexpected(QStringLiteral(
-                    "This settings file contains invalid or private settings."));
+                return makeUnexpected(
+                    QStringLiteral("This settings file contains invalid or "
+                                   "private settings."));
             }
         }
     }
@@ -630,9 +631,9 @@ ExpectedStr<void> stageFiles(const QString &settingsDirectory,
         {
             return makeUnexpected(
                 QStringLiteral("%1 is damaged: %2")
-                    .arg(it.key(), parsed
-                                       ? QStringLiteral("unexpected file format")
-                                       : parsed.error()));
+                    .arg(it.key(),
+                         parsed ? QStringLiteral("unexpected file format")
+                                : parsed.error()));
         }
         const auto stagedName =
             it.key() + u'.' +
@@ -698,15 +699,18 @@ QString summaryFor(const QString &target, const QJsonValue &value)
     {
         const auto count =
             value.toObject().value(QStringLiteral("commands")).toArray().size();
-        return QStringLiteral("%1 custom %2").arg(count).arg(
-            count == 1 ? QStringLiteral("command") : QStringLiteral("commands"));
+        return QStringLiteral("%1 custom %2")
+            .arg(count)
+            .arg(count == 1 ? QStringLiteral("command")
+                            : QStringLiteral("commands"));
     }
     if (target == QStringLiteral("user-data.json"))
     {
         const auto count =
             value.toObject().value(QStringLiteral("users")).toObject().size();
-        return QStringLiteral("%1 saved %2").arg(count).arg(
-            count == 1 ? QStringLiteral("user") : QStringLiteral("users"));
+        return QStringLiteral("%1 saved %2")
+            .arg(count)
+            .arg(count == 1 ? QStringLiteral("user") : QStringLiteral("users"));
     }
     if (target == QStringLiteral("window-layout.json"))
     {
@@ -765,11 +769,13 @@ QString summaryFor(const QString &target, const QJsonValue &value)
     }
 
     const auto object = value.toObject();
-    return QStringLiteral("%1 setting %2").arg(object.size()).arg(
-        object.size() == 1 ? QStringLiteral("group") : QStringLiteral("groups"));
+    return QStringLiteral("%1 setting %2")
+        .arg(object.size())
+        .arg(object.size() == 1 ? QStringLiteral("group")
+                                : QStringLiteral("groups"));
 }
 
-}
+}  // namespace
 
 namespace chatterino::settingsbackup {
 
@@ -1675,4 +1681,4 @@ QString formatFileSize(qint64 bytes)
     return QStringLiteral("%1 MB").arg(bytes / (1024.0 * 1024.0), 0, 'f', 2);
 }
 
-}
+}  // namespace chatterino::settingsbackup

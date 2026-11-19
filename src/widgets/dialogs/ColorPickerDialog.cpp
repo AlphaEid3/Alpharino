@@ -54,7 +54,7 @@ void connectSignals(D *dialog, W *widget)
     QObject::connect(dialog, &D::colorChanged, widget, &W::setColor);
 }
 
-}
+}  // namespace
 
 namespace chatterino {
 
@@ -71,7 +71,7 @@ ColorPickerDialog::ColorPickerDialog(QColor color, QWidget *parent)
           parent)
     , color_(color)
 {
-    this->setWindowTitle(u"Chatterino - Color picker"_s);
+    this->setWindowTitle(u"Alpharino - Color picker"_s);
     this->setAttribute(Qt::WA_DeleteOnClose);
 
     auto *dialogContents = new QHBoxLayout;
@@ -160,4 +160,4 @@ void ColorPickerDialog::setColor(const QColor &color)
     this->colorChanged(color);
 }
 
-}
+}  // namespace chatterino

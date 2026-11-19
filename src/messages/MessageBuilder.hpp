@@ -95,7 +95,6 @@ struct HighlightAlert {
 class MessageBuilder
 {
 public:
-
     MessageBuilder();
 
     MessageBuilder(SystemMessageTag, const QString &text,
@@ -310,4 +309,4 @@ private:
     std::vector<EmotePtr> pendingPrefixModifiers_;
 };
 
-}
+}  // namespace chatterino

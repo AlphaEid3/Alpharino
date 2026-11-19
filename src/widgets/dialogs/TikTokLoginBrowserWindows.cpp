@@ -411,11 +411,11 @@ private:
     HRESULT comResult_ = E_FAIL;
     bool closed_ = false;
 };
-}
+}  // namespace
 
 std::unique_ptr<TikTokLoginBrowser> createPlatformTikTokLoginBrowser(
     QObject *parent)
 {
     return std::make_unique<WindowsLoginBrowser>(parent);
 }
-}
+}  // namespace chatterino

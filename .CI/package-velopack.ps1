@@ -32,7 +32,7 @@ if ($outputPath.Equals($packPath, [StringComparison]::OrdinalIgnoreCase) -or
     throw 'The output directory must be outside the staged runtime.'
 }
 $identityPath = Join-Path $packPath 'moltorino-build-identity.json'
-foreach ($file in @('Moltorino7.exe', 'velopack_libc.dll', 'moltorino-build-identity.json', 'licenses\Velopack.txt')) {
+foreach ($file in @('Alpharino.exe', 'velopack_libc.dll', 'moltorino-build-identity.json', 'licenses\Velopack.txt')) {
     if (-not (Test-Path -LiteralPath (Join-Path $packPath $file) -PathType Leaf)) {
         throw "Missing $file. Stage a Windows x64 build with MOLTORINO_VELOPACK=ON."
     }
@@ -79,7 +79,7 @@ if (-not (Test-Path -LiteralPath $vpk -PathType Leaf)) {
 
 & $dotnet $vpk --skip-updates --yes pack `
     --packId $PackageId --packVersion $version --packDir $packPath `
-    --mainExe Moltorino7.exe --packTitle $PackageId --packAuthors $PackageId `
+    --mainExe Alpharino.exe --packTitle Alpharino --packAuthors AlphaEid3 `
     --channel win-x64-fork --runtime win-x64 --outputDir $outputPath `
     --icon (Join-Path $repoRoot 'resources\icon.ico') --aumid $PackageId `
     --shortcuts StartMenuRoot --noPortable --delta None

@@ -161,7 +161,6 @@ std::unique_ptr<QLocalServer> createGuiActivationServer(const Paths &paths)
 
 void installCustomPalette()
 {
-
     auto dark = QApplication::palette();
 
     dark.setColor(QPalette::Window, QColor(22, 22, 22));
@@ -195,7 +194,6 @@ void installCustomPalette()
 
 void initQt(const Args &args, [[maybe_unused]] const Settings &settings)
 {
-
     if (args.useOldScaling)
     {
         qCWarning(chatterinoApp) << "Using old scaling";
@@ -237,7 +235,6 @@ void initQt(const Args &args, [[maybe_unused]] const Settings &settings)
 
     qt_set_sequence_auto_mnemonic(true);
 #endif
-
 }
 
 void showLastCrashDialog(const Args &args, const Paths &paths)
@@ -340,10 +337,8 @@ void clearCache(const QDir &dir)
 
 void clearCrashes(QDir dir)
 {
-
     if (!dir.cd("reports"))
     {
-
         return;
     }
 
@@ -367,7 +362,7 @@ void clearCrashes(QDir dir)
     }
     qCDebug(chatterinoApp) << "Deleted" << deletedCount << "crashdumps";
 }
-}
+}  // namespace
 
 bool activateExistingGuiInstance(const Paths &paths)
 {
@@ -494,4 +489,4 @@ void runGui(QApplication &a, const Modes &modes, const Paths &paths,
 #endif
 }
 
-}
+}  // namespace chatterino

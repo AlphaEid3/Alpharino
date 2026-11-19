@@ -200,4 +200,4 @@ void YouTubeAccount::saveMetadata() const
             : QString{});
 }
 
-}
+}  // namespace chatterino

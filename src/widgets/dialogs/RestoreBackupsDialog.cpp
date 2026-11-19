@@ -31,11 +31,10 @@ namespace {
 
 void closeApp()
 {
-
     _Exit(1);
 }
 
-}
+}  // namespace
 
 namespace chatterino {
 
@@ -61,13 +60,13 @@ RestoreBackupsDialog::RestoreBackupsDialog(backup::FileData fileData,
           u"Some backups are damaged or otherwise unreadable."_s)
 {
     this->setAttribute(Qt::WA_DeleteOnClose);
-    this->setWindowTitle(u"Chatterino - Restore Backup of " %
+    this->setWindowTitle(u"Alpharino - Restore Backup of " %
                          this->fileData.fileKind % '?');
 
     auto *layout = new QVBoxLayout(this);
 
     auto *description =
-        new QLabel(u"Chatterino " % this->fileData.fileKind.toLower() %
+        new QLabel(u"Alpharino " % this->fileData.fileKind.toLower() %
                    u" failed to load: " % prevError % u"<p>" %
                    this->fileData.fileDescription %
                    u"<p>There are backups of this file.<br>Do you want to "
@@ -160,7 +159,7 @@ RestoreBackupsDialog::RestoreBackupsDialog(backup::FileData fileData,
 #endif
 }
 
-void RestoreBackupsDialog::closeEvent(QCloseEvent * )
+void RestoreBackupsDialog::closeEvent(QCloseEvent *)
 {
     if (!this->hasChosenAnything)
     {
@@ -171,7 +170,6 @@ void RestoreBackupsDialog::closeEvent(QCloseEvent * )
 void RestoreBackupsDialog::keyPressEvent(QKeyEvent *event)
 {
     event->ignore();
-
 }
 
 void RestoreBackupsDialog::refreshBackups()
@@ -219,4 +217,4 @@ void RestoreBackupsDialog::refreshBackups()
     this->showButton.setEnabled(anyBackups);
 }
 
-}
+}  // namespace chatterino

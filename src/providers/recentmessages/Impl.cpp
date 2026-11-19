@@ -278,7 +278,7 @@ void scheduleNextBuildSlice()
                               Qt::QueuedConnection);
 }
 
-}
+}  // namespace
 
 bool hasParseableRecentMessages(const QJsonArray &messages)
 {
@@ -437,4 +437,4 @@ QUrl constructRecentMessagesUrl(
     return url;
 }
 
-}
+}  // namespace chatterino::recentmessages::detail

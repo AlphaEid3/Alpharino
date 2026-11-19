@@ -29,7 +29,9 @@ public:
                                  const QString &displayName = {});
     bool sendHighlightNotification(const QString &channelName,
                                    const QString &title, const QString &body,
-                                   const QString &messageId);
+                                   const QString &messageId,
+                                   const QString &authorLogin = {},
+                                   bool moderationActions = false);
     static bool isHighlightNotificationSupported();
     static QString findStringFromReaction(const ToastReaction &reaction);
     static QString findStringFromReaction(
@@ -46,7 +48,9 @@ private:
     bool sendWindowsHighlightNotification(const QString &channelName,
                                           const QString &title,
                                           const QString &body,
-                                          const QString &messageId);
+                                          const QString &messageId,
+                                          const QString &authorLogin,
+                                          bool moderationActions);
 
     bool initialized_ = false;
     bool actionCenterActivationChecked_ = false;
@@ -62,4 +66,4 @@ private:
     bool initialized_ = false;
 #endif
 };
-}
+}  // namespace chatterino

@@ -17,7 +17,6 @@ class Channel;
 class TwitchChannel;
 
 struct DictionaryInfo {
-
     QString name;
 
     QString path;
@@ -47,4 +46,4 @@ private:
     pajlada::Signals::SignalHolder settingConnections_;
 };
 
-}
+}  // namespace chatterino

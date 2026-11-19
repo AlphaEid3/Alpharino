@@ -73,8 +73,7 @@ QString formatCompactVotes(qlonglong value)
     if (value >= 1000)
     {
         const double thousands = value / 1000.0;
-        return QString::number(thousands, 'f', thousands >= 10.0 ? 0 : 1) +
-               "k";
+        return QString::number(thousands, 'f', thousands >= 10.0 ? 0 : 1) + "k";
     }
     return QString::number(value);
 }
@@ -83,9 +82,7 @@ QString formatRemainingPollTime(qint64 remainingSeconds)
 {
     const auto minutes = remainingSeconds / 60;
     const auto seconds = remainingSeconds % 60;
-    return QString("%1:%2")
-        .arg(minutes)
-        .arg(seconds, 2, 10, QChar('0'));
+    return QString("%1:%2").arg(minutes).arg(seconds, 2, 10, QChar('0'));
 }
 
 QString formatPollAge(const QDateTime &dateTime)
@@ -188,7 +185,7 @@ QColor pollToneForChoice(const TwitchChannel::PollEvent &poll, int index,
     const auto rank = std::min(strongerCounts.size(), POLL_TONES.size() - 1);
     return QColor(POLL_TONES[rank]);
 }
-}
+}  // namespace
 
 PollBanner::PollBanner(Split *split, QWidget *parent)
     : BaseWidget(parent)
@@ -383,10 +380,10 @@ void PollBanner::setPoll(const std::optional<TwitchChannel::PollEvent> &poll,
     for (const int index : sortedIndices)
     {
         const auto &choice = poll->choices.at(size_t(index));
-        newFractions.push_back(
-            poll->totalVotes > 0
-                ? double(choice.totalVotes) / double(poll->totalVotes)
-                : fallbackFraction);
+        newFractions.push_back(poll->totalVotes > 0
+                                   ? double(choice.totalVotes) /
+                                         double(poll->totalVotes)
+                                   : fallbackFraction);
     }
 
     if (this->currentFractions_.size() != newFractions.size())
@@ -589,8 +586,7 @@ void PollBanner::paintEvent(QPaintEvent *)
     int currentLeft = barRect.left();
     double cumulativeFraction = 0.0;
     const int outcomeCount = static_cast<int>(this->poll_->choices.size());
-    const double fallbackFraction =
-        outcomeCount > 0 ? 1.0 / outcomeCount : 0.0;
+    const double fallbackFraction = outcomeCount > 0 ? 1.0 / outcomeCount : 0.0;
 
     std::vector<int> sortedIndices;
     sortedIndices.reserve(size_t(outcomeCount));
@@ -600,13 +596,11 @@ void PollBanner::paintEvent(QPaintEvent *)
     }
     if (this->poll_->totalVotes > 0)
     {
-        std::stable_sort(sortedIndices.begin(), sortedIndices.end(),
-                         [this](int a, int b) {
-                             return this->poll_->choices.at(size_t(a))
-                                        .totalVotes >
-                                    this->poll_->choices.at(size_t(b))
-                                        .totalVotes;
-                         });
+        std::stable_sort(
+            sortedIndices.begin(), sortedIndices.end(), [this](int a, int b) {
+                return this->poll_->choices.at(size_t(a)).totalVotes >
+                       this->poll_->choices.at(size_t(b)).totalVotes;
+            });
     }
 
     const bool votingEnded =
@@ -630,18 +624,16 @@ void PollBanner::paintEvent(QPaintEvent *)
             oldFraction + (targetFraction - oldFraction) * progress;
         cumulativeFraction += fraction;
 
-        const int nextLeft =
-            (orderedIndex == outcomeCount - 1)
-                ? (barRect.left() + barRect.width())
-                : (barRect.left() +
-                   qRound(cumulativeFraction * barRect.width()));
+        const int nextLeft = (orderedIndex == outcomeCount - 1)
+                                 ? (barRect.left() + barRect.width())
+                                 : (barRect.left() + qRound(cumulativeFraction *
+                                                            barRect.width()));
 
         const int sourceIndex = sortedIndices.at(size_t(orderedIndex));
-        painter.fillRect(QRect(currentLeft, barRect.top(),
-                               std::max(0, nextLeft - currentLeft),
-                               barRect.height()),
-                         pollToneForChoice(*this->poll_, sourceIndex,
-                                           votingEnded));
+        painter.fillRect(
+            QRect(currentLeft, barRect.top(),
+                  std::max(0, nextLeft - currentLeft), barRect.height()),
+            pollToneForChoice(*this->poll_, sourceIndex, votingEnded));
         currentLeft = nextLeft;
     }
 }
@@ -783,14 +775,16 @@ void PollBanner::updateLayout()
 
     const bool votingEnded =
         !pollIsActive(*this->poll_) || this->remainingPollSeconds() <= 0;
-    auto leaderIt = std::max_element(
-        this->poll_->choices.begin(), this->poll_->choices.end(),
-        [](const auto &a, const auto &b) { return a.totalVotes < b.totalVotes; });
-    const int leaderIndex = static_cast<int>(
-        std::distance(this->poll_->choices.begin(), leaderIt));
-    const int percent = outcomePercent(
-        leaderIt->totalVotes, this->poll_->totalVotes,
-        static_cast<int>(this->poll_->choices.size()));
+    auto leaderIt = std::max_element(this->poll_->choices.begin(),
+                                     this->poll_->choices.end(),
+                                     [](const auto &a, const auto &b) {
+                                         return a.totalVotes < b.totalVotes;
+                                     });
+    const int leaderIndex =
+        static_cast<int>(std::distance(this->poll_->choices.begin(), leaderIt));
+    const int percent =
+        outcomePercent(leaderIt->totalVotes, this->poll_->totalVotes,
+                       static_cast<int>(this->poll_->choices.size()));
     const auto tone = pollToneForChoice(*this->poll_, leaderIndex, votingEnded);
     auto dimTextColor = this->theme->splits.header.text;
     dimTextColor.setAlphaF(0.55F);
@@ -835,10 +829,9 @@ void PollBanner::updateLayout()
     }
 
     this->summaryLabel_->setText(
-        QString(
-            "<span style=\"color:%1;\">%2</span> "
-            "<span style=\"color:%3;font-weight:700;\">%4</span> "
-            "<span style=\"color:%1;\">%5% (%6 votes)</span>")
+        QString("<span style=\"color:%1;\">%2</span> "
+                "<span style=\"color:%3;font-weight:700;\">%4</span> "
+                "<span style=\"color:%1;\">%5% (%6 votes)</span>")
             .arg(dimTextColor.name(QColor::HexArgb), resultLabel, tone.name(),
                  resultTitle.toHtmlEscaped())
             .arg(percent)
@@ -855,10 +848,9 @@ void PollBanner::updateLabelStyles()
                               .arg(textColor.green())
                               .arg(textColor.blue());
 
-    this->metadataLabel_->setStyleSheet(
-        QString("font-size: %1px; color: %2;")
-            .arg(this->headerFontSize_)
-            .arg(dimColor));
+    this->metadataLabel_->setStyleSheet(QString("font-size: %1px; color: %2;")
+                                            .arg(this->headerFontSize_)
+                                            .arg(dimColor));
     this->titleLabel_->setStyleSheet(
         QString("font-size: %1px; font-weight: bold; color: %2;")
             .arg(this->titleFontSize_)
@@ -884,4 +876,4 @@ QString PollBanner::dismissalKey(const TwitchChannel::PollEvent &poll) const
     return poll.id + ':' + poll.status;
 }
 
-}
+}  // namespace chatterino

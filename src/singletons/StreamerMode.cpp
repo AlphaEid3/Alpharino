@@ -21,9 +21,13 @@
 
 #ifdef Q_OS_WIN
 
+// VersionHelpers.h uses Win32 types from Windows.h. Keep this order:
+// clang-format sorts the includes and would put VersionHelpers.h first.
+// clang-format off
 #    include <Windows.h>
 #    include <VersionHelpers.h>
 #    include <WtsApi32.h>
+// clang-format on
 
 #endif
 
@@ -156,12 +160,12 @@ bool isBroadcasterSoftwareActive()
     if (WTSEnumerateProcesses(WTS_CURRENT_SERVER_HANDLE, 0, 1, &pProcessInfo,
                               &dwProcCount))
     {
-
         for (DWORD i = 0; i < dwProcCount; i++)
         {
-            const auto processName =
-                QStringView(pProcessInfo[i].pProcessName).trimmed().toString()
-                    .toLower();
+            const auto processName = QStringView(pProcessInfo[i].pProcessName)
+                                         .trimmed()
+                                         .toString()
+                                         .toLower();
 
             if (broadcastingBinaries().contains(processName))
             {
@@ -285,7 +289,6 @@ StreamerModePrivate::~StreamerModePrivate()
     this->settingConnections_.clear();
     if (!this->thread_.isRunning() && !this->thread_.isFinished())
     {
-
         delete this->timer_;
         return;
     }

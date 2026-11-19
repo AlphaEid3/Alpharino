@@ -308,7 +308,7 @@ SignData parseSignData(const QJsonObject &object)
     boundedText(object.value(u"client_cert"_s), TicketGuard::MaxPemBytes);
     return result;
 }
-}
+}  // namespace
 
 struct TicketGuard::KeyMaterial {
     Key privateKey{nullptr, EVP_PKEY_free};
@@ -487,4 +487,4 @@ bool TicketGuard::applyServerData(const QByteArray &base64Header,
     }
     return true;
 }
-}
+}  // namespace chatterino::tiktok::ticketguard

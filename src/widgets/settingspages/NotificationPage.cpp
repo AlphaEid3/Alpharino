@@ -56,6 +56,18 @@ NotificationPage::NotificationPage()
 #endif
 #ifdef Q_OS_WIN
                 settings.append(this->createCheckBox(
+                    "Add moderation buttons to highlight notifications",
+                    getSettings()->toastModerationActions,
+                    "When you moderate the channel, highlight and mention "
+                    "toasts include Timeout 10m, Ban, and Delete message."));
+                settings.append(this->createCheckBox(
+                    "Ask before those moderation buttons run",
+                    getSettings()->toastModerationActionsConfirm,
+                    "Confirm timeout, ban, and delete before the toast button "
+                    "runs the action."));
+#endif
+#ifdef Q_OS_WIN
+                settings.append(this->createCheckBox(
                     "Create start menu shortcut (requires "
                     "restart)",
                     getSettings()->createShortcutForToasts,
@@ -175,4 +187,4 @@ QComboBox *NotificationPage::createToastReactionComboBox()
 
     return toastReactionOptions;
 }
-}
+}  // namespace chatterino

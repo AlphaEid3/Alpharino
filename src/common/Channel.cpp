@@ -5,11 +5,15 @@
 #include "common/Channel.hpp"
 
 #include "Application.hpp"
+#include "controllers/chat/ChatPace.hpp"
+#include "controllers/chat/EmoteUsageStats.hpp"
+#include "controllers/chat/HotChat.hpp"
 #include "messages/Emote.hpp"
 #include "messages/Message.hpp"
 #include "messages/MessageBuilder.hpp"
 #include "messages/MessageElement.hpp"
 #include "messages/MessageSimilarity.hpp"
+#include "providers/twitch/TwitchNameHistory.hpp"
 #include "singletons/Logging.hpp"
 #include "singletons/Settings.hpp"
 #include "util/ChannelHelpers.hpp"
@@ -37,7 +41,7 @@ struct RecursionGuard {
     uint8_t *count;
 };
 
-}
+}  // namespace
 
 namespace chatterino {
 
@@ -165,6 +169,18 @@ void Channel::addMessage(MessagePtr message, MessageContext context,
                                                   this->getCurrentStreamID());
             this->anythingLogged_ = true;
         }
+
+        if (this->isTwitchChannel())
+        {
+            ChatPace::instance().note(this->name_);
+            if (!message->flags.has(MessageFlag::System))
+            {
+                noteTwitchIdentity(message->userID, message->loginName,
+                                   message->displayName);
+                EmoteUsageStats::instance().observeMessage(*this, *message);
+                HotChat::instance().note(this->name_);
+            }
+        }
     }
 
     if (this->messages_.pushBack(message, deleted))
@@ -182,8 +198,8 @@ void Channel::addSystemMessage(const QString &contents)
     {
         builder->platform = MessagePlatform::TikTok;
         builder->channelName = this->getName();
-        auto channel = std::make_unique<ChannelNameElement>(
-            u'#' + this->getDisplayName());
+        auto channel =
+            std::make_unique<ChannelNameElement>(u'#' + this->getDisplayName());
         channel->setLink({Link::JumpToChannel,
                           QStringLiteral(":tiktok:") + this->getName()});
         builder->elements.insert(builder->elements.begin(), std::move(channel));
@@ -325,8 +341,7 @@ void Channel::fillInMissingMessages(const std::vector<MessagePtr> &messages)
         }
         merged.insert(merged.end(), nextMissing, missing.end());
 
-        const auto retained =
-            std::min(merged.size(), this->messages_.limit());
+        const auto retained = std::min(merged.size(), this->messages_.limit());
         const auto retainedBegin = merged.end() - retained;
         if (retained == snapshot.size() &&
             std::equal(retainedBegin, merged.end(), snapshot.begin()))
@@ -395,7 +410,7 @@ bool Channel::replaceMessage(size_t hint, const MessagePtr &message,
     if (index >= 0)
     {
         this->messageReplaced.invoke(static_cast<size_t>(index), message,
-                                    replacement);
+                                     replacement);
         return true;
     }
     return false;

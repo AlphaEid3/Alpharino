@@ -182,7 +182,7 @@ QString formatCooldown(int seconds)
                                              QChar('0'));
 }
 
-}
+}  // namespace
 
 void ChannelManagementDialog::showForChannel(
     const std::shared_ptr<TwitchChannel> &channel, QWidget *parent)
@@ -775,8 +775,7 @@ void ChannelManagementDialog::applyState(ChannelManagementState state)
     this->rerunCheck_->setToolTip(
         this->originalMetadata_.canEditRerun
             ? QStringLiteral("Previously recorded stream")
-            : QStringLiteral(
-                  "Could not load Twitch's rerun setting."));
+            : QStringLiteral("Could not load Twitch's rerun setting."));
 }
 
 void ChannelManagementDialog::refreshParentHeaderIcons() const
@@ -2000,4 +1999,4 @@ void ChannelManagementDialog::windowDeactivationEvent()
     DraggablePopup::windowDeactivationEvent();
 }
 
-}
+}  // namespace chatterino

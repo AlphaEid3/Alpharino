@@ -39,12 +39,12 @@ dependencies="$dependencies, libwebkit2gtk-4.1-0 (>= 2.42), libjson-glib-1.0-0, 
 echo "Building Ubuntu .deb file on '$ubuntu_release'"
 echo "Dependencies: $dependencies"
 
-if [ -f ./bin/Moltorino7 ] && [ -x ./bin/Moltorino7 ]; then
-    app_executable="Moltorino7"
+if [ -f ./bin/Alpharino ] && [ -x ./bin/Alpharino ]; then
+    app_executable="Alpharino"
 elif [ -f ./bin/chatterino ] && [ -x ./bin/chatterino ]; then
     app_executable="chatterino"
 else
-    echo "ERROR: No Moltorino7 or chatterino binary file found. This script must be run in the build folder, and the app must be built first."
+    echo "ERROR: No Alpharino or chatterino binary file found. This script must be run in the build folder, and the app must be built first."
     exit 1
 fi
 

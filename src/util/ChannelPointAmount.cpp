@@ -44,7 +44,7 @@ std::optional<int> parseAmount(const QString &input, int maximum)
     return static_cast<int>(base * multiplier);
 }
 
-}
+}  // namespace
 
 std::optional<int> parseChannelPointAmount(const QString &input, int maximum)
 {
@@ -78,4 +78,4 @@ QValidator::State ChannelPointAmountValidator::validate(QString &input,
                                                           : Invalid;
 }
 
-}
+}  // namespace chatterino

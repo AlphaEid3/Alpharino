@@ -32,15 +32,14 @@ public:
         this->setOpenExternalLinks(false);
         this->setOpenLinks(false);
         this->setMaximumHeight(150);
-        QObject::connect(this, &QTextBrowser::anchorClicked, this,
-                         [](const QUrl &url) {
-                             const auto scheme = url.scheme().toLower();
-                             if (url.isValid() &&
-                                 (scheme == "https" || scheme == "http"))
-                             {
-                                 QDesktopServices::openUrl(url);
-                             }
-                         });
+        QObject::connect(
+            this, &QTextBrowser::anchorClicked, this, [](const QUrl &url) {
+                const auto scheme = url.scheme().toLower();
+                if (url.isValid() && (scheme == "https" || scheme == "http"))
+                {
+                    QDesktopServices::openUrl(url);
+                }
+            });
     }
 
     void setReleaseMarkdown(QString markdown)
@@ -60,7 +59,7 @@ protected:
     }
 };
 
-}
+}  // namespace
 
 UpdateDialog::UpdateDialog()
     : BaseWindow({BaseWindow::Frameless, BaseWindow::TopMost,
@@ -68,7 +67,7 @@ UpdateDialog::UpdateDialog()
                   BaseWindow::DisableLayoutSave})
 {
     this->setAttribute(Qt::WA_DeleteOnClose);
-    this->setWindowTitle("Moltorino Update");
+    this->setWindowTitle("Alpharino Update");
 
     auto *layout = new QVBoxLayout();
     layout->setContentsMargins(18, 16, 18, 14);
@@ -76,7 +75,7 @@ UpdateDialog::UpdateDialog()
     this->getLayoutContainer()->setLayout(layout);
 
     this->ui_.heading =
-        new Label(this, "Moltorino Update", FontStyle::UiMediumBold);
+        new Label(this, "Alpharino Update", FontStyle::UiMediumBold);
     this->ui_.heading->setWordWrap(true);
     layout->addWidget(this->ui_.heading);
 
@@ -97,8 +96,8 @@ UpdateDialog::UpdateDialog()
     layout->addWidget(this->ui_.progress);
 
     auto *buttons = new QDialogButtonBox(this);
-    this->ui_.changelogButton = buttons->addButton(
-        "View changelog", QDialogButtonBox::ActionRole);
+    this->ui_.changelogButton =
+        buttons->addButton("View changelog", QDialogButtonBox::ActionRole);
     this->ui_.retryButton =
         buttons->addButton("Retry", QDialogButtonBox::ActionRole);
     this->ui_.restartButton =
@@ -114,17 +113,15 @@ UpdateDialog::UpdateDialog()
     QObject::connect(this->ui_.retryButton, &QPushButton::clicked, this, [] {
         getMoltorinoUpdater()->retry();
     });
-    QObject::connect(this->ui_.restartButton, &QPushButton::clicked, this,
-                     [] {
-                         getMoltorinoUpdater()->restartToUpdate();
-                     });
-    QObject::connect(closeButton, &QPushButton::clicked, this,
-                     &QWidget::close);
+    QObject::connect(this->ui_.restartButton, &QPushButton::clicked, this, [] {
+        getMoltorinoUpdater()->restartToUpdate();
+    });
+    QObject::connect(closeButton, &QPushButton::clicked, this, &QWidget::close);
 
-    this->connections_.managedConnect(
-        getMoltorinoUpdater()->stateChanged, [this] {
-            this->refresh();
-        });
+    this->connections_.managedConnect(getMoltorinoUpdater()->stateChanged,
+                                      [this] {
+                                          this->refresh();
+                                      });
 
     this->setScaleIndependentWidth(440);
     this->refresh();
@@ -152,8 +149,7 @@ void UpdateDialog::refresh()
                                             : "Downloading Moltorino update";
             break;
         case MoltorinoUpdateStatus::Ready:
-            heading = updater->isRollback() ? "Rollback ready"
-                                            : "Update ready";
+            heading = updater->isRollback() ? "Rollback ready" : "Update ready";
             break;
         case MoltorinoUpdateStatus::Applying:
             heading = updater->isRollback() ? "Finishing the rollback"
@@ -182,7 +178,7 @@ void UpdateDialog::refresh()
     if (!updater->channel().isEmpty())
     {
         details.append(updater->channel() == "internal" ? "Internal channel"
-                                                         : "Stable channel");
+                                                        : "Stable channel");
     }
     if (updater->isRollback())
     {
@@ -198,16 +194,14 @@ void UpdateDialog::refresh()
         ->setReleaseMarkdown(summary);
     this->ui_.summary->setVisible(!summary.isEmpty());
 
-    const bool downloading =
-        status == MoltorinoUpdateStatus::Downloading;
+    const bool downloading = status == MoltorinoUpdateStatus::Downloading;
     this->ui_.progress->setValue(updater->progress());
     this->ui_.progress->setFormat(QString::number(updater->progress()) + "%");
     this->ui_.progress->setVisible(downloading);
 
     const bool ready = updater->canRestartToUpdate();
-    this->ui_.restartButton->setText(updater->isRollback()
-                                         ? "Restart and roll back"
-                                         : "Restart and update");
+    this->ui_.restartButton->setText(
+        updater->isRollback() ? "Restart and roll back" : "Restart and update");
     this->ui_.restartButton->setVisible(ready);
     this->ui_.restartButton->setDefault(ready);
     this->ui_.retryButton->setVisible(status == MoltorinoUpdateStatus::Error);
@@ -220,4 +214,4 @@ void UpdateDialog::refresh()
     this->adjustSize();
 }
 
-}
+}  // namespace chatterino

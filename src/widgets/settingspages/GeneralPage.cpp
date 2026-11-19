@@ -93,7 +93,7 @@ void addKeyboardModifierSetting(GeneralPageView &layout, const QString &title,
         },
         false);
 }
-}
+}  // namespace
 
 namespace chatterino {
 
@@ -229,7 +229,6 @@ void GeneralPage::initLayout(GeneralPageView &layout)
                 }
                 else
                 {
-
                     return NotebookTabLocation::Top;
                 }
             },
@@ -356,6 +355,19 @@ void GeneralPage::initLayout(GeneralPageView &layout)
         ->setTooltip("Shows a red dot in the top right corner of a tab to "
                      "indicate one of the channels in the tab is live.")
         ->addTo(layout);
+    SettingWidget::checkbox("Show when a chat suddenly gets busy",
+                            s.hotChatIndicator)
+        ->setTooltip(
+            "A small glow appears on a tab when that channel's messages jump "
+            "well above its recent pace. It clears when you open the tab or "
+            "the burst ends.")
+        ->addTo(layout);
+    SettingWidget::intInput("Busy-chat sensitivity", s.hotChatSensitivity,
+                            {.min = 1, .max = 10})
+        ->setTooltip("1 reacts only to large spikes. 10 reacts to smaller "
+                     "ones. 5 is the default.")
+        ->conditionallyEnabledBy(s.hotChatIndicator)
+        ->addTo(layout);
 
     layout.addTitle("Chat");
 
@@ -436,6 +448,38 @@ void GeneralPage::initLayout(GeneralPageView &layout)
                      "send in a Twitch channel again if the channel is in slow "
                      "mode or if you have been timed out")
         ->addKeywords({"slowmode", "timeout"})
+        ->addTo(layout);
+
+    SettingWidget::checkbox("Time messages to land before chat pauses",
+                            s.timeMessagesBeforeChatPauses)
+        ->setTooltip(
+            "In a very fast Twitch chat, hold a message and send it when the "
+            "incoming messages are about to pause, so it sits near the bottom. "
+            "This does not send extra messages and does not change Twitch "
+            "slow mode or rate limits. Esc cancels the hold.")
+        ->addKeywords({"pause", "timing", "fast chat"})
+        ->addTo(layout);
+    SettingWidget::intInput("Max hold before sending anyway",
+                            s.timeMessagesBeforeChatPausesTimeout,
+                            {.min = 1, .max = 30, .suffix = " s"})
+        ->setTooltip("If a pause is not detected in time, send the held "
+                     "message anyway.")
+        ->conditionallyEnabledBy(s.timeMessagesBeforeChatPauses)
+        ->addTo(layout);
+    SettingWidget::intInput("Only hold above this speed",
+                            s.timeMessagesBeforeChatPausesRate,
+                            {.min = 1, .max = 100, .suffix = " msg/s"})
+        ->setTooltip("The hold stays off until the channel is at least this "
+                     "many messages per second.")
+        ->conditionallyEnabledBy(s.timeMessagesBeforeChatPauses)
+        ->addTo(layout);
+    SettingWidget::lineEdit("Local blocked terms", s.localBlockedTerms,
+                            "comma or newline separated")
+        ->setTooltip(
+            "Before a message is sent, warn if it contains one of these "
+            "terms. Press Enter again to send it anyway. In Twitch channels "
+            "you moderate, the channel's blocked terms are included too.")
+        ->addKeywords({"automod", "blocked", "ban words"})
         ->addTo(layout);
 
     SettingWidget::checkbox("Allow sending duplicate messages",
@@ -952,8 +996,11 @@ void GeneralPage::initLayout(GeneralPageView &layout)
     if (Version::instance().isSupportedOS())
     {
         layout.addDescription(
-            "You can receive updates earlier by ticking the box below. Report "
-            "issues <a href='https://chatterino.com/link/issues'>here</a>.");
+            "Windows builds are published on <a "
+            "href='https://github.com/AlphaEid3/Alpharino/releases'>GitHub "
+            "releases</a>. "
+            "Report issues <a "
+            "href='https://github.com/AlphaEid3/Alpharino/issues'>here</a>.");
 
         SettingWidget::checkbox("Receive beta updates", s.betaUpdates)
             ->addTo(layout);
@@ -1071,16 +1118,18 @@ void GeneralPage::initLayout(GeneralPageView &layout)
         "reduce bandwidth usage and to speed up loading.");
 
     auto *cachePathLabel = layout.addDescription("placeholder :D");
-    getSettings()->cachePath.connect([cachePathLabel](const auto &,
-                                                      auto) mutable {
-        QString newPath = getApp()->getPaths().cacheDirectory();
+    getSettings()->cachePath.connect(
+        [cachePathLabel](const auto &, auto) mutable {
+            QString newPath = getApp()->getPaths().cacheDirectory();
 
-        QString pathShortened = "Cache saved at <a href=\"file:///" + newPath +
-                                R"("><span style="color: white;">)" +
-                                shortenString(newPath, 50) + "</span></a>";
-        cachePathLabel->setText(pathShortened);
-        cachePathLabel->setToolTip(newPath);
-    }, this->managedConnections_);
+            QString pathShortened = "Cache saved at <a href=\"file:///" +
+                                    newPath +
+                                    R"("><span style="color: white;">)" +
+                                    shortenString(newPath, 50) + "</span></a>";
+            cachePathLabel->setText(pathShortened);
+            cachePathLabel->setToolTip(newPath);
+        },
+        this->managedConnections_);
 
     {
         auto *box = new QHBoxLayout;
@@ -1288,9 +1337,8 @@ void GeneralPage::initLayout(GeneralPageView &layout)
                      "while this is off.")
         ->addTo(layout);
     SettingWidget::checkbox("Bluzyrino", s.showBadgesBluzyrino)
-        ->setTooltip(
-            "Applies to everyone's badges on this device. Manage your "
-            "own badge visibility in Vanity.")
+        ->setTooltip("Applies to everyone's badges on this device. Manage your "
+                     "own badge visibility in Vanity.")
         ->addTo(layout);
     SettingWidget::checkbox("Wydios", s.showBadgesWydios)
         ->addKeywords({"wydios", "wy"})
@@ -1424,8 +1472,7 @@ void GeneralPage::initLayout(GeneralPageView &layout)
         presetCombo->setCurrentIndex(-1);
 
         QPalette palette = presetCombo->palette();
-        palette.setColor(QPalette::PlaceholderText,
-                         QColor(255, 255, 255));
+        palette.setColor(QPalette::PlaceholderText, QColor(255, 255, 255));
         presetCombo->setPalette(palette);
         s.searchEnabled.connect(
             [presetCombo](bool value) {
@@ -1847,4 +1894,4 @@ void GeneralPage::onShow()
     getTheme()->reloadAvailableThemes();
 }
 
-}
+}  // namespace chatterino

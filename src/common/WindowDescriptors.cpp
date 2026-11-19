@@ -156,6 +156,7 @@ void SplitDescriptor::loadFromJSON(SplitDescriptor &descriptor,
     descriptor.server_ = data.value("server").toInt(-1);
     descriptor.anonymous_ = data.value("anonymous").toBool(false);
     descriptor.moderationMode_ = root.value("moderationMode").toBool();
+    descriptor.sendAccount_ = root.value("sendAccount").toString().trimmed();
     descriptor.autoModChannelFilter_ =
         data.value("autoModChannel").toString().trimmed().toLower();
     if (data.contains("channel"))
@@ -469,8 +470,7 @@ WindowLayout WindowLayout::loadFromFile(const QString &path)
 
             const auto storedColor =
                 groupObj.value("color").toString().left(32);
-            auto colorMode =
-                groupObj.value("colorMode").toString().toLower();
+            auto colorMode = groupObj.value("colorMode").toString().toLower();
             if (colorMode != "theme" && colorMode != "none" &&
                 colorMode != "custom")
             {

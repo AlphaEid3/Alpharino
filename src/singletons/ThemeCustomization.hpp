@@ -220,4 +220,4 @@ ThemeWallpaperLayout layoutThemeWallpaper(const QSizeF &imageSize,
                                           ThemeWallpaperMode mode, int focalX,
                                           int focalY, int zoom = 100);
 
-}
+}  // namespace chatterino

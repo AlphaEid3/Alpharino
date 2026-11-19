@@ -244,7 +244,6 @@ void NotificationController::notifyChannelLive(
 
 void NotificationController::notifyTwitchChannelOffline(const QString &id) const
 {
-
     auto snapshot =
         getApp()->getTwitch()->getLiveChannel()->getMessageSnapshot(200);
     for (const auto &s : snapshot | std::views::reverse)
@@ -303,7 +302,6 @@ void NotificationController::fetchFakeChannels()
                 }
             },
             [batch]() {
-
                 qCWarning(chatterinoNotification)
                     << "Failed to fetch live status for " << batch;
             },
@@ -347,7 +345,6 @@ void NotificationController::updateFakeChannel(
 
     if (!live)
     {
-
         this->notifyTwitchChannelOffline(channelIt->second.id);
         return;
     }
@@ -362,4 +359,4 @@ void NotificationController::updateFakeChannel(
     });
 }
 
-}
+}  // namespace chatterino

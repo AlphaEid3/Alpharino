@@ -14,8 +14,8 @@
 #include <QDeadlineTimer>
 #include <QHash>
 #include <QHBoxLayout>
-#include <QJsonDocument>
 #include <QJsonArray>
+#include <QJsonDocument>
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
@@ -39,7 +39,6 @@ struct SendState {
     bool pending = false;
     QDeadlineTimer cooldown{0};
 };
-
 
 QHash<QString, SendState> sends;
 QList<QPointer<GifPickerDialog>> dialogs;
@@ -65,7 +64,7 @@ void drawGif(QPainter &painter, const QRect &bounds, const QPixmap &pixmap)
     painter.drawPixmap(target, pixmap);
 }
 
-}
+}  // namespace
 
 class GifGridDelegate : public QStyledItemDelegate
 {
@@ -91,7 +90,6 @@ public:
         if (index.row() == this->dialog_.hoveredRow_ &&
             this->dialog_.hoverImage_ && this->dialog_.isActiveWindow())
         {
-
             this->dialog_.hoverImage_->load();
             if (this->dialog_.hoverImage_->loaded())
             {
@@ -349,7 +347,6 @@ void GifPickerDialog::scaleChangedEvent(float scale)
     this->applyPopupSize(QSize(420, 570) * scale);
     if (this->grid_)
     {
-
         this->grid_->verticalScrollBar()->setSingleStep(qRound(16 * scale));
         this->layoutWidth_ = -1;
         this->themeChangedEvent();
@@ -868,4 +865,4 @@ void GifPickerDialog::sendGif()
         });
 }
 
-}
+}  // namespace chatterino

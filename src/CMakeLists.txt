@@ -88,8 +88,16 @@ set(SOURCE_FILES
 
         controllers/automod/AutoModReviewController.cpp
         controllers/automod/AutoModReviewController.hpp
+        controllers/chat/BlockedTerms.cpp
+        controllers/chat/BlockedTerms.hpp
         controllers/chat/ChatAutomationController.cpp
         controllers/chat/ChatAutomationController.hpp
+        controllers/chat/ChatPace.cpp
+        controllers/chat/ChatPace.hpp
+        controllers/chat/EmoteUsageStats.cpp
+        controllers/chat/EmoteUsageStats.hpp
+        controllers/chat/HotChat.cpp
+        controllers/chat/HotChat.hpp
         controllers/commands/builtin/chatterino/Debugging.cpp
         controllers/commands/builtin/chatterino/Debugging.hpp
         controllers/commands/builtin/Misc.cpp
@@ -964,6 +972,8 @@ set(SOURCE_FILES
         widgets/dialogs/EditUserNotesDialog.hpp
         widgets/dialogs/EmotePopup.cpp
         widgets/dialogs/EmotePopup.hpp
+        widgets/dialogs/LogSearchDialog.cpp
+        widgets/dialogs/LogSearchDialog.hpp
 
         widgets/dialogs/font/FontDialog.cpp
         widgets/dialogs/font/FontDialog.hpp
@@ -1462,7 +1472,7 @@ if (BUILD_APP)
     target_link_libraries(${EXECUTABLE_PROJECT} PUBLIC ${LIBRARY_PROJECT})
 
     set_target_directory_hierarchy(${EXECUTABLE_PROJECT})
-    set_target_properties(${EXECUTABLE_PROJECT} PROPERTIES OUTPUT_NAME "Moltorino7")
+    set_target_properties(${EXECUTABLE_PROJECT} PROPERTIES OUTPUT_NAME "Alpharino")
 
     set(MOLTORINO_MEDIA_TOOLS_DIR "${CMAKE_BINARY_DIR}/bin/support/media" CACHE PATH
         "Directory containing the bundled ffmpeg, ffprobe and licenses")
@@ -1497,7 +1507,7 @@ if (BUILD_APP)
                     "$<TARGET_FILE_DIR:${EXECUTABLE_PROJECT}>/licenses/WebView2.txt" VERBATIM)
         endif()
     elseif(APPLE)
-        set(media_install_dir bin/Moltorino7.app/Contents/MacOS/support/media)
+        set(media_install_dir bin/Alpharino.app/Contents/MacOS/support/media)
     else()
         set(media_install_dir bin/support/media)
     endif()
@@ -1600,12 +1610,12 @@ if (BUILD_APP)
                 )
 
         install(FILES ${CMAKE_SOURCE_DIR}/resources/com.chatterino.chatterino.desktop
-                RENAME com.moltobenne.moltorino.desktop
+                RENAME com.alphaeid3.alpharino.desktop
                 DESTINATION share/applications
                 )
 
         install(FILES ${CMAKE_SOURCE_DIR}/resources/icon.png
-                RENAME com.moltobenne.moltorino.png
+                RENAME com.alphaeid3.alpharino.png
                 DESTINATION share/icons/hicolor/256x256/apps
                 )
     endif ()
@@ -1616,9 +1626,9 @@ if (BUILD_APP)
             set(_velopack_license_destination licenses)
             set(_velopack_identity_destination .)
         elseif(APPLE)
-            set(_velopack_runtime_destination bin/Moltorino7.app/Contents/Frameworks)
-            set(_velopack_license_destination bin/Moltorino7.app/Contents/Resources/licenses)
-            set(_velopack_identity_destination bin/Moltorino7.app/Contents/MacOS)
+            set(_velopack_runtime_destination bin/Alpharino.app/Contents/Frameworks)
+            set(_velopack_license_destination bin/Alpharino.app/Contents/Resources/licenses)
+            set(_velopack_identity_destination bin/Alpharino.app/Contents/MacOS)
         else()
             set(_velopack_runtime_destination lib)
             set(_velopack_license_destination share/licenses/moltorino)
@@ -1668,11 +1678,11 @@ if(WIN32)
     if(MOLTORINO_WINDOWS_APP_ID)
         set(_moltorino_windows_app_id "${MOLTORINO_WINDOWS_APP_ID}")
     elseif(NOT TARGET Velopack::Velopack)
-        set(_moltorino_windows_app_id "Moltorino.SourceBuild")
+        set(_moltorino_windows_app_id "AlphaEid3.Alpharino")
     elseif(MOLTORINO_UPDATE_CHANNEL STREQUAL "internal")
-        set(_moltorino_windows_app_id "MoltoBenne.Moltorino7UpdaterTest")
+        set(_moltorino_windows_app_id "AlphaEid3.Alpharino.Internal")
     else()
-        set(_moltorino_windows_app_id "MoltoBenne.Moltorino7")
+        set(_moltorino_windows_app_id "AlphaEid3.Alpharino")
     endif()
     target_compile_definitions(${VERSION_PROJECT} PRIVATE
         MOLTORINO_WINDOWS_APP_ID="${_moltorino_windows_app_id}")
@@ -1777,8 +1787,8 @@ if (APPLE AND BUILD_APP)
     set_target_properties(${EXECUTABLE_PROJECT} PROPERTIES MACOSX_BUNDLE TRUE)
     set_target_properties(${EXECUTABLE_PROJECT}
         PROPERTIES
-        MACOSX_BUNDLE_BUNDLE_NAME "Moltorino"
-        MACOSX_BUNDLE_GUI_IDENTIFIER "app.moltobenne.moltorino7"
+        MACOSX_BUNDLE_BUNDLE_NAME "Alpharino"
+        MACOSX_BUNDLE_GUI_IDENTIFIER "app.alphaeid3.alpharino"
         MACOSX_BUNDLE_LONG_VERSION_STRING "${PROJECT_VERSION}"
         MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}"
         MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
@@ -1864,7 +1874,8 @@ if (MSVC)
     #   - Enable all optimizations - by default when /DEBUG is specified,
     #     these optimizations will be disabled. We need /DEBUG to generate a PDB.
     # See https://gitlab.kitware.com/cmake/cmake/-/issues/20812 for more details.
-    set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "/DEBUG /INCREMENTAL:NO /OPT:REF,ICF,LBR")
+    # /OPT:LBR is ARM-only. The Windows tests link with lld, which rejects it.
+    set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "/DEBUG /INCREMENTAL:NO /OPT:REF,ICF")
 
     # Use the function inlining level from 'Release' mode (2).
     string(REPLACE "/Ob1" "/Ob2" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")

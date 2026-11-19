@@ -34,4 +34,4 @@ std::optional<TranslationResult> parseProviderResponse(
     TranslationProvider provider, const NetworkResult &result);
 QString failureMessage();
 
-}
+}  // namespace chatterino::translation::detail

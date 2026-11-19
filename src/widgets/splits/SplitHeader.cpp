@@ -10,6 +10,7 @@
 #include "common/network/NetworkResult.hpp"
 #include "controllers/accounts/AccountController.hpp"
 #include "controllers/chat/ChatAutomationController.hpp"
+#include "controllers/chat/EmoteUsageStats.hpp"
 #include "controllers/commands/builtin/Misc.hpp"
 #include "controllers/commands/CommandContext.hpp"
 #include "controllers/commands/CommandController.hpp"
@@ -44,6 +45,7 @@
 #include "widgets/buttons/SvgButton.hpp"
 #include "widgets/dialogs/ChannelManagementDialog.hpp"
 #include "widgets/dialogs/ChatAutomationDialog.hpp"
+#include "widgets/dialogs/LogSearchDialog.hpp"
 #include "widgets/dialogs/SettingsDialog.hpp"
 #include "widgets/helper/AutoModReviewBar.hpp"
 #include "widgets/helper/ChannelView.hpp"
@@ -469,6 +471,10 @@ SplitHeader::SplitHeader(Split *split)
     : BaseWidget(split)
     , split_(split)
 {
+    // Publish the header before any Setting::connect callback runs. Those
+    // callbacks fire immediately, and they must not construct another header.
+    this->split_->attachHeader(this);
+
     this->initializeLayout();
 
     this->setMouseTracking(true);
@@ -532,9 +538,8 @@ SplitHeader::SplitHeader(Split *split)
 
     this->managedConnections_.managedConnect(
         getApp()->getAccounts()->twitch.currentUserChanged, [this] {
-            if (auto *twitchChannel =
-                    dynamic_cast<TwitchChannel *>(
-                        this->split_->getSelectedChannel().get());
+            if (auto *twitchChannel = dynamic_cast<TwitchChannel *>(
+                    this->split_->getSelectedChannel().get());
                 twitchChannel != nullptr && !twitchChannel->isEmpty() &&
                 getSettings()->showFollowButtonInSplitHeader &&
                 canUseFollowButtonForChannel(*twitchChannel))
@@ -566,9 +571,8 @@ SplitHeader::SplitHeader(Split *split)
         [this](bool enabled, auto) {
             if (enabled)
             {
-                if (auto *twitchChannel =
-                        dynamic_cast<TwitchChannel *>(
-                            this->split_->getSelectedChannel().get()))
+                if (auto *twitchChannel = dynamic_cast<TwitchChannel *>(
+                        this->split_->getSelectedChannel().get()))
                 {
                     if (canUseFollowButtonForChannel(*twitchChannel))
                     {
@@ -601,9 +605,8 @@ SplitHeader::SplitHeader(Split *split)
         this->managedConnections_);
     getSettings()->moltorinoAuthAccounts.connect(
         [this](const QString &, auto) {
-            if (auto *twitchChannel =
-                    dynamic_cast<TwitchChannel *>(
-                        this->split_->getSelectedChannel().get());
+            if (auto *twitchChannel = dynamic_cast<TwitchChannel *>(
+                    this->split_->getSelectedChannel().get());
                 twitchChannel != nullptr && !twitchChannel->isEmpty() &&
                 getSettings()->showFollowButtonInSplitHeader &&
                 canUseFollowButtonForChannel(*twitchChannel))
@@ -841,10 +844,9 @@ void SplitHeader::initializeLayout()
                          this->split_->openChatterList();
                      });
 
-    QObject::connect(this->followButton_, &Button::leftClicked, this,
-                     [this]() {
-                         this->toggleFollow();
-                     });
+    QObject::connect(this->followButton_, &Button::leftClicked, this, [this]() {
+        this->toggleFollow();
+    });
 
     QObject::connect(
         this->sharedChatButton_, &Button::leftMousePress, this, [this] {
@@ -855,6 +857,8 @@ void SplitHeader::initializeLayout()
         this->split_->addSibling();
     });
 
+    // false: do not run the callback now. createMainMenu reaches back into
+    // the split, and this header is still inside its constructor.
     getSettings()->customURIScheme.connect(
         [this] {
             if (auto *const drop = this->dropdownButton_)
@@ -862,7 +866,7 @@ void SplitHeader::initializeLayout()
                 drop->setMenu(this->createMainMenu());
             }
         },
-        this->managedConnections_);
+        this->managedConnections_, false);
 
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
@@ -915,12 +919,27 @@ std::unique_ptr<QMenu> SplitHeader::createMainMenu()
                     this->split_, [this] {
                         this->split_->showSearch(true);
                     });
-    menu->addAction("Search all open tabs",
-                    h->getDisplaySequence(HotkeyCategory::Split,
-                                          "showGlobalSearch"),
-                    this->split_, [this] {
-                        this->split_->showSearch(false);
-                    });
+    menu->addAction(
+        "Search all open tabs",
+        h->getDisplaySequence(HotkeyCategory::Split, "showGlobalSearch"),
+        this->split_, [this] {
+            this->split_->showSearch(false);
+        });
+    menu->addAction(QStringLiteral("Search saved logs..."), this, [this] {
+        const auto channel = this->split_->getChannel();
+        LogSearchDialog::open(this->window(), channel == nullptr
+                                                  ? QString()
+                                                  : channel->getName());
+    });
+    if (const auto channel = this->split_->getChannel();
+        channel && channel->isTwitchChannel())
+    {
+        addEmoteStatsMenu(*menu, channel->getName());
+        auto *sendAs = menu->addMenu(QStringLiteral("Send messages as"));
+        this->split_->populateSendAccountMenu(sendAs);
+        auto *shared = menu->addMenu(QStringLiteral("Shared chat sources"));
+        this->populateSharedChatMuteMenu(shared);
+    }
     menu->addAction("Set filters",
                     h->getDisplaySequence(HotkeyCategory::Split, "pickFilters"),
                     this->split_, &Split::setFiltersDialog);
@@ -1078,17 +1097,17 @@ std::unique_ptr<QMenu> SplitHeader::createMainMenu()
             "rate limits, fail, or skip messages.");
         autoTranslateAction->setStatusTip(autoTranslateAction->toolTip());
 
-        QObject::connect(menu.get(), &QMenu::aboutToShow, this,
-                         [autoTranslateAction, selectedChannelName]() {
-                             autoTranslateAction->setChecked(
-                                getSettings()->isAutoTranslateChannel(
-                                    selectedChannelName));
-                         });
+        QObject::connect(
+            menu.get(), &QMenu::aboutToShow, this,
+            [autoTranslateAction, selectedChannelName]() {
+                autoTranslateAction->setChecked(
+                    getSettings()->isAutoTranslateChannel(selectedChannelName));
+            });
         QObject::connect(autoTranslateAction, &QAction::triggered, this,
                          [autoTranslateAction, selectedChannelName]() {
                              autoTranslateAction->setChecked(
-                                getSettings()->toggleAutoTranslateChannel(
-                                    selectedChannelName));
+                                 getSettings()->toggleAutoTranslateChannel(
+                                     selectedChannelName));
                          });
 
         menu->addAction(autoTranslateAction);
@@ -1298,8 +1317,8 @@ std::unique_ptr<QMenu> SplitHeader::createChatModeMenu()
 
     auto execCommand = [this](const QString &command) {
         auto channel = this->split_->getSelectedChannel();
-        auto text = getApp()->getCommands()->execCommand(
-            command, channel, false);
+        auto text =
+            getApp()->getCommands()->execCommand(command, channel, false);
         channel->sendMessage(text);
     };
     auto toggle = [execCommand](const QString &command,
@@ -1636,7 +1655,11 @@ void SplitHeader::scaleChangedEvent(float scale)
     this->moderationButton_->setFixedWidth(w);
     this->recordingButton_->setFixedWidth(w);
     this->chattersButton_->setFixedWidth(w);
-    this->sharedChatButton_->setMaximumWidth(int(104 * scale));
+    const int sharedChatWidth = int(104 * scale);
+    if (this->sharedChatButton_->maximumWidth() != sharedChatWidth)
+    {
+        this->sharedChatButton_->setMaximumWidth(sharedChatWidth);
+    }
 
     this->addButton_->setFixedWidth(addSplitWidth);
     this->updateAutoModLayout();
@@ -1702,6 +1725,108 @@ void SplitHeader::applySharedChatFilter()
                 message->sharedChatSourceId);
         });
     this->sharedChatFilterActive_ = true;
+}
+
+bool SplitHeader::toggleSharedChatSourceMute(const QString &sourceId)
+{
+    const auto id = sourceId.trimmed();
+    if (id.isEmpty())
+    {
+        return false;
+    }
+    if (!this->sharedChatSources_.contains(id))
+    {
+        this->sharedChatSources_.insert(
+            id, getApp()->getTwitchUsers()->resolveID({id}));
+    }
+    if (this->hiddenSharedChatSources_.contains(id))
+    {
+        this->hiddenSharedChatSources_.remove(id);
+    }
+    else
+    {
+        const auto visible = this->sharedChatSources_.size() -
+                             this->hiddenSharedChatSources_.size();
+        if (this->sharedChatSources_.size() > 1 && visible <= 1)
+        {
+            if (auto channel = this->split_->getChannel())
+            {
+                channel->addSystemMessage(QStringLiteral(
+                    "At least one shared chat stays visible. Unmute all to "
+                    "reset the filter."));
+            }
+            return false;
+        }
+        this->hiddenSharedChatSources_.insert(id);
+    }
+    this->applySharedChatFilter();
+    this->updateSharedChatButton();
+    return true;
+}
+
+void SplitHeader::populateSharedChatMuteMenu(QMenu *menu)
+{
+    if (menu == nullptr)
+    {
+        return;
+    }
+    if (this->sharedChatSources_.size() < 2)
+    {
+        auto *empty =
+            menu->addAction(QStringLiteral("No shared chat right now"));
+        empty->setEnabled(false);
+        return;
+    }
+
+    auto *unmute = menu->addAction(QStringLiteral("Unmute all shared chats"));
+    unmute->setEnabled(!this->hiddenSharedChatSources_.isEmpty());
+    QObject::connect(unmute, &QAction::triggered, this, [this] {
+        this->hiddenSharedChatSources_.clear();
+        this->applySharedChatFilter();
+        this->updateSharedChatButton();
+    });
+    menu->addSeparator();
+
+    QString homeId;
+    if (auto *home =
+            dynamic_cast<TwitchChannel *>(this->split_->getChannel().get()))
+    {
+        homeId = home->roomId();
+    }
+    for (auto it = this->sharedChatSources_.cbegin();
+         it != this->sharedChatSources_.cend(); ++it)
+    {
+        QString label = it.key();
+        if (it.value())
+        {
+            const auto display = it.value()->displayName.trimmed();
+            const auto login = it.value()->name.trimmed();
+            if (!display.isEmpty())
+            {
+                label = display;
+            }
+            else if (!login.isEmpty())
+            {
+                label = login;
+            }
+        }
+        if (it.key() == homeId)
+        {
+            label += QStringLiteral(" (this channel)");
+        }
+        auto *action = menu->addAction(QStringLiteral("Hide %1").arg(label));
+        action->setCheckable(true);
+        action->setChecked(this->hiddenSharedChatSources_.contains(it.key()));
+        const auto id = it.key();
+        QObject::connect(action, &QAction::triggered, this, [this, id, action] {
+            const bool hiddenBefore =
+                this->hiddenSharedChatSources_.contains(id);
+            if (!this->toggleSharedChatSourceMute(id) && !hiddenBefore)
+            {
+                action->setChecked(false);
+            }
+        });
+    }
 }
 
 void SplitHeader::syncSharedChatParticipants()
@@ -1791,7 +1916,10 @@ void SplitHeader::updateSharedChatButton()
     text = QFontMetrics(this->font())
                .elidedText(text, Qt::ElideRight, maxTextWidth);
     this->sharedChatButton_->setText(text + QStringLiteral(" ▾"));
-    this->sharedChatButton_->show();
+    if (this->sharedChatButton_->isHidden())
+    {
+        this->sharedChatButton_->show();
+    }
 }
 
 std::unique_ptr<QMenu> SplitHeader::createSharedChatMenu()
@@ -1929,6 +2057,12 @@ void SplitHeader::setAutoModReviewBar(AutoModReviewBar *bar)
 
 void SplitHeader::updateAutoModLayout()
 {
+    if (this->updatingAutoModLayout_)
+    {
+        return;
+    }
+    this->updatingAutoModLayout_ = true;
+
     const bool isAutoMod = this->split_->getIndirectChannel().getType() ==
                            Channel::Type::TwitchAutomod;
 
@@ -1965,8 +2099,13 @@ void SplitHeader::updateAutoModLayout()
     }
     this->titleLabel_->setShouldElide(isAutoMod);
     this->titleLabel_->setCentered(true);
-    this->titleLabel_->setSizePolicy(QSizePolicy::MinimumExpanding,
-                                     QSizePolicy::Preferred);
+    const auto titlePolicy =
+        QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+    if (this->titleLabel_->sizePolicy() != titlePolicy)
+    {
+        this->titleLabel_->setSizePolicy(titlePolicy);
+    }
+    this->updatingAutoModLayout_ = false;
 }
 
 void SplitHeader::hideEvent(QHideEvent *event)
@@ -2327,11 +2466,8 @@ void SplitHeader::updateIcons()
                                              : channel->getLocalizedName();
                 this->followButton_->setSource(followButtonSource(following));
                 this->followButton_->setToolTip(
-                    following
-                        ? QString("Unfollow %1")
-                              .arg(displayName)
-                        : QString("Follow %1")
-                              .arg(displayName));
+                    following ? QString("Unfollow %1").arg(displayName)
+                              : QString("Follow %1").arg(displayName));
                 this->followButton_->show();
             }
         }
@@ -2365,9 +2501,8 @@ void SplitHeader::updateIcons()
         const bool modRights = hasAnyModRights(rootChannel);
         const bool showModerationButton =
             modRights ||
-            (moderationMode &&
-             (isMulti || (!channel->isYouTubeChannel() &&
-                          !channel->isTikTokChannel())));
+            (moderationMode && (isMulti || (!channel->isYouTubeChannel() &&
+                                            !channel->isTikTokChannel())));
         if (showModerationButton)
         {
             this->moderationButton_->show();

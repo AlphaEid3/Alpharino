@@ -12,6 +12,7 @@
 #include <pajlada/signals/signalholder.hpp>
 #include <QDateTime>
 #include <QFont>
+#include <QMenu>
 #include <QPointer>
 #include <QSet>
 #include <QShortcut>
@@ -36,6 +37,7 @@ class SplitContainer;
 class SplitOverlay;
 class SelectChannelDialog;
 class OverlayWindow;
+class TwitchAccount;
 class TwitchChannel;
 
 // Each ChatWidget consists of three sub-elements that handle their own part of
@@ -51,6 +53,7 @@ class TwitchChannel;
 // Each sub-element has a reference to the parent Chat Widget
 class Split : public BaseWidget
 {
+    friend class SplitHeader;
     friend class SplitInput;
 
     Q_OBJECT
@@ -78,6 +81,14 @@ public:
 
     void setModerationMode(bool value);
     bool getModerationMode() const;
+
+    /// Empty login means "use the global current Twitch account".
+    void setSendAccountLogin(const QString &login);
+    QString sendAccountLogin() const;
+    std::shared_ptr<TwitchAccount> sendTwitchAccount() const;
+    void populateSendAccountMenu(QMenu *menu);
+    void toggleSharedChatSourceMute(const QString &sourceId);
+    void populateSharedChatMuteMenu(QMenu *menu);
     void setAutoModChannelFilter(QString channel);
     QString getAutoModChannelFilter() const;
 
@@ -145,6 +156,9 @@ protected:
 
 private:
     SplitHeader *ensureHeader();
+    // Stores the header while its constructor is still running. Callers that
+    // run from that constructor must see this header instead of building one.
+    void attachHeader(SplitHeader *header);
     AutoModReviewBar *ensureAutoModReviewBar();
     SplitOverlay *ensureOverlay();
     SplitInput *ensureInput();
@@ -202,6 +216,7 @@ private:
     IndirectChannel channel_;
 
     bool moderationMode_{};
+    QString sendAccountLogin_;
     bool isTopRightSplit_{};
 
     bool isMouseOver_{};

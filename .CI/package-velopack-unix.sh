@@ -62,7 +62,7 @@ case "$platform:$(uname -s)" in
             echo "Stage a native .app bundle" >&2
             exit 2
         }
-        executable="$pack_dir/Contents/MacOS/Moltorino7"
+        executable="$pack_dir/Contents/MacOS/Alpharino"
         identity="$pack_dir/Contents/MacOS/moltorino-build-identity.json"
         [ -f "$pack_dir/Contents/Frameworks/velopack_libc_osx.dylib" ] &&
             [ -f "$pack_dir/Contents/Resources/licenses/Velopack.txt" ] || {
@@ -83,7 +83,7 @@ case "$platform:$(uname -s)" in
             echo "Stage a native .AppDir" >&2
             exit 2
         }
-        executable="$pack_dir/usr/bin/Moltorino7"
+        executable="$pack_dir/usr/bin/Alpharino"
         identity="$pack_dir/usr/bin/moltorino-build-identity.json"
         [ -f "$pack_dir/usr/share/licenses/moltorino/Velopack.txt" ] || {
             echo "Stage the Velopack license in the AppDir" >&2
@@ -153,7 +153,7 @@ vpk="$tool_dir/package/tools/net8.0/any/vpk.dll"
     exit 1
 }
 args=("$vpk" --skip-updates --yes pack --packId "$package_id"
-    --packVersion "$version" --packDir "$pack_dir" --mainExe Moltorino7
+    --packVersion "$version" --packDir "$pack_dir" --mainExe Alpharino
     --packTitle "$package_id" --packAuthors "$package_id" --channel "$channel"
     --outputDir "$output_dir" --delta None)
 if [ "$platform" = macos ]; then

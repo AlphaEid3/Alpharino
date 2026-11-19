@@ -137,7 +137,7 @@ public:
 private:
     std::shared_ptr<const TikTokBadgeArtwork> artwork_;
 };
-}
+}  // namespace
 
 QSizeF tikTokBadgeSize(const TikTokBadgeArtwork &artwork, const ImagePtr &image,
                        qreal height)
@@ -278,4 +278,4 @@ void appendTikTokBadges(MessageBuilder &builder, const TikTokAuthor &author)
         }
     }
 }
-}
+}  // namespace chatterino

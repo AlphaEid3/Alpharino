@@ -27,8 +27,7 @@ constexpr int CHANNEL_USER_TIMEOUT_MS = 30000;
 chatterino::NetworkRequest tuneSeventvRequest(
     chatterino::NetworkRequest &&request)
 {
-    return std::move(request)
-        .timeout(30000);
+    return std::move(request).timeout(30000);
 }
 using SeventvJsonCallback =
     std::function<void(const QJsonObject &, const QByteArray &)>;
@@ -42,9 +41,8 @@ auto makeSharedErrorCallback(SeventvErrorCallback &&onError)
 auto makeJsonSuccessCallback(SeventvJsonCallback &&onSuccess,
                              std::shared_ptr<SeventvErrorCallback> onError)
 {
-    return [callback = std::move(onSuccess),
-            onError = std::move(onError)](const chatterino::NetworkResult
-                                              &result) {
+    return [callback = std::move(onSuccess), onError = std::move(onError)](
+               const chatterino::NetworkResult &result) {
         auto json = result.parseJson();
         if (json.isEmpty())
         {
@@ -61,8 +59,8 @@ auto makeJsonSuccessCallback(SeventvJsonCallback &&onSuccess,
 
 auto makeNetworkErrorCallback(std::shared_ptr<SeventvErrorCallback> onError)
 {
-    return [onError = std::move(onError)](const chatterino::NetworkResult
-                                              &result) {
+    return [onError =
+                std::move(onError)](const chatterino::NetworkResult &result) {
         if (*onError)
         {
             (*onError)(result);
@@ -70,7 +68,7 @@ auto makeNetworkErrorCallback(std::shared_ptr<SeventvErrorCallback> onError)
     };
 }
 
-}
+}  // namespace
 
 // NOLINTBEGIN(readability-convert-member-functions-to-static)
 namespace chatterino {
@@ -84,8 +82,7 @@ void SeventvAPI::getUserByTwitchID(
     tuneSeventvRequest(
         NetworkRequest(API_URL_USER.arg(twitchID), NetworkRequestType::Get))
         .timeout(CHANNEL_USER_TIMEOUT_MS)
-        .onSuccess(makeJsonSuccessCallback(std::move(onSuccess),
-                                           sharedOnError))
+        .onSuccess(makeJsonSuccessCallback(std::move(onSuccess), sharedOnError))
         .onError(makeNetworkErrorCallback(std::move(sharedOnError)))
         .execute();
 }
@@ -99,8 +96,7 @@ void SeventvAPI::getUserByKickID(
     tuneSeventvRequest(
         NetworkRequest(API_URL_KICK_USER.arg(userID), NetworkRequestType::Get))
         .timeout(CHANNEL_USER_TIMEOUT_MS)
-        .onSuccess(makeJsonSuccessCallback(std::move(onSuccess),
-                                           sharedOnError))
+        .onSuccess(makeJsonSuccessCallback(std::move(onSuccess), sharedOnError))
         .onError(makeNetworkErrorCallback(std::move(sharedOnError)))
         .execute();
 }
@@ -111,11 +107,10 @@ void SeventvAPI::getEmoteSet(
     ErrorCallback &&onError)
 {
     auto sharedOnError = makeSharedErrorCallback(std::move(onError));
-    tuneSeventvRequest(
-        NetworkRequest(API_URL_EMOTE_SET.arg(emoteSet), NetworkRequestType::Get))
+    tuneSeventvRequest(NetworkRequest(API_URL_EMOTE_SET.arg(emoteSet),
+                                      NetworkRequestType::Get))
         .timeout(25000)
-        .onSuccess(makeJsonSuccessCallback(std::move(onSuccess),
-                                           sharedOnError))
+        .onSuccess(makeJsonSuccessCallback(std::move(onSuccess), sharedOnError))
         .onError(makeNetworkErrorCallback(std::move(sharedOnError)))
         .execute();
 }
@@ -166,5 +161,5 @@ void SeventvAPI::updatePresence(const QString &platform,
         .execute();
 }
 
-}
+}  // namespace chatterino
 // NOLINTEND(readability-convert-member-functions-to-static)

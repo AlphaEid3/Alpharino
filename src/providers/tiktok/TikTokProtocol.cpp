@@ -552,7 +552,7 @@ std::optional<TikTokEvent> event(const Fields &wrapper, bool initial)
     return result;
 }
 
-}
+}  // namespace
 
 std::optional<Batch> decodeFrame(const QByteArray &data)
 {
@@ -676,4 +676,4 @@ QUrl socketUrl(QStringView roomID)
     return url;
 }
 
-}
+}  // namespace chatterino::tiktok

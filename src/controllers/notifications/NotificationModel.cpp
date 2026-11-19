@@ -33,4 +33,4 @@ void NotificationModel::getRowFromItem(const QString &item,
     setStringItem(row[0], item);
 }
 
-}
+}  // namespace chatterino

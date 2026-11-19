@@ -25,7 +25,7 @@ bool validPusherCredential(QStringView value)
            });
 }
 
-}
+}  // namespace
 
 bool stripPrefix(std::string_view &str, std::string_view prefix)
 {
@@ -173,4 +173,4 @@ void disconnected(KickChatServer *server,
     }
 }
 
-}
+}  // namespace chatterino::kick::ws

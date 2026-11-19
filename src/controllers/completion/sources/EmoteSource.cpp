@@ -77,7 +77,7 @@ void addEmojis(std::vector<EmoteItem> &out, const Emojis &provider)
     };
 }
 
-}
+}  // namespace
 
 bool EmoteItem::hasRenderableEmote() const
 {
@@ -123,16 +123,16 @@ void EmoteSource::update(const QString &query)
 
 void EmoteSource::addToListModel(GenericListModel &model, size_t maxCount) const
 {
-    addVecToListModel(this->output_, model, maxCount,
-                      [this](const EmoteItem &e) {
-                          return std::make_unique<InputCompletionItem>(
-                              e.getEmote(), e.displayName + " - " + e.providerName,
-                              this->callback_);
-                      });
+    addVecToListModel(
+        this->output_, model, maxCount, [this](const EmoteItem &e) {
+            return std::make_unique<InputCompletionItem>(
+                e.getEmote(), e.displayName + " - " + e.providerName,
+                this->callback_);
+        });
 }
 
 void EmoteSource::addToStringList(QStringList &list, size_t maxCount,
-                                  bool ) const
+                                  bool) const
 {
     addVecToStringList(this->output_, list, maxCount, [](const EmoteItem &e) {
         return e.tabCompletionName + " ";
@@ -249,4 +249,4 @@ const std::vector<EmoteItem> &EmoteSource::output() const
     return this->output_;
 }
 
-}
+}  // namespace chatterino::completion

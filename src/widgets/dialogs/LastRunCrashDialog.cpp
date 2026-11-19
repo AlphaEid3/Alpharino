@@ -40,20 +40,20 @@ QString randomMessage()
              (QRandomGenerator::global()->generate64() % MESSAGES.size()));
 }
 
-}
+}  // namespace
 
 namespace chatterino {
 
 LastRunCrashDialog::LastRunCrashDialog(const Args &args, const Paths &paths)
 {
     this->setWindowFlag(Qt::WindowContextHelpButtonHint, false);
-    this->setWindowTitle(u"Chatterino - " % randomMessage());
+    this->setWindowTitle(u"Alpharino - " % randomMessage());
 
     auto layout =
         LayoutCreator<LastRunCrashDialog>(this).setLayoutType<QVBoxLayout>();
 
     QString text =
-        u"Chatterino unexpectedly crashed and restarted. "_s
+        u"Alpharino unexpectedly crashed and restarted. "_s
         "<i>You can disable automatic restarts in the settings.</i><br><br>";
 
 #ifdef CHATTERINO_WITH_CRASHPAD
@@ -108,4 +108,4 @@ LastRunCrashDialog::LastRunCrashDialog(const Args &args, const Paths &paths)
     });
 }
 
-}
+}  // namespace chatterino

@@ -320,4 +320,4 @@ std::optional<TranslationResult> parseProviderResponse(
     return translated;
 }
 
-}
+}  // namespace chatterino::translation::detail

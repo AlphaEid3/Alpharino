@@ -4,6 +4,8 @@
 
 #include "widgets/buttons/LabelButton.hpp"
 
+#include <QTimer>
+
 namespace chatterino {
 
 LabelButton::LabelButton(const QString &text, BaseWidget *parent, QSize padding)
@@ -16,8 +18,8 @@ LabelButton::LabelButton(const QString &text, BaseWidget *parent, QSize padding)
     this->layout_.addWidget(&this->label_);
     this->label_.setAttribute(Qt::WA_TransparentForMouseEvents);
     this->label_.setAlignment(Qt::AlignCenter);
+    this->label_.setTextFormat(Qt::PlainText);
 
-    this->syncLabelFont();
     this->updatePadding();
 }
 
@@ -28,6 +30,11 @@ QString LabelButton::text() const
 
 void LabelButton::setText(const QString &text)
 {
+    if (this->label_.text() == text)
+    {
+        return;
+    }
+
     this->label_.setText(text);
 }
 
@@ -56,10 +63,31 @@ void LabelButton::changeEvent(QEvent *event)
 {
     Button::changeEvent(event);
 
-    if (event->type() == QEvent::FontChange)
+    if (event->type() == QEvent::FontChange && !this->syncingFont_)
     {
-        this->syncLabelFont();
+        this->scheduleFontSync();
     }
+}
+
+void LabelButton::scheduleFontSync()
+{
+    if (this->fontSyncQueued_)
+    {
+        return;
+    }
+
+    this->fontSyncQueued_ = true;
+    QTimer::singleShot(0, this, [this] {
+        this->fontSyncQueued_ = false;
+        if (this->syncingFont_)
+        {
+            return;
+        }
+
+        this->syncingFont_ = true;
+        this->syncLabelFont();
+        this->syncingFont_ = false;
+    });
 }
 
 void LabelButton::paintContent(QPainter &painter)
@@ -68,7 +96,26 @@ void LabelButton::paintContent(QPainter &painter)
 
 void LabelButton::syncLabelFont()
 {
-    this->label_.setFont(this->font());
+    const auto next = this->font();
+    const auto current = this->label_.font();
+    if (current == next)
+    {
+        return;
+    }
+
+    // QWidget::font() widens the resolve mask, so operator== can fail after a
+    // copy that already applied the same face. Another setFont would deliver
+    // FontChange again.
+    if (current.family() == next.family() &&
+        current.pixelSize() == next.pixelSize() &&
+        current.pointSizeF() == next.pointSizeF() &&
+        current.weight() == next.weight() && current.style() == next.style() &&
+        current.hintingPreference() == next.hintingPreference())
+    {
+        return;
+    }
+
+    this->label_.setFont(next);
 }
 
 void LabelButton::updatePadding()
@@ -78,4 +125,4 @@ void LabelButton::updatePadding()
     this->label_.setContentsMargins(x, y, x, y);
 }
 
-}
+}  // namespace chatterino

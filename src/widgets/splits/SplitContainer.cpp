@@ -233,15 +233,14 @@ void SplitContainer::addSplit(Split *split)
 
     auto &&conns = this->connectionsPerSplit_[split];
 
-    conns.managedConnect(
-        split->getChannelView().tabHighlightRequested,
-        [this, split](const TabHighlight &highlight) {
-            if (this->tab_ != nullptr)
-            {
-                this->tab_->updateHighlightState(highlight,
-                                                 split->getChannelView());
-            }
-        });
+    conns.managedConnect(split->getChannelView().tabHighlightRequested,
+                         [this, split](const TabHighlight &highlight) {
+                             if (this->tab_ != nullptr)
+                             {
+                                 this->tab_->updateHighlightState(
+                                     highlight, split->getChannelView());
+                             }
+                         });
 
     conns.managedConnect(split->channelChanged, [this, split] {
         if (auto *recordings = getApp()->getChatRecordings())
@@ -930,6 +929,7 @@ NodeDescriptor SplitContainer::buildDescriptorRecursively(
         result.type_ = channelTypeToString(channelType);
         result.channelName_ = currentNode->split_->getChannel()->getName();
         result.moderationMode_ = currentNode->split_->getModerationMode();
+        result.sendAccount_ = currentNode->split_->sendAccountLogin();
         result.autoModChannelFilter_ =
             currentNode->split_->getAutoModChannelFilter();
         result.spellCheckOverride =
@@ -985,6 +985,7 @@ void SplitContainer::applyFromDescriptorRecursively(
         split->setChannel(splitNode.decodeChannel());
         split->setAutoModChannelFilter(splitNode.autoModChannelFilter_);
         split->setModerationMode(splitNode.moderationMode_);
+        split->setSendAccountLogin(splitNode.sendAccount_);
         split->setFilters(splitNode.filters_);
         split->setCheckSpellingOverride(splitNode.spellCheckOverride);
 
@@ -1023,6 +1024,7 @@ void SplitContainer::applyFromDescriptorRecursively(
                 split->setChannel(splitNode.decodeChannel());
                 split->setAutoModChannelFilter(splitNode.autoModChannelFilter_);
                 split->setModerationMode(splitNode.moderationMode_);
+                split->setSendAccountLogin(splitNode.sendAccount_);
                 split->setCheckSpellingOverride(splitNode.spellCheckOverride);
 
                 auto node = std::make_shared<Node>();

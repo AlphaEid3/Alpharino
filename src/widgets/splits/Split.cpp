@@ -8,6 +8,7 @@
 #include "common/Common.hpp"
 #include "common/QLogging.hpp"
 #include "controllers/accounts/AccountController.hpp"
+#include "controllers/chat/BlockedTerms.hpp"
 #include "controllers/chat/ChatAutomationController.hpp"
 #include "controllers/commands/Command.hpp"
 #include "controllers/commands/CommandController.hpp"
@@ -43,7 +44,9 @@
 #include "widgets/helper/ChannelView.hpp"
 #include "widgets/helper/DebugPopup.hpp"
 #include "widgets/helper/NotebookTab.hpp"
+#include "widgets/helper/PinnedMessageBanner.hpp"
 #include "widgets/helper/PollBanner.hpp"
+#include "widgets/helper/PredictionBanner.hpp"
 #include "widgets/helper/ResizingTextEdit.hpp"
 #include "widgets/helper/SearchPopup.hpp"
 #include "widgets/Notebook.hpp"
@@ -53,8 +56,6 @@
 #include "widgets/splits/SplitContainer.hpp"
 #include "widgets/splits/SplitHeader.hpp"
 #include "widgets/splits/SplitInput.hpp"
-#include "widgets/helper/PinnedMessageBanner.hpp"
-#include "widgets/helper/PredictionBanner.hpp"
 #include "widgets/splits/SplitOverlay.hpp"
 #include "widgets/Window.hpp"
 
@@ -70,8 +71,8 @@
 #include <QMovie>
 #include <QPainter>
 #include <QSet>
-#include <QVector>
 #include <QVBoxLayout>
+#include <QVector>
 
 #include <functional>
 #include <optional>
@@ -165,7 +166,7 @@ void showTutorialVideo(QWidget *parent, const QString &source,
             BaseWindow::BoundsCheckOnShow,
         },
         parent);
-    window->setWindowTitle("Chatterino - " + title);
+    window->setWindowTitle("Alpharino - " + title);
     window->setAttribute(Qt::WA_DeleteOnClose);
     auto *layout = new QVBoxLayout();
     layout->addWidget(new QLabel(description));
@@ -314,30 +315,31 @@ Split::Split(QWidget *parent)
             this->refreshModerationMode();
         });
 
-    this->signalHolder_.managedConnect(
-        modifierStatusChanged, [this](Qt::KeyboardModifiers status) {
-            if ((status ==
-                 SHOW_SPLIT_OVERLAY_MODIFIERS /*|| status == showAddSplitRegions*/) &&
-                this->isMouseOver_)
-            {
-                this->ensureOverlay()->show();
-            }
-            else if (this->overlay_ != nullptr)
-            {
-                this->overlay_->hide();
-            }
+    this->signalHolder_.managedConnect(modifierStatusChanged, [this](
+                                                                  Qt::KeyboardModifiers
+                                                                      status) {
+        if ((status ==
+             SHOW_SPLIT_OVERLAY_MODIFIERS /*|| status == showAddSplitRegions*/) &&
+            this->isMouseOver_)
+        {
+            this->ensureOverlay()->show();
+        }
+        else if (this->overlay_ != nullptr)
+        {
+            this->overlay_->hide();
+        }
 
-            if (getSettings()->pauseChatModifier.getEnum() != Qt::NoModifier &&
-                status == getSettings()->pauseChatModifier.getEnum() &&
-                this->isVisible())
-            {
-                this->view_->pause(PauseReason::KeyboardModifier);
-            }
-            else
-            {
-                this->view_->unpause(PauseReason::KeyboardModifier);
-            }
-        });
+        if (getSettings()->pauseChatModifier.getEnum() != Qt::NoModifier &&
+            status == getSettings()->pauseChatModifier.getEnum() &&
+            this->isVisible())
+        {
+            this->view_->pause(PauseReason::KeyboardModifier);
+        }
+        else
+        {
+            this->view_->unpause(PauseReason::KeyboardModifier);
+        }
+    });
 
     this->deferredTwitchRefreshTimer_ = new QTimer(this);
     this->deferredTwitchRefreshTimer_->setSingleShot(true);
@@ -349,9 +351,8 @@ Split::Split(QWidget *parent)
                      });
 
     auto updateAcceptDrops = [this]() {
-        this->setAcceptDrops(
-            getSettings()->imageUploaderEnabled ||
-            getSettings()->urlShortenerEnabled);
+        this->setAcceptDrops(getSettings()->imageUploaderEnabled ||
+                             getSettings()->urlShortenerEnabled);
     };
 
     getSettings()->imageUploaderEnabled.connect(
@@ -435,6 +436,14 @@ SplitHeader *Split::ensureHeader()
         this->header_->setAutoModReviewBar(this->autoModReviewBar_);
     }
     return this->header_;
+}
+
+void Split::attachHeader(SplitHeader *header)
+{
+    if (this->header_ == nullptr && header != nullptr)
+    {
+        this->header_ = header;
+    }
 }
 
 SplitInput *Split::ensureInput()
@@ -750,7 +759,8 @@ void Split::cycleBannerSelection()
         {
             visibleId = 0;
         }
-        else if (this->predictionBanner_ && !this->predictionBanner_->isHidden())
+        else if (this->predictionBanner_ &&
+                 !this->predictionBanner_->isHidden())
         {
             visibleId = 1;
         }
@@ -1083,15 +1093,18 @@ void Split::updateChannelConnections()
     }
     if (tc)
     {
-        this->usermodeChangedConnection_ = tc->userStateChanged.connect([this] {
-            this->updateInputPlaceholder();
-            this->refreshModerationMode();
-            if (this->header_ != nullptr)
-            {
-                this->header_->updateChannelText();
-                this->header_->updateRoomModes();
-            }
-        });
+        prepareChannelBlockedTerms(tc);
+        this->usermodeChangedConnection_ =
+            tc->userStateChanged.connect([this, tc] {
+                prepareChannelBlockedTerms(tc);
+                this->updateInputPlaceholder();
+                this->refreshModerationMode();
+                if (this->header_ != nullptr)
+                {
+                    this->header_->updateChannelText();
+                    this->header_->updateRoomModes();
+                }
+            });
 
         this->roomModeChangedConnection_ = tc->roomModesChanged.connect([this] {
             if (this->header_ != nullptr)
@@ -1203,7 +1216,7 @@ void Split::addShortcuts()
          [](const std::vector<QString> &) -> QString {
              auto *popup = new DebugPopup;
              popup->setAttribute(Qt::WA_DeleteOnClose);
-             popup->setWindowTitle("Chatterino - Debug popup");
+             popup->setWindowTitle("Alpharino - Debug popup");
              popup->show();
              return "";
          }},
@@ -1738,12 +1751,14 @@ void Split::scheduleDeferredTwitchRefresh(bool interactive)
         return;
     }
 
-    const int delayMs = interactive ? INTERACTIVE_TWITCH_FEATURE_REFRESH_DELAY_MS
-                                    : DEFERRED_TWITCH_FEATURE_REFRESH_DELAY_MS;
+    const int delayMs = interactive
+                            ? INTERACTIVE_TWITCH_FEATURE_REFRESH_DELAY_MS
+                            : DEFERRED_TWITCH_FEATURE_REFRESH_DELAY_MS;
 
     if (this->deferredTwitchRefreshTimer_->isActive())
     {
-        const int remaining = this->deferredTwitchRefreshTimer_->remainingTime();
+        const int remaining =
+            this->deferredTwitchRefreshTimer_->remainingTime();
         if (remaining >= 0 && remaining <= delayMs)
         {
             this->deferredTwitchRefreshInteractive_ =
@@ -1794,19 +1809,18 @@ void Split::runDeferredTwitchRefresh()
 
     this->deferredTwitchRefreshRetries_ = 0;
     this->deferredTwitchRefreshInteractive_ = false;
-    const bool forcePersonalRefresh =
-        this->deferredTwitchForcePersonalRefresh_;
+    const bool forcePersonalRefresh = this->deferredTwitchForcePersonalRefresh_;
     this->deferredTwitchForcePersonalRefresh_ = false;
 
-    const int pollOffsetMs =
-        interactive ? INTERACTIVE_TWITCH_POLL_REFRESH_OFFSET_MS
-                    : DEFERRED_TWITCH_POLL_REFRESH_OFFSET_MS;
+    const int pollOffsetMs = interactive
+                                 ? INTERACTIVE_TWITCH_POLL_REFRESH_OFFSET_MS
+                                 : DEFERRED_TWITCH_POLL_REFRESH_OFFSET_MS;
     const int editorOffsetMs = interactive
                                    ? INTERACTIVE_TWITCH_EDITOR_REFRESH_OFFSET_MS
                                    : DEFERRED_TWITCH_EDITOR_REFRESH_OFFSET_MS;
-    const int pointsOffsetMs =
-        interactive ? INTERACTIVE_TWITCH_POINTS_REFRESH_OFFSET_MS
-                    : DEFERRED_TWITCH_POINTS_REFRESH_OFFSET_MS;
+    const int pointsOffsetMs = interactive
+                                   ? INTERACTIVE_TWITCH_POINTS_REFRESH_OFFSET_MS
+                                   : DEFERRED_TWITCH_POINTS_REFRESH_OFFSET_MS;
     const int warningOffsetMs =
         interactive ? INTERACTIVE_TWITCH_WARNING_REFRESH_OFFSET_MS
                     : DEFERRED_TWITCH_WARNING_REFRESH_OFFSET_MS;
@@ -1899,35 +1913,32 @@ void Split::runDeferredTwitchRefresh()
     }
     if (getSettings()->enablePolls)
     {
-        QTimer::singleShot(pollOffsetMs, this,
-                           [this, runIfStillActive, forcePersonalRefresh] {
-                               runIfStillActive([forcePersonalRefresh](
-                                                    TwitchChannel *tc) {
-                                   tc->refreshPollIfStale(forcePersonalRefresh);
-                               });
-                           });
+        QTimer::singleShot(
+            pollOffsetMs, this, [this, runIfStillActive, forcePersonalRefresh] {
+                runIfStillActive([forcePersonalRefresh](TwitchChannel *tc) {
+                    tc->refreshPollIfStale(forcePersonalRefresh);
+                });
+            });
     }
     if (getSettings()->enableChannelPointsDisplay)
     {
-        QTimer::singleShot(pointsOffsetMs, this,
-                           [this, runIfStillActive, forcePersonalRefresh] {
-                               runIfStillActive([forcePersonalRefresh](
-                                                    TwitchChannel *tc) {
-                                   tc->refreshChannelPointsIfStale(
-                                       forcePersonalRefresh);
-                               });
-                           });
+        QTimer::singleShot(
+            pointsOffsetMs, this,
+            [this, runIfStillActive, forcePersonalRefresh] {
+                runIfStillActive([forcePersonalRefresh](TwitchChannel *tc) {
+                    tc->refreshChannelPointsIfStale(forcePersonalRefresh);
+                });
+            });
     }
     if (shouldRefreshWarnings)
     {
-        QTimer::singleShot(warningOffsetMs, this,
-                           [this, runIfStillActive, forcePersonalRefresh] {
-                               runIfStillActive([forcePersonalRefresh](
-                                                    TwitchChannel *tc) {
-                                   tc->refreshChatWarningIfStale(
-                                       forcePersonalRefresh);
-                               });
-                           });
+        QTimer::singleShot(
+            warningOffsetMs, this,
+            [this, runIfStillActive, forcePersonalRefresh] {
+                runIfStillActive([forcePersonalRefresh](TwitchChannel *tc) {
+                    tc->refreshChatWarningIfStale(forcePersonalRefresh);
+                });
+            });
     }
 }
 
@@ -2105,8 +2116,7 @@ QString pinBannerKey(const std::optional<TwitchChannel::PinnedMessage> &pin)
 
     if (pin->endsAt && pin->endsAt->isValid())
     {
-        key += QStringLiteral("|") +
-               pin->endsAt->toUTC().toString(Qt::ISODate);
+        key += QStringLiteral("|") + pin->endsAt->toUTC().toString(Qt::ISODate);
     }
     return key;
 }
@@ -2119,9 +2129,8 @@ QString predictionBannerKey(
         return {};
     }
 
-    return prediction->id + QStringLiteral("|") +
-           prediction->status.toUpper() + QStringLiteral("|") +
-           prediction->winningOutcomeId;
+    return prediction->id + QStringLiteral("|") + prediction->status.toUpper() +
+           QStringLiteral("|") + prediction->winningOutcomeId;
 }
 
 QString pollBannerKey(const std::optional<TwitchChannel::PollEvent> &poll)
@@ -2317,17 +2326,17 @@ void Split::updateBannerVisibility()
         activeBannerIds.push_back(2);
     }
 
-    auto firstActiveFromOrder = [&activeBannerIds](
-                                    std::initializer_list<int> order) {
-        for (const int id : order)
-        {
-            if (activeBannerIds.contains(id))
+    auto firstActiveFromOrder =
+        [&activeBannerIds](std::initializer_list<int> order) {
+            for (const int id : order)
             {
-                return id;
+                if (activeBannerIds.contains(id))
+                {
+                    return id;
+                }
             }
-        }
-        return activeBannerIds.isEmpty() ? -1 : activeBannerIds.front();
-    };
+            return activeBannerIds.isEmpty() ? -1 : activeBannerIds.front();
+        };
 
     int selectedId = -1;
     if (this->bannerAttentionOverride_ >= 0)
@@ -2672,15 +2681,18 @@ void Split::setChannel(IndirectChannel newChannel)
     }
     else if (tc != nullptr)
     {
-        this->usermodeChangedConnection_ = tc->userStateChanged.connect([this] {
-            this->updateInputPlaceholder();
-            this->refreshModerationMode();
-            if (this->header_ != nullptr)
-            {
-                this->header_->updateChannelText();
-                this->header_->updateRoomModes();
-            }
-        });
+        prepareChannelBlockedTerms(tc);
+        this->usermodeChangedConnection_ =
+            tc->userStateChanged.connect([this, tc] {
+                prepareChannelBlockedTerms(tc);
+                this->updateInputPlaceholder();
+                this->refreshModerationMode();
+                if (this->header_ != nullptr)
+                {
+                    this->header_->updateChannelText();
+                    this->header_->updateRoomModes();
+                }
+            });
 
         this->roomModeChangedConnection_ = tc->roomModesChanged.connect([this] {
             if (this->header_ != nullptr)
@@ -2787,6 +2799,105 @@ void Split::setModerationMode(bool value)
 bool Split::getModerationMode() const
 {
     return this->moderationMode_;
+}
+
+void Split::setSendAccountLogin(const QString &login)
+{
+    const auto trimmed = login.trimmed();
+    if (this->sendAccountLogin_ == trimmed)
+    {
+        return;
+    }
+    this->sendAccountLogin_ = trimmed;
+    if (this->input_ != nullptr)
+    {
+        this->input_->updateSendAccountButton();
+    }
+    getApp()->getWindows()->queueSave();
+}
+
+QString Split::sendAccountLogin() const
+{
+    return this->sendAccountLogin_;
+}
+
+std::shared_ptr<TwitchAccount> Split::sendTwitchAccount() const
+{
+    auto &accounts = getApp()->getAccounts()->twitch;
+    if (!this->sendAccountLogin_.isEmpty())
+    {
+        if (auto pinned = accounts.findUserByUsername(this->sendAccountLogin_);
+            pinned && !pinned->isAnon())
+        {
+            return pinned;
+        }
+    }
+    return accounts.getCurrent();
+}
+
+void Split::populateSendAccountMenu(QMenu *menu)
+{
+    if (menu == nullptr)
+    {
+        return;
+    }
+    auto &accounts = getApp()->getAccounts()->twitch;
+    const auto current = accounts.getCurrent();
+    const auto pinned = this->sendAccountLogin_;
+    auto *follow = menu->addAction(QStringLiteral("Current account"));
+    follow->setCheckable(true);
+    follow->setChecked(pinned.isEmpty());
+    QObject::connect(follow, &QAction::triggered, this, [this] {
+        this->setSendAccountLogin({});
+    });
+    menu->addSeparator();
+    const auto names = accounts.getUsernames();
+    if (names.empty())
+    {
+        auto *empty = menu->addAction(QStringLiteral("No logged-in accounts"));
+        empty->setEnabled(false);
+        return;
+    }
+    for (const auto &name : names)
+    {
+        auto account = accounts.findUserByUsername(name);
+        if (!account || account->isAnon())
+        {
+            continue;
+        }
+        const bool isCurrent =
+            current && account->getUserName().compare(current->getUserName(),
+                                                      Qt::CaseInsensitive) == 0;
+        auto label = account->getUserName();
+        if (isCurrent)
+        {
+            label += QStringLiteral(" (current)");
+        }
+        auto *action = menu->addAction(label);
+        action->setCheckable(true);
+        action->setChecked(
+            pinned.compare(account->getUserName(), Qt::CaseInsensitive) == 0);
+        const auto login = account->getUserName();
+        QObject::connect(action, &QAction::triggered, this, [this, login] {
+            this->setSendAccountLogin(login);
+        });
+    }
+}
+
+void Split::toggleSharedChatSourceMute(const QString &sourceId)
+{
+    this->ensureHeader()->toggleSharedChatSourceMute(sourceId);
+}
+
+void Split::populateSharedChatMuteMenu(QMenu *menu)
+{
+    // Do not create a header here. This menu can be filled while that header
+    // is still under construction, and ensureHeader would start another one.
+    if (menu == nullptr || this->header_ == nullptr)
+    {
+        return;
+    }
+    this->header_->populateSharedChatMuteMenu(menu);
 }
 
 std::optional<bool> Split::checkSpellingOverride() const
@@ -3265,8 +3376,7 @@ void Split::dragEnterEvent(QDragEnterEvent *event)
 {
     if ((getSettings()->imageUploaderEnabled &&
          (event->mimeData()->hasImage() || event->mimeData()->hasUrls())) ||
-        (getSettings()->urlShortenerEnabled &&
-         event->mimeData()->hasText()))
+        (getSettings()->urlShortenerEnabled && event->mimeData()->hasText()))
     {
         event->acceptProposedAction();
     }
@@ -3280,8 +3390,7 @@ void Split::dropEvent(QDropEvent *event)
 {
     if ((getSettings()->imageUploaderEnabled &&
          (event->mimeData()->hasImage() || event->mimeData()->hasUrls())) ||
-        (getSettings()->urlShortenerEnabled &&
-         event->mimeData()->hasText()))
+        (getSettings()->urlShortenerEnabled && event->mimeData()->hasText()))
     {
         auto *edit = this->ensureInput()->ui_.textEdit;
         event->acceptProposedAction();

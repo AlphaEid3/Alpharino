@@ -31,4 +31,4 @@ public:
     const QString logToFile;
 };
 
-}
+}  // namespace chatterino

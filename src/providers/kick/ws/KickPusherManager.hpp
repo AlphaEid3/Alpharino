@@ -21,4 +21,4 @@ private:
     std::unique_ptr<KickPusherManagerPrivate> private_;
 };
 
-}
+}  // namespace chatterino

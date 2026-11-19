@@ -8,6 +8,7 @@
 #include "common/enums/MessageContext.hpp"
 #include "common/QLogging.hpp"
 #include "controllers/accounts/AccountController.hpp"
+#include "controllers/chat/EmoteUsageStats.hpp"
 #include "controllers/emotes/EmoteController.hpp"
 #include "controllers/hotkeys/HotkeyController.hpp"
 #include "debug/Benchmark.hpp"
@@ -25,8 +26,8 @@
 #include "providers/seventv/SeventvPersonalEmotes.hpp"
 #include "providers/tiktok/TikTokEmotes.hpp"
 #include "providers/twitch/TwitchAccount.hpp"
-#include "providers/youtube/YouTubeChannel.hpp"
 #include "providers/twitch/TwitchChannel.hpp"
+#include "providers/youtube/YouTubeChannel.hpp"
 #include "singletons/Settings.hpp"
 #include "singletons/Theme.hpp"
 #include "singletons/WindowManager.hpp"
@@ -142,8 +143,7 @@ void addPickerMessages(Channel &channel, const std::vector<Item> &items,
         return;
     }
 
-    for (size_t offset = 0; offset < items.size();
-         offset += EMOTES_PER_MESSAGE)
+    for (size_t offset = 0; offset < items.size(); offset += EMOTES_PER_MESSAGE)
     {
         MessageBuilder builder;
         builder->flags.set(MessageFlag::Centered);
@@ -206,8 +206,8 @@ void addEmojiMessages(Channel &channel, const std::vector<EmojiPtr> &emojiMap,
                 MessageElementFlags{MessageElementFlag::AlwaysShow,
                                     MessageElementFlag::EmojiAll});
             element->setAnimatedPreview();
-            element->setLink(Link(Link::Type::InsertText,
-                                  ":" + value->shortCodes[0] + ":"));
+            element->setLink(
+                Link(Link::Type::InsertText, ":" + value->shortCodes[0] + ":"));
         });
 }
 
@@ -248,7 +248,6 @@ void addTwitchSubEmoteSets(const std::shared_ptr<const EmoteMap> &local,
     {
         if (set.owner && set.owner->id == currentChannelID)
         {
-
             addEmotes(subChannel, set.emotes, set.title());
         }
         else if (set.isSubLike)
@@ -267,8 +266,8 @@ void addTwitchSubEmoteSets(const std::shared_ptr<const EmoteMap> &local,
 }
 
 void addTwitchGlobalEmoteSets(
-    const std::shared_ptr<const TwitchEmoteSetMap> &sets, Channel &globalChannel,
-    const QString &currentChannelID)
+    const std::shared_ptr<const TwitchEmoteSetMap> &sets,
+    Channel &globalChannel, const QString &currentChannelID)
 {
     std::vector<
         std::pair<QString, std::reference_wrapper<const TwitchEmoteSet>>>
@@ -323,7 +322,6 @@ void loadEmojis(ChannelView &view, const std::vector<EmojiPtr> &emojiMap)
 
     for (auto &it : emoteCategoryMap)
     {
-
         if (it.first == "Component")
         {
             continue;
@@ -412,7 +410,7 @@ std::pair<QString, QStringList> getSearchWordAndTags(const QString &text)
 
     return {searchWord, tags};
 }
-}
+}  // namespace
 
 namespace chatterino {
 
@@ -422,7 +420,6 @@ EmotePopup::EmotePopup(QWidget *parent)
     , search_(new QLineEdit())
     , notebook_(new Notebook(this))
 {
-
     auto bounds = getApp()->getWindows()->emotePopupBounds();
     if (bounds.size().isEmpty())
     {
@@ -475,6 +472,12 @@ EmotePopup::EmotePopup(QWidget *parent)
         }
 
         const auto link = hoveredElement->getLink();
+        if (link.value == QStringLiteral("\u001Freset-emote-stats"))
+        {
+            EmoteUsageStats::instance().resetPersonal();
+            this->populateStats();
+            return;
+        }
         if (modifiers.testFlag(Qt::KeyboardModifier::ControlModifier))
         {
             const auto *page = this->searchView_->isVisible()
@@ -617,6 +620,7 @@ EmotePopup::EmotePopup(QWidget *parent)
     this->channelEmotesView_ = makeView("Channel");
     this->globalEmotesView_ = makeView("Global");
     this->viewEmojis_ = makeView("Emojis");
+    this->statsView_ = makeView("Stats");
 
     this->notebook_->select(this->subEmotesView_);
 
@@ -631,10 +635,9 @@ EmotePopup::EmotePopup(QWidget *parent)
 
     this->signalHolder_.managedConnect(
         getApp()->getAccounts()->twitch.emotesReloaded,
-        [this](auto * , const auto &result) {
+        [this](auto *, const auto &result) {
             if (!result)
             {
-
                 return;
             }
             this->reloadEmotes();
@@ -803,6 +806,10 @@ void EmotePopup::loadChannel(ChannelPtr channel)
     this->viewEmojis_->setChannel(makeEmoteChannel());
     this->searchView_->setChannel(makeEmoteChannel());
     this->favouritesView_->setChannel(makeEmoteChannel());
+    if (this->statsView_)
+    {
+        this->statsView_->setChannel(makeEmoteChannel());
+    }
 
     if (!this->channel_)
     {
@@ -953,8 +960,7 @@ void EmotePopup::updateFavouriteEmotesAndEmojis()
             u"These emotes may require a specific channel or an active "
             u"subscription, or their availability could not be checked."_s;
 
-        auto msg =
-            makeInfoTextMessage("Unavailable favourites");
+        auto msg = makeInfoTextMessage("Unavailable favourites");
         chan->addMessage(msg, MessageContext::Original);
 
         msg = makeInfoTextMessage(explainUnavailability);
@@ -963,9 +969,11 @@ void EmotePopup::updateFavouriteEmotesAndEmojis()
         addPickerMessages(
             *chan, unavailableEmotes, {},
             [](MessageBuilder &builder, const QString &name) {
-                builder.emplace<TextElement>(
-                    name, MessageElementFlags{MessageElementFlag::EmoteText,
-                                              MessageElementFlag::AlwaysShow})
+                builder
+                    .emplace<TextElement>(
+                        name,
+                        MessageElementFlags{MessageElementFlag::EmoteText,
+                                            MessageElementFlag::AlwaysShow})
                     ->setLink(Link(Link::InsertText, name));
             });
     }
@@ -1037,6 +1045,10 @@ void EmotePopup::loadTabIfNeeded(QWidget *page)
     else if (page == this->favouritesView_)
     {
         this->populateFavourites();
+    }
+    else if (page == this->statsView_)
+    {
+        this->populateStats();
     }
 }
 
@@ -1124,7 +1136,6 @@ void EmotePopup::populateSubEmotes()
     }
     if (this->kickChannel_)
     {
-
         const auto personalEmotes =
             getApp()->getSeventvPersonalEmotes()->getEmoteSetsForKickUser(
                 getApp()->getAccounts()->kick.current()->userID());
@@ -1164,7 +1175,6 @@ void EmotePopup::populateGlobalEmotes()
     }
     if (this->kickChannel_)
     {
-
         addEmotes(*globalChannel,
                   *getApp()->getKickChatServer()->globalEmotes(), "Kick");
     }
@@ -1237,6 +1247,58 @@ void EmotePopup::populateFavourites()
     this->updateFavouriteEmotesAndEmojis();
 }
 
+void EmotePopup::populateStats()
+{
+    if (this->statsView_ == nullptr)
+    {
+        return;
+    }
+    auto channel = this->statsView_->underlyingChannel();
+    channel->clearMessages();
+
+    const auto rows = EmoteUsageStats::instance().personalRows();
+    if (rows.empty())
+    {
+        channel->addMessage(
+            makeInfoTextMessage(
+                "No emotes sent yet. This counts emotes in messages you send."),
+            MessageContext::Original);
+    }
+    else
+    {
+        for (const auto &row : rows)
+        {
+            MessageBuilder builder;
+            builder->flags.set(MessageFlag::DisableCompactEmotes);
+            builder
+                .emplace<TextElement>(QString::number(row.count),
+                                      MessageElementFlag::Text,
+                                      MessageColor::System)
+                ->setTrailingSpace(true);
+            builder
+                .emplace<TextElement>(
+                    row.name,
+                    MessageElementFlags{MessageElementFlag::EmoteText,
+                                        MessageElementFlag::AlwaysShow})
+                ->setLink(Link(Link::InsertText, row.name))
+                ->setTrailingSpace(true);
+            builder.emplace<TextElement>(
+                QStringLiteral("(%1)").arg(row.provider),
+                MessageElementFlag::Text, MessageColor::System);
+            channel->addMessage(builder.release(), MessageContext::Original);
+        }
+    }
+
+    MessageBuilder reset;
+    reset->flags.set(MessageFlag::Centered);
+    reset
+        .emplace<TextElement>("Reset stats", MessageElementFlag::Text,
+                              MessageColor::Link)
+        ->setLink(
+            Link(Link::UserAction, QStringLiteral("\u001Freset-emote-stats")));
+    channel->addMessage(reset.release(), MessageContext::Original);
+}
+
 void EmotePopup::releaseLoadedEmotes()
 {
     if (this->channelEmotesView_)
@@ -1263,6 +1325,10 @@ void EmotePopup::releaseLoadedEmotes()
     {
         this->favouritesView_->underlyingChannel()->clearMessages();
         this->favouritesLoaded_ = false;
+    }
+    if (this->statsView_)
+    {
+        this->statsView_->underlyingChannel()->clearMessages();
     }
 
     this->favouriteEmotes_.clear();
@@ -1566,11 +1632,12 @@ std::optional<EmotePtr> EmotePopup::findEmote(const EmoteName &name)
             return emote;
         }
     }
-    const auto personal = this->kickChannel_
-        ? getApp()->getSeventvPersonalEmotes()->getEmoteSetsForKickUser(
-              getApp()->getAccounts()->kick.current()->userID())
-        : getApp()->getSeventvPersonalEmotes()->getEmoteSetsForTwitchUser(
-              getApp()->getAccounts()->twitch.getCurrent()->getUserId());
+    const auto personal =
+        this->kickChannel_
+            ? getApp()->getSeventvPersonalEmotes()->getEmoteSetsForKickUser(
+                  getApp()->getAccounts()->kick.current()->userID())
+            : getApp()->getSeventvPersonalEmotes()->getEmoteSetsForTwitchUser(
+                  getApp()->getAccounts()->twitch.getCurrent()->getUserId());
     for (const auto &map : personal)
     {
         if (auto emote = findEmoteByName(name, *map))
@@ -1660,4 +1727,4 @@ void EmotePopup::closeEvent(QCloseEvent *event)
     this->releaseLoadedEmotes();
 }
 
-}
+}  // namespace chatterino

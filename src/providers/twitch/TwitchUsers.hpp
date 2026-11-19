@@ -44,10 +44,9 @@ public:
     pajlada::Signals::Signal<const QString &> userUpdated;
 
 private:
-
     std::shared_ptr<TwitchUsersPrivate> private_;
 
     friend TwitchUsersPrivate;
 };
 
-}
+}  // namespace chatterino

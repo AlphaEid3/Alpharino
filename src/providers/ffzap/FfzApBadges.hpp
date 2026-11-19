@@ -3,8 +3,8 @@
 #include "common/Aliases.hpp"
 #include "util/QStringHash.hpp"  // IWYU pragma: keep
 
-#include <pajlada/signals/signal.hpp>
 #include <boost/unordered/unordered_flat_map.hpp>
+#include <pajlada/signals/signal.hpp>
 #include <QByteArray>
 #include <QColor>
 #include <QObject>
@@ -55,4 +55,4 @@ private:
     int requestAttempts_ = 0;
 };
 
-}
+}  // namespace chatterino

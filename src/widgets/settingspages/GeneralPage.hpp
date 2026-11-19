@@ -30,4 +30,4 @@ private:
     GeneralPageView *view_{};
 };
 
-}
+}  // namespace chatterino

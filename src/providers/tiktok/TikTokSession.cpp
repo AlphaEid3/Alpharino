@@ -72,7 +72,7 @@ bool validMsToken(QStringView token)
                return c.unicode() >= 33 && c.unicode() <= 126;
            });
 }
-}
+}  // namespace
 
 bool isTikTokAccountUrl(const QUrl &url)
 {
@@ -316,4 +316,4 @@ bool TikTokSession::updateMsToken(const QByteArray &token, int requestStatus)
     this->msToken = value;
     return true;
 }
-}
+}  // namespace chatterino

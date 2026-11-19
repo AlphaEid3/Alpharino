@@ -49,7 +49,7 @@ SettingsDialog::SettingsDialog(QWidget *parent)
           parent)
 {
     this->setObjectName("SettingsDialog");
-    this->setWindowTitle("Moltorino Settings");
+    this->setWindowTitle("Alpharino Settings");
     // Disable the ? button in the titlebar until we decide to use it
     this->setWindowFlags(this->windowFlags() &
                          ~Qt::WindowContextHelpButtonHint);
@@ -417,9 +417,9 @@ void SettingsDialog::showDialog(SettingsDialogPreference preferredTab)
 
     if (instance->isMinimized())
     {
-        instance->setWindowState((instance->windowState() &
-                                  ~Qt::WindowMinimized) |
-                                 Qt::WindowActive);
+        instance->setWindowState(
+            (instance->windowState() & ~Qt::WindowMinimized) |
+            Qt::WindowActive);
     }
     if (instance->width() < 200 || instance->height() < 120)
     {

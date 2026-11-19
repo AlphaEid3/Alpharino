@@ -1,15 +1,10 @@
 ---
 name: Build FreeBSD
 
+# Alpharino CI is Windows-only. This workflow stays for local reference and can
+# still be started by hand. It does not run on pull requests.
 on:
-  push:
-    branches:
-      - master
-      - "bugfix-release/*"
-      - "release/*"
-  pull_request:
   workflow_dispatch:
-  merge_group:
 
 concurrency:
   group: build-freebsd-${{ github.ref }}

@@ -60,8 +60,7 @@ public:
 private:
     void load(Paths &paths);
 
-    using CommandFunction =
-        std::function<QString(QStringList , ChannelPtr )>;
+    using CommandFunction = std::function<QString(QStringList, ChannelPtr)>;
 
     using CommandFunctionWithContext = std::function<QString(CommandContext)>;
 
@@ -88,4 +87,4 @@ private:
 #endif
 };
 
-}
+}  // namespace chatterino

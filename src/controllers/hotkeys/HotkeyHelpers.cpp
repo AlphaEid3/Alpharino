@@ -25,7 +25,6 @@ std::vector<QString> parseHotkeyArguments(QString argumentString)
 
     if (argumentString.isEmpty())
     {
-
         return arguments;
     }
 
@@ -109,9 +108,9 @@ QKeySequence normalizeKeySequence(const QKeySequence &seq)
 }
 
 std::optional<Qt::Key> physicalNumberRowKey(const QString &platformName,
-                                         int logicalKey,
-                                         quint32 nativeScanCode,
-                                         quint32 nativeVirtualKey)
+                                            int logicalKey,
+                                            quint32 nativeScanCode,
+                                            quint32 nativeVirtualKey)
 {
     if (logicalKey >= Qt::Key_0 && logicalKey <= Qt::Key_9)
     {
@@ -210,4 +209,4 @@ std::vector<QString> remapIndexedHotkeyArguments(
     return {QString::number(newIndex + 1)};
 }
 
-}
+}  // namespace chatterino

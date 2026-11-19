@@ -8,6 +8,7 @@
 #include "common/Args.hpp"
 #include "common/QLogging.hpp"
 #include "controllers/accounts/AccountController.hpp"
+#include "controllers/chat/HotChat.hpp"
 #include "controllers/hotkeys/HotkeyCategory.hpp"
 #include "controllers/hotkeys/HotkeyController.hpp"
 #include "controllers/recording/ChatRecordingController.hpp"
@@ -109,7 +110,7 @@ void showThemedWarning(QWidget *parent, const QString &title,
     installMoltorinoDialogTheme(box);
     box->exec();
 }
-}
+}  // namespace
 
 Notebook::Notebook(QWidget *parent)
     : BaseWidget(parent)
@@ -137,6 +138,21 @@ Notebook::Notebook(QWidget *parent)
     getSettings()->showTabGroupButton.connect(
         [this](bool, auto) {
             this->updateGroupButtonVisibility();
+        },
+        this->settingConnections_);
+    this->hotChatTimer_ = new QTimer(this);
+    this->hotChatTimer_->setInterval(1000);
+    QObject::connect(this->hotChatTimer_, &QTimer::timeout, this,
+                     &Notebook::refreshHotChat);
+    this->hotChatTimer_->start();
+    getSettings()->hotChatIndicator.connect(
+        [this](const auto &, auto) {
+            this->refreshHotChat();
+        },
+        this->settingConnections_);
+    getSettings()->hotChatSensitivity.connect(
+        [this](const auto &, auto) {
+            this->refreshHotChat();
         },
         this->settingConnections_);
 
@@ -539,6 +555,52 @@ void Notebook::select(QWidget *page, bool focusPage, bool recordInHistory)
     this->selectedPage_ = page;
 
     this->performLayout();
+    this->refreshHotChat();
+}
+
+void Notebook::refreshHotChat()
+{
+    if (this->refreshingHotChat_)
+    {
+        return;
+    }
+    this->refreshingHotChat_ = true;
+
+    const bool enabled = getSettings()->hotChatIndicator;
+    const int sensitivity =
+        std::clamp(getSettings()->hotChatSensitivity.getValue(), 1, 10);
+    for (const auto &item : this->items_)
+    {
+        if (item.tab == nullptr)
+        {
+            continue;
+        }
+        bool hot = false;
+        if (enabled && !item.tab->isSelected())
+        {
+            if (auto *container = dynamic_cast<SplitContainer *>(item.page))
+            {
+                for (auto *split : container->getSplits())
+                {
+                    if (split == nullptr)
+                    {
+                        continue;
+                    }
+                    const auto channel = split->getChannel();
+                    if (channel && channel->isTwitchChannel() &&
+                        HotChat::instance().isHot(channel->getName(),
+                                                  sensitivity))
+                    {
+                        hot = true;
+                        break;
+                    }
+                }
+            }
+        }
+        item.tab->setHotChat(hot);
+    }
+
+    this->refreshingHotChat_ = false;
 }
 
 void Notebook::selectHistoryBack(bool focusPage)
@@ -2402,7 +2464,7 @@ void Notebook::showTabVisibilityInfoPopup()
             ")";
     }
     QMessageBox msgBox(this->window());
-    msgBox.window()->setWindowTitle("Chatterino - hidden tabs");
+    msgBox.window()->setWindowTitle("Alpharino - hidden tabs");
     msgBox.setText("You've just hidden your tabs.");
     msgBox.setInformativeText(
         "You can toggle tabs by using the keyboard shortcut " + hotkeyInfo +

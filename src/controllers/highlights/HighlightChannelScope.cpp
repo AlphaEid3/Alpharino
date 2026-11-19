@@ -75,8 +75,7 @@ QString channelFromKnownUrl(const QString &input)
         const auto videoID = QUrlQuery(url).queryItemValue(QStringLiteral("v"));
         return videoID.isEmpty() ? input : videoID;
     }
-    if (host == QStringLiteral("youtube.com") &&
-        parts.front().startsWith(u'@'))
+    if (host == QStringLiteral("youtube.com") && parts.front().startsWith(u'@'))
     {
         return parts.front();
     }
@@ -134,7 +133,7 @@ QString cleanHighlightChannelName(QString channel)
     return channel.trimmed();
 }
 
-}
+}  // namespace
 
 QString highlightChannelScopeModeKey(HighlightChannelScopeMode mode)
 {
@@ -288,8 +287,7 @@ std::optional<HighlightChannelTarget> decodeHighlightChannelTarget(
     {
         platform = HighlightChannelTargetPlatform::YouTube;
     }
-    else if (channel.startsWith(QStringLiteral(":kick:"),
-                                Qt::CaseInsensitive))
+    else if (channel.startsWith(QStringLiteral(":kick:"), Qt::CaseInsensitive))
     {
         platform = HighlightChannelTargetPlatform::Kick;
     }
@@ -334,7 +332,7 @@ QString highlightChannelScopeDescription(
     {
         const auto count = QString::number(targets.size());
         const auto noun = targets.size() == 1 ? QStringLiteral("channel")
-                                               : QStringLiteral("channels");
+                                              : QStringLiteral("channels");
         heading = mode == HighlightChannelScopeMode::OnlySelected
                       ? QStringLiteral("Applies only in %1 selected %2")
                             .arg(count, noun)
@@ -348,10 +346,9 @@ QString highlightChannelScopeDescription(
          index < std::min(targets.size(), MAX_VISIBLE_TARGETS); ++index)
     {
         const auto &target = targets.at(index);
-        lines.append(QStringLiteral("%1: %2")
-                         .arg(highlightChannelTargetPlatformName(
-                                  target.platform),
-                              target.channel));
+        lines.append(QStringLiteral("%1: %2").arg(
+            highlightChannelTargetPlatformName(target.platform),
+            target.channel));
     }
     if (targets.size() > MAX_VISIBLE_TARGETS)
     {
@@ -362,14 +359,13 @@ QString highlightChannelScopeDescription(
 }
 
 HighlightChannelScope::HighlightChannelScope(
-    HighlightChannelScopeMode mode,
-    std::vector<HighlightChannelTarget> targets)
+    HighlightChannelScopeMode mode, std::vector<HighlightChannelTarget> targets)
     : mode_(mode)
 {
     for (auto &target : targets)
     {
-        auto normalized =
-            makeHighlightChannelTarget(target.platform, std::move(target.channel));
+        auto normalized = makeHighlightChannelTarget(target.platform,
+                                                     std::move(target.channel));
         if (!normalized)
         {
             continue;
@@ -386,8 +382,7 @@ HighlightChannelScope::HighlightChannelScope(
     }
 }
 
-bool HighlightChannelScope::operator==(
-    const HighlightChannelScope &other) const
+bool HighlightChannelScope::operator==(const HighlightChannelScope &other) const
 {
     return this->mode_ == other.mode_ && this->targets_ == other.targets_;
 }
@@ -420,9 +415,8 @@ bool HighlightChannelScope::appliesToNormalized(
 
     const bool selected =
         !normalizedChannelName.isEmpty() &&
-        (this->targetKeys_.contains(
-             targetKey(HighlightChannelTargetPlatform::Any,
-                       normalizedChannelName)) ||
+        (this->targetKeys_.contains(targetKey(
+             HighlightChannelTargetPlatform::Any, normalizedChannelName)) ||
          this->targetKeys_.contains(platformKey(platform) + u':' +
                                     normalizedChannelName));
     return this->mode_ == HighlightChannelScopeMode::OnlySelected ? selected
@@ -437,4 +431,4 @@ QString HighlightChannelScope::targetKey(
            normalizedChannelName;
 }
 
-}
+}  // namespace chatterino

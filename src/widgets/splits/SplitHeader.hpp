@@ -43,6 +43,8 @@ public:
     void updateIcons();
 
     void updateRoomModes();
+    bool toggleSharedChatSourceMute(const QString &sourceId);
+    void populateSharedChatMuteMenu(QMenu *menu);
 
 protected:
     void scaleChangedEvent(float scale) override;
@@ -95,6 +97,7 @@ private:
     DrawnButton *dropdownButton_{};
     Label *titleLabel_{};
     QSpacerItem *autoModHeaderBalance_{};
+    bool updatingAutoModLayout_ = false;
 
     LabelButton *modeButton_{};
     SvgButton *recordingButton_{};
@@ -129,4 +132,4 @@ public Q_SLOTS:
     void reconnect();
 };
 
-}
+}  // namespace chatterino

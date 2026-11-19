@@ -27,4 +27,4 @@ private:
     QTabWidget *tabWidget_{};
 };
 
-}
+}  // namespace chatterino

@@ -14,13 +14,13 @@ list(APPEND CMAKE_MODULE_PATH
     "${CMAKE_SOURCE_DIR}/cmake"
     )
 
-if(WIN32 AND NOT MINGW)
-    include(EnableSegmentHeap)
-endif()
-
 option(BUILD_APP "Build Chatterino" ON)
 option(BUILD_TESTS "Build the tests for Chatterino" OFF)
 option(BUILD_BENCHMARKS "Build the benchmarks for Chatterino" OFF)
+
+if(WIN32 AND NOT MINGW)
+    include(EnableSegmentHeap)
+endif()
 option(USE_SYSTEM_PAJLADA_SETTINGS "Use system pajlada settings library" OFF)
 option(USE_SYSTEM_LIBCOMMUNI "Use system communi library" OFF)
 option(USE_SYSTEM_MINIAUDIO "Build Chatterino with your system miniaudio" OFF)
@@ -101,10 +101,26 @@ if(BUILD_BENCHMARKS)
     list(APPEND VCPKG_MANIFEST_FEATURES "benchmarks")
 endif()
 
+# The ccache action exports CMAKE_CXX_COMPILER_LAUNCHER before CMake runs.
+# CMake copies that normal variable into the resource-compiler rule when
+# project() enables the languages. set(CACHE) does not clear the normal
+# variable, so clang-cl still receives rc.exe's /fo flag unless it is unset.
+if(CMAKE_CXX_COMPILER MATCHES "clang-cl")
+    unset(ENV{CMAKE_C_COMPILER_LAUNCHER})
+    unset(ENV{CMAKE_CXX_COMPILER_LAUNCHER})
+    unset(CMAKE_C_COMPILER_LAUNCHER)
+    unset(CMAKE_CXX_COMPILER_LAUNCHER)
+    set(CMAKE_C_COMPILER_LAUNCHER "" CACHE STRING "C compiler launcher" FORCE)
+    set(CMAKE_CXX_COMPILER_LAUNCHER "" CACHE STRING "CXX compiler launcher" FORCE)
+    unset(CMAKE_C_COMPILER_LAUNCHER)
+    unset(CMAKE_CXX_COMPILER_LAUNCHER)
+    message(STATUS "clang-cl compiler launcher cleared before project()")
+endif()
+
 project(chatterino
     VERSION 15.5.1
-    DESCRIPTION "Moltorino chat client"
-    HOMEPAGE_URL "https://moltorino.com/"
+    DESCRIPTION "Alpharino chat client"
+    HOMEPAGE_URL "https://github.com/AlphaEid3/Alpharino"
 )
 
 if(APPLE)
@@ -175,21 +191,43 @@ if(USE_ALTERNATE_LINKER)
     endif()
 endif()
 
-if(_compiler_launcher)
+# ccache is prepended to CMake's rc.exe helper. clang-cl then receives the
+# resource compiler's /fo flag and the Windows resource build stops.
+set(_moltorino_clang_cl FALSE)
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
+    set(_moltorino_clang_cl TRUE)
+endif()
+
+if(_compiler_launcher AND NOT _moltorino_clang_cl)
     set(CMAKE_CXX_COMPILER_LAUNCHER "${_compiler_launcher}" CACHE STRING "CXX compiler launcher")
     message(STATUS "Using ${_compiler_launcher} for speeding up build")
 
     if(MSVC)
-        # /Zi can't be used with (s)ccache
-        # Use /Z7 instead (debug info in object files)
-        if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-            string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
-        elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
-            string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
-        elseif(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-            string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
-        endif()
+        # /Zi writes one PDB per target. sccache removes /FS, so parallel
+        # cl.exe processes fail with C1041. /Z7 stores debug info in each
+        # .obj instead. C and C++ both need this; quirc is built as C.
+        foreach(_moltorino_lang C CXX)
+            if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+                string(REPLACE "/Zi" "/Z7" CMAKE_${_moltorino_lang}_FLAGS_DEBUG "${CMAKE_${_moltorino_lang}_FLAGS_DEBUG}")
+            elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+                string(REPLACE "/Zi" "/Z7" CMAKE_${_moltorino_lang}_FLAGS_RELEASE "${CMAKE_${_moltorino_lang}_FLAGS_RELEASE}")
+            elseif(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+                string(REPLACE "/Zi" "/Z7" CMAKE_${_moltorino_lang}_FLAGS_RELWITHDEBINFO "${CMAKE_${_moltorino_lang}_FLAGS_RELWITHDEBINFO}")
+            endif()
+        endforeach()
     endif()
+endif()
+
+if(_moltorino_clang_cl)
+    unset(ENV{CMAKE_C_COMPILER_LAUNCHER})
+    unset(ENV{CMAKE_CXX_COMPILER_LAUNCHER})
+    unset(CMAKE_C_COMPILER_LAUNCHER)
+    unset(CMAKE_CXX_COMPILER_LAUNCHER)
+    set(CMAKE_C_COMPILER_LAUNCHER "" CACHE STRING "C compiler launcher" FORCE)
+    set(CMAKE_CXX_COMPILER_LAUNCHER "" CACHE STRING "CXX compiler launcher" FORCE)
+    unset(CMAKE_C_COMPILER_LAUNCHER)
+    unset(CMAKE_CXX_COMPILER_LAUNCHER)
+    message(STATUS "clang-cl compiler launcher after setup: '${CMAKE_CXX_COMPILER_LAUNCHER}'")
 endif()
 
 set(_moltorino_pathmap_pairs "${CMAKE_SOURCE_DIR}=." "${CMAKE_BINARY_DIR}=./build")
@@ -204,17 +242,31 @@ endif()
 
 set(_moltorino_public_config "$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>,$<CONFIG:MinSizeRel>>")
 
-if(MSVC)
+# clang-cl sets MSVC, but it treats cl-only switches such as
+# /experimental:deterministic as input file names.
+if(MSVC AND NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_compile_options("$<${_moltorino_public_config}:/experimental:deterministic>")
 endif()
 
 foreach(_moltorino_pathmap_pair IN LISTS _moltorino_pathmap_pairs)
-    if(MSVC)
-        add_compile_options("$<${_moltorino_public_config}:/pathmap:${_moltorino_pathmap_pair}>")
+    # clang-cl sets MSVC and rejects both /pathmap and -f*-prefix-map.
+    # Crashpad compiles with /WX, so either form stops the test build.
+    # A plain cl.exe build still uses /pathmap. A sccache or ccache launch
+    # skips it; see the MSVC branch below.
+    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
+        # No path remapping for clang-cl.
     elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         add_compile_options("$<${_moltorino_public_config}:-ffile-prefix-map=${_moltorino_pathmap_pair}>")
         add_compile_options("$<${_moltorino_public_config}:-fdebug-prefix-map=${_moltorino_pathmap_pair}>")
         add_compile_options("$<${_moltorino_public_config}:-fmacro-prefix-map=${_moltorino_pathmap_pair}>")
+    elseif(MSVC)
+        # sccache 0.14 does not know /pathmap. It treats that unknown /option
+        # as another input file, so every compile is non-cacheable
+        # ("multiple input files") and the cache stays empty. Keep the flag
+        # for plain cl.exe builds, where it still remaps absolute paths.
+        if(NOT _compiler_launcher AND NOT CMAKE_CXX_COMPILER_LAUNCHER)
+            add_compile_options("$<${_moltorino_public_config}:/pathmap:${_moltorino_pathmap_pair}>")
+        endif()
     endif()
 endforeach()
 
@@ -450,6 +502,44 @@ endif()
 
 if(BUILD_BENCHMARKS)
     add_subdirectory(benchmarks)
+endif()
+
+# ccache is injected as RULE_LAUNCH_COMPILE, which CMake prepends to every
+# compile rule, including the resource compiler. Emptying
+# CMAKE_CXX_COMPILER_LAUNCHER does not touch that property. With cmcldeps,
+# the resulting command is "ccache cmcldeps clang-cl rc /fo ...", and ccache
+# then runs clang-cl on rc.exe's /fo flag.
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
+    set(CMAKE_NINJA_CMCLDEPS_RC 0 CACHE BOOL "Use cmcldeps for ninja RC rules" FORCE)
+
+    function(_alpharino_clear_compile_launchers dir)
+        if(dir STREQUAL CMAKE_SOURCE_DIR)
+            get_property(_alpharino_rule_launch GLOBAL PROPERTY RULE_LAUNCH_COMPILE)
+            get_property(_alpharino_dir_launch DIRECTORY "${dir}" PROPERTY RULE_LAUNCH_COMPILE)
+            message(STATUS "clang-cl RULE_LAUNCH_COMPILE before clear: global='${_alpharino_rule_launch}' directory='${_alpharino_dir_launch}'")
+            set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "")
+            set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK "")
+            set_property(GLOBAL PROPERTY RULE_LAUNCH_CUSTOM "")
+        endif()
+        set_property(DIRECTORY "${dir}" PROPERTY RULE_LAUNCH_COMPILE "")
+        set_property(DIRECTORY "${dir}" PROPERTY RULE_LAUNCH_LINK "")
+        set_property(DIRECTORY "${dir}" PROPERTY RULE_LAUNCH_CUSTOM "")
+        get_property(_targets DIRECTORY "${dir}" PROPERTY BUILDSYSTEM_TARGETS)
+        foreach(_target IN LISTS _targets)
+            set_property(TARGET "${_target}" PROPERTY RULE_LAUNCH_COMPILE "")
+            set_property(TARGET "${_target}" PROPERTY RULE_LAUNCH_LINK "")
+            set_property(TARGET "${_target}" PROPERTY RULE_LAUNCH_CUSTOM "")
+            set_property(TARGET "${_target}" PROPERTY C_COMPILER_LAUNCHER "")
+            set_property(TARGET "${_target}" PROPERTY CXX_COMPILER_LAUNCHER "")
+        endforeach()
+        get_property(_subdirs DIRECTORY "${dir}" PROPERTY SUBDIRECTORIES)
+        foreach(_subdir IN LISTS _subdirs)
+            _alpharino_clear_compile_launchers("${_subdir}")
+        endforeach()
+    endfunction()
+
+    # Run after every deferred hook so a dependency cannot put ccache back.
+    cmake_language(DEFER CALL _alpharino_clear_compile_launchers "${CMAKE_SOURCE_DIR}")
 endif()
 
 feature_summary(WHAT ALL)

@@ -9,8 +9,10 @@
 #include "common/Literals.hpp"
 #include "common/QLogging.hpp"
 #include "common/Version.hpp"
+#include "controllers/commands/CommandController.hpp"
 #include "controllers/notifications/NotificationController.hpp"
 #include "providers/twitch/api/Helix.hpp"
+#include "providers/twitch/TwitchChannel.hpp"
 #include "providers/twitch/TwitchIrcServer.hpp"
 #include "singletons/Paths.hpp"
 #include "singletons/Settings.hpp"
@@ -31,6 +33,7 @@
 #include <QDesktopServices>
 #include <QDir>
 #include <QFileInfo>
+#include <QMessageBox>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QStringBuilder>
@@ -77,8 +80,8 @@ bool hasAvatarForChannel(const QString &channelName)
 bool isRunningFromBuildTree()
 {
     const QFileInfo appFile(QCoreApplication::applicationFilePath());
-    if (appFile.fileName().compare(u"Moltorino7.exe"_s,
-                                   Qt::CaseInsensitive) != 0)
+    if (appFile.fileName().compare(u"Alpharino.exe"_s, Qt::CaseInsensitive) !=
+        0)
     {
         return false;
     }
@@ -178,7 +181,7 @@ void onAction(NotifyNotification *notif, const char *actionRaw, void *userData)
     notify_notification_close(notif, nullptr);
 }
 
-void onActionClosed(NotifyNotification *notif, void * )
+void onActionClosed(NotifyNotification *notif, void *)
 {
     g_object_unref(notif);
 }
@@ -189,8 +192,7 @@ void onNotificationDestroyed(void *data)
     delete channelNameHeap;
 }
 
-void onHighlightAction(NotifyNotification *notif, const char * ,
-                       void *userData)
+void onHighlightAction(NotifyNotification *notif, const char *, void *userData)
 {
     const auto *data = static_cast<HighlightNotificationData *>(userData);
     if (data != nullptr)
@@ -212,7 +214,7 @@ void onHighlightNotificationDestroyed(void *data)
 }
 #endif
 
-}
+}  // namespace
 
 namespace chatterino {
 
@@ -312,7 +314,6 @@ void Toasts::sendChannelNotification(const QString &channelName,
         getHelix()->getUserByName(
             channelName,
             [channelName, sendChannelNotification](const auto &user) {
-
                 auto *downloader =
                     new AvatarDownloader(user.profileImageUrl, channelName);
                 QObject::connect(downloader,
@@ -328,12 +329,16 @@ void Toasts::sendChannelNotification(const QString &channelName,
 bool Toasts::sendHighlightNotification(const QString &channelName,
                                        const QString &title,
                                        const QString &body,
-                                       const QString &messageId)
+                                       const QString &messageId,
+                                       const QString &authorLogin,
+                                       bool moderationActions)
 {
 #ifdef Q_OS_WIN
-    return this->sendWindowsHighlightNotification(channelName, title, body,
-                                                  messageId);
+    return this->sendWindowsHighlightNotification(
+        channelName, title, body, messageId, authorLogin, moderationActions);
 #elif defined(CHATTERINO_WITH_LIBNOTIFY)
+    (void)authorLogin;
+    (void)moderationActions;
     return this->sendLibnotifyHighlightNotification(channelName, title, body,
                                                     messageId);
 #else
@@ -341,6 +346,8 @@ bool Toasts::sendHighlightNotification(const QString &channelName,
     (void)title;
     (void)body;
     (void)messageId;
+    (void)authorLogin;
+    (void)moderationActions;
     return false;
 #endif
 }
@@ -395,16 +402,84 @@ public:
     }
 };
 
+void performToastModeration(const QString &channelName, const QString &login,
+                            const QString &messageId, int actionIndex)
+{
+    auto channel = getApp()->getTwitch()->getChannelOrEmpty(channelName);
+    if (!channel || channel->isEmpty())
+    {
+        return;
+    }
+    if (!channel->hasModRights())
+    {
+        channel->addSystemMessage(
+            QStringLiteral("You are not a moderator in #%1.").arg(channelName));
+        return;
+    }
+    if (login.trimmed().isEmpty())
+    {
+        return;
+    }
+
+    QString command;
+    QString confirmText;
+    switch (actionIndex)
+    {
+        case 0:
+            command = QStringLiteral("/timeout %1 10m").arg(login);
+            confirmText = QStringLiteral("Timeout %1 for 10 minutes in #%2?")
+                              .arg(login, channelName);
+            break;
+        case 1:
+            command = QStringLiteral("/ban %1").arg(login);
+            confirmText =
+                QStringLiteral("Ban %1 in #%2?").arg(login, channelName);
+            break;
+        case 2: {
+            if (messageId.isEmpty())
+            {
+                channel->addSystemMessage(
+                    QStringLiteral("That message cannot be deleted."));
+                return;
+            }
+            command = QStringLiteral("/delete %1").arg(messageId);
+            confirmText =
+                QStringLiteral("Delete that message in #%1?").arg(channelName);
+            break;
+        }
+        default:
+            return;
+    }
+
+    if (getSettings()->toastModerationActionsConfirm)
+    {
+        const auto answer = QMessageBox::question(
+            nullptr, QStringLiteral("Confirm moderation"), confirmText,
+            QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+        if (answer != QMessageBox::Yes)
+        {
+            return;
+        }
+    }
+
+    getApp()->getCommands()->execCommand(command, channel, false);
+}
+
 class HighlightHandler : public WinToastLib::IWinToastHandler
 {
 private:
     QString channelName_;
     QString messageId_;
+    QString authorLogin_;
+    bool moderationActions_ = false;
 
 public:
-    HighlightHandler(QString channelName, QString messageId)
+    HighlightHandler(QString channelName, QString messageId,
+                     QString authorLogin, bool moderationActions)
         : channelName_(std::move(channelName))
         , messageId_(std::move(messageId))
+        , authorLogin_(std::move(authorLogin))
+        , moderationActions_(moderationActions)
     {
     }
 
@@ -420,8 +495,17 @@ public:
 
     void toastActivated(int actionIndex) const override
     {
-        (void)actionIndex;
-        this->toastActivated();
+        if (!this->moderationActions_)
+        {
+            this->toastActivated();
+            return;
+        }
+        const auto channelName = this->channelName_;
+        const auto messageId = this->messageId_;
+        const auto login = this->authorLogin_;
+        runInGuiThread([channelName, login, messageId, actionIndex] {
+            performToastModeration(channelName, login, messageId, actionIndex);
+        });
     }
 
     void toastActivated(std::wstring response) const override
@@ -450,9 +534,7 @@ void Toasts::ensureInitialized()
 
     auto *instance = WinToast::instance();
     const auto &appId = Version::instance().appUserModelID();
-    const bool official = appId == L"MoltoBenne.Moltorino7" ||
-                          appId == L"MoltoBenne.Moltorino7UpdaterTest";
-    instance->setAppName(official ? L"Moltorino7" : appId);
+    instance->setAppName(L"Alpharino");
     instance->setAppUserModelId(appId);
     if (isRunningFromBuildTree() || !getSettings()->createShortcutForToasts)
     {
@@ -495,8 +577,7 @@ bool Toasts::ensureActionCenterActivation()
     if (!this->actionCenterActivationAvailable_)
     {
         qCWarning(chatterinoNotification)
-            << "Failed to prepare WinToast Action Center activation:"
-            << result;
+            << "Failed to prepare WinToast Action Center activation:" << result;
     }
 
     return this->actionCenterActivationAvailable_;
@@ -544,7 +625,9 @@ void Toasts::sendWindowsNotification(const QString &channelName,
 bool Toasts::sendWindowsHighlightNotification(const QString &channelName,
                                               const QString &title,
                                               const QString &body,
-                                              const QString &messageId)
+                                              const QString &messageId,
+                                              const QString &authorLogin,
+                                              bool moderationActions)
 {
     if (!WinToast::isCompatible())
     {
@@ -563,10 +646,19 @@ bool Toasts::sendWindowsHighlightNotification(const QString &channelName,
     templ.setTextField(title.toStdWString(), WinToastTemplate::FirstLine);
     templ.setTextField(body.toStdWString(), WinToastTemplate::SecondLine);
     templ.setAudioOption(WinToastTemplate::AudioOption::Silent);
+    const bool actions = moderationActions && !authorLogin.trimmed().isEmpty();
+    if (actions)
+    {
+        templ.addAction(L"Timeout 10m");
+        templ.addAction(L"Ban");
+        templ.addAction(L"Delete message");
+    }
 
     WinToast::WinToastError error = WinToast::NoError;
     const auto toastID = WinToast::instance()->showToast(
-        templ, new HighlightHandler(channelName, messageId), &error);
+        templ,
+        new HighlightHandler(channelName, messageId, authorLogin, actions),
+        &error);
 
     if (toastID < 0 || error != WinToast::NoError)
     {
@@ -624,12 +716,12 @@ bool Toasts::sendLibnotifyHighlightNotification(const QString &channelName,
         .messageId = messageId,
     };
 
-    notify_notification_add_action(
-        notif, "default", "Open", (NotifyActionCallback)onHighlightAction,
-        data, onHighlightNotificationDestroyed);
-    notify_notification_add_action(
-        notif, "open", "Open", (NotifyActionCallback)onHighlightAction, data,
-        nullptr);
+    notify_notification_add_action(notif, "default", "Open",
+                                   (NotifyActionCallback)onHighlightAction,
+                                   data, onHighlightNotificationDestroyed);
+    notify_notification_add_action(notif, "open", "Open",
+                                   (NotifyActionCallback)onHighlightAction,
+                                   data, nullptr);
 
     g_signal_connect(notif, "closed", (GCallback)onActionClosed, nullptr);
 
@@ -716,7 +808,7 @@ void Toasts::sendLibnotify(const QString &channelName,
 }
 #endif
 
-}
+}  // namespace chatterino
 
 namespace {
 
@@ -753,4 +845,4 @@ AvatarDownloader::AvatarDownloader(const QString &avatarURL,
 
 #include "Toasts.moc"
 
-}
+}  // namespace

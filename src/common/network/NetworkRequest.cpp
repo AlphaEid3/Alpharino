@@ -13,8 +13,8 @@
 #include <QDebug>
 #include <QFile>
 #include <QLibraryInfo>
-#include <QVersionNumber>
 #include <QtConcurrent>
+#include <QVersionNumber>
 
 #include <cassert>
 
@@ -32,7 +32,7 @@ bool needsTwitchCdnHttp1(const QUrl &url, const QVersionNumber &qtVersion)
            url.host() == u"static-cdn.jtvnw.net" && url.port(443) == 443;
 }
 
-}
+}  // namespace network::detail
 
 NetworkRequest::NetworkRequest(const std::string &url,
                                NetworkRequestType requestType)
@@ -65,7 +65,6 @@ NetworkRequest NetworkRequest::caller(const QObject *caller) &&
 {
     if (caller)
     {
-
         assert(caller->thread() == QApplication::instance()->thread());
 
         this->data->caller = const_cast<QObject *>(caller);
@@ -285,4 +284,4 @@ NetworkRequest NetworkRequest::ignoreSslErrors(bool ignore) &&
 }
 #endif
 
-}
+}  // namespace chatterino

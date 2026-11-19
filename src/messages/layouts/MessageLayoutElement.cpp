@@ -101,8 +101,8 @@ QCache<ModifierFilterKey, ModifierFilterFrame> &getModifierFilterCache()
 
 QRectF snapRectToDevicePixels(const QRectF &rect, const QPainter &painter)
 {
-    const auto dpr = painter.device() ? painter.device()->devicePixelRatioF()
-                                      : 1.0;
+    const auto dpr =
+        painter.device() ? painter.device()->devicePixelRatioF() : 1.0;
     const auto snap = [dpr](qreal value) {
         return std::round(value * dpr) / dpr;
     };
@@ -725,7 +725,7 @@ QColor mutedClientBadgeColor(QColor source)
         218);
 }
 
-}
+}  // namespace
 
 namespace {
 
@@ -808,7 +808,7 @@ void paintFragmentHighlightOutline(QPainter &painter, const QRectF &rect,
     painter.drawPath(path);
 }
 
-}
+}  // namespace
 
 void paintFragmentHighlightBackground(QPainter &painter, const QRectF &rect,
                                       const FragmentHighlight &highlight)
@@ -2230,13 +2230,13 @@ void TextLayoutElement::paintText(QPainter &painter, bool paintHighlights)
 
     if (this->getRect().height() > std::ceil(metrics.height()))
     {
-        const auto baseline =
-            this->getRect().bottom() - metrics.descent();
+        const auto baseline = this->getRect().bottom() - metrics.descent();
         painter.drawText(QPointF(this->getRect().x(), baseline), text);
     }
     else
     {
-        QPointF pivot(this->getRect().x(), this->getRect().y() + metrics.ascent());
+        QPointF pivot(this->getRect().x(),
+                      this->getRect().y() + metrics.ascent());
         painter.drawText(pivot, text);
     }
     if (paintHighlights)
@@ -2623,8 +2623,8 @@ size_t ClientDetectionLayoutElement::getSelectionIndexCount() const
     return 0;
 }
 
-void ClientDetectionLayoutElement::paint(
-    QPainter &painter, const MessageColors &)
+void ClientDetectionLayoutElement::paint(QPainter &painter,
+                                         const MessageColors &)
 {
     if (this->platformIcon_ == nullptr || this->platformIcon_->isNull())
     {

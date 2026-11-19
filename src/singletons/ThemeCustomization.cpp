@@ -603,7 +603,7 @@ void boxBlurAlphaPass(const std::vector<uint16_t> &source,
     }
 }
 
-}
+}  // namespace
 
 QImage loadThemeWallpaper(const QString &source, int maxDimension)
 {
@@ -628,8 +628,7 @@ QImage loadThemeWallpaper(const QString &source, int maxDimension)
         return {};
     }
     maxDimension = std::clamp(maxDimension, 1, MAX_WALLPAPER_DIMENSION);
-    if (sourceSize.width() > maxDimension ||
-        sourceSize.height() > maxDimension)
+    if (sourceSize.width() > maxDimension || sourceSize.height() > maxDimension)
     {
         reader.setScaledSize(
             sourceSize.scaled(maxDimension, maxDimension, Qt::KeepAspectRatio));
@@ -1273,8 +1272,7 @@ std::optional<ThemeCustomizationProfile> customizationProfileFromTheme(
                 typography.value(u"useThemeFontSizes"_s).toBool(false);
         }
     }
-    if (version >= 16 &&
-        customization.value(u"originalColors"_s).isObject() &&
+    if (version >= 16 && customization.value(u"originalColors"_s).isObject() &&
         customization.value(u"originalGeneratedColors"_s).isObject())
     {
         const auto shape =
@@ -1558,9 +1556,9 @@ QJsonObject buildCustomizedTheme(const ThemeCustomizationProfile &input)
          QJsonObject{
              {u"name"_s, profile.name},
              {u"iconTheme"_s, light ? u"dark"_s : u"light"_s},
-             {u"fallbackTheme"_s,
-              light && profile.originalColors.isEmpty() ? u"Light"_s
-                                                       : profile.baseTheme},
+             {u"fallbackTheme"_s, light && profile.originalColors.isEmpty()
+                                      ? u"Light"_s
+                                      : profile.baseTheme},
              {u"moltorino"_s, customization}}},
         {u"colors"_s, colors},
     };
@@ -2167,4 +2165,4 @@ std::optional<ThemeCustomizationProfile> builtInCustomizationProfile(
     return profile;
 }
 
-}
+}  // namespace chatterino

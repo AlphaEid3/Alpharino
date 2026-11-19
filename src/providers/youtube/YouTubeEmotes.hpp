@@ -18,7 +18,7 @@ namespace youtube {
 inline constexpr uint16_t CUSTOM_EMOJI_LOGICAL_SIZE = 24;
 inline constexpr qreal CUSTOM_EMOJI_HORIZONTAL_PADDING = 3.0;
 
-}
+}  // namespace youtube
 
 struct YouTubeLiveChatPage {
     QJsonObject innertubeContext;
@@ -45,8 +45,7 @@ public:
                                     const QString &imageUrl,
                                     const QString &emojiID);
 
-    static void loadPageForVideo(const QString &videoID,
-                                 PageCallback callback,
+    static void loadPageForVideo(const QString &videoID, PageCallback callback,
                                  bool fresh = false);
 
     static void loadForVideo(const QString &videoID, Callback callback);
@@ -57,4 +56,4 @@ public:
     static ExpectedStr<PagePtr> parseLiveChatPageData(const QByteArray &html);
 };
 
-}
+}  // namespace chatterino

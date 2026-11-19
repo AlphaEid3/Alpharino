@@ -59,7 +59,6 @@ void addOrReplaceChannelTimeout(const Buf &buffer, MessagePtr message,
                                 const QDateTime &now, Replace replaceMessage,
                                 Add addMessage, bool disableUserMessages)
 {
-
     auto snapshotLength = static_cast<qsizetype>(buffer.size());
 
     auto end = std::max<qsizetype>(0, snapshotLength - 20);
@@ -153,7 +152,6 @@ void addOrReplaceChannelTimeout(const Buf &buffer, MessagePtr message,
                 s->flags.hasNone(
                     {MessageFlag::ModerationAction, MessageFlag::Whisper}))
             {
-
                 s->flags.set(MessageFlag::Disabled);
                 s->flags.set(MessageFlag::InvalidReplyTarget);
             }
@@ -171,7 +169,6 @@ void addOrReplaceChannelClear(const Buffer &buffer, MessagePtr message,
                               const QDateTime &now, Replace replaceMessage,
                               Add addMessage)
 {
-
     auto snapshotLength = static_cast<qsizetype>(buffer.size());
     auto end = std::max<qsizetype>(0, snapshotLength - 20);
     bool shouldAddMessage = true;
@@ -237,4 +234,4 @@ void addOrReplaceChannelClear(const Buffer &buffer, MessagePtr message,
     }
 }
 
-}
+}  // namespace chatterino
