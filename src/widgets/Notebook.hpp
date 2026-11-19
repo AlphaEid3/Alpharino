@@ -263,6 +263,7 @@ private:
     QMenu *menu_ = nullptr;
     QWidget *selectedPage_ = nullptr;
     QTimer *hotChatTimer_ = nullptr;
+    bool refreshingHotChat_ = false;
 
     TabHistory tabHistory_;
 

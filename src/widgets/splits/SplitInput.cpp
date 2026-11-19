@@ -226,6 +226,12 @@ public:
 
     void refreshAppearance()
     {
+        if (this->applying_)
+        {
+            return;
+        }
+        this->applying_ = true;
+
         const int previousHeight = this->height();
         this->setFixedHeight(this->carouselHeight());
         this->update();
@@ -235,10 +241,17 @@ public:
         {
             this->visibilityCallback_();
         }
+
+        this->applying_ = false;
     }
 
     void setCompletion(TabCompletionModel *model, int selectedRow)
     {
+        if (this->applying_)
+        {
+            return;
+        }
+        this->applying_ = true;
         this->model_ = model;
         this->selectedRow_ = selectedRow;
 
@@ -261,6 +274,7 @@ public:
         if (selectedItem == nullptr || !selectedItem->hasRenderableEmote() ||
             this->emoteRows_.empty())
         {
+            this->applying_ = false;
             this->clear();
             return;
         }
@@ -269,6 +283,7 @@ public:
         this->setFixedHeight(this->carouselHeight());
         this->show();
         this->update();
+        this->applying_ = false;
         if (changedVisibility && this->visibilityCallback_)
         {
             this->visibilityCallback_();
@@ -571,6 +586,7 @@ private:
     std::function<void(int)> selectionCallback_;
     std::function<void()> visibilityCallback_;
     pajlada::Signals::ScopedConnection gifRepaintConnection_;
+    bool applying_ = false;
 };
 
 namespace {
@@ -1605,10 +1621,14 @@ void SplitInput::updateMultiChannelDestinationButton()
 void SplitInput::updateSendAccountButton()
 {
     auto *button = this->ui_.sendAccountButton;
-    if (button == nullptr)
+    if (button == nullptr || this->updatingSendAccountButton_)
     {
         return;
     }
+    this->updatingSendAccountButton_ = true;
+    const auto finish = [this] {
+        this->updatingSendAccountButton_ = false;
+    };
     if (!this->split_->sendAccountLogin().isEmpty())
     {
         auto &twitch = getApp()->getAccounts()->twitch;
@@ -1619,8 +1639,10 @@ void SplitInput::updateSendAccountButton()
                 twitch.findUserByUsername(this->split_->sendAccountLogin());
             if (!pinned || pinned->isAnon())
             {
+                // setSendAccountLogin calls back into this function. The flag
+                // above makes that call a no-op, then we paint the current
+                // account below.
                 this->split_->setSendAccountLogin({});
-                return;
             }
         }
     }
@@ -1632,6 +1654,7 @@ void SplitInput::updateSendAccountButton()
     button->setVisible(show);
     if (!show)
     {
+        finish();
         return;
     }
 
@@ -1654,6 +1677,7 @@ void SplitInput::updateSendAccountButton()
                      "Messages in this split send as %1, the current account. "
                      "Click to pin a different account.")
                      .arg(account->getUserName()));
+    finish();
 }
 
 void SplitInput::openSendAccountMenu()
@@ -2080,7 +2104,7 @@ void SplitInput::initLayout()
             new LabelButton(QString{}, nullptr, QSize{3, 0});
         this->ui_.sendAccountButton->setToolTip(
             "Choose which logged-in account sends messages from this split");
-        this->ui_.sendAccountButton->setSizePolicy(QSizePolicy::Maximum,
+        this->ui_.sendAccountButton->setSizePolicy(QSizePolicy::Fixed,
                                                    QSizePolicy::Fixed);
         this->ui_.sendAccountButton->hide();
         QObject::connect(this->ui_.sendAccountButton, &Button::leftClicked,
@@ -5829,6 +5853,10 @@ void SplitInput::updateFonts()
     {
         this->ui_.multiChannelDestinationButton->setFont(inputActionFont);
         this->updateMultiChannelDestinationButton();
+    }
+    if (this->ui_.sendAccountButton != nullptr)
+    {
+        this->ui_.sendAccountButton->setFont(inputActionFont);
     }
     this->updateActionRowCompactness();
 #if MOLTORINO_ENABLE_CHANNEL_POINT_REWARDS

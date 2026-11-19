@@ -35,6 +35,11 @@ private:
     void syncLabelFont();
     void updatePadding();
 
+    // Set while copying this button's font onto its label. Qt 6.9 delivers
+    // another FontChange to the parent from that setFont, which otherwise
+    // recurses until Qt6Gui overflows the stack.
+    bool syncingFont_ = false;
+
     QHBoxLayout layout_;
     QLabel label_;
     QSize padding_;

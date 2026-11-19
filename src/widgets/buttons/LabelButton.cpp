@@ -56,9 +56,11 @@ void LabelButton::changeEvent(QEvent *event)
 {
     Button::changeEvent(event);
 
-    if (event->type() == QEvent::FontChange)
+    if (event->type() == QEvent::FontChange && !this->syncingFont_)
     {
+        this->syncingFont_ = true;
         this->syncLabelFont();
+        this->syncingFont_ = false;
     }
 }
 
@@ -68,7 +70,12 @@ void LabelButton::paintContent(QPainter &painter)
 
 void LabelButton::syncLabelFont()
 {
-    this->label_.setFont(this->font());
+    const auto next = this->font();
+    if (this->label_.font() == next)
+    {
+        return;
+    }
+    this->label_.setFont(next);
 }
 
 void LabelButton::updatePadding()

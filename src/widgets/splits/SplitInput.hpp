@@ -334,6 +334,7 @@ protected:
     QPropertyAnimation raidStatusProgressAnimation_;
     pajlada::Signals::ScopedConnection raidStatusConnection_;
     bool sendWaitStatusWanted_ = false;
+    bool updatingSendAccountButton_ = false;
     bool guardOutgoingMessage(const QString &message, const ChannelPtr &channel,
                               const std::vector<QString> &arguments);
     bool shouldHoldForChatPause(const ChannelPtr &channel,

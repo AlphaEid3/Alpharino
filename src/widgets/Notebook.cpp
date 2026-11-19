@@ -560,6 +560,12 @@ void Notebook::select(QWidget *page, bool focusPage, bool recordInHistory)
 
 void Notebook::refreshHotChat()
 {
+    if (this->refreshingHotChat_)
+    {
+        return;
+    }
+    this->refreshingHotChat_ = true;
+
     const bool enabled = getSettings()->hotChatIndicator;
     const int sensitivity =
         std::clamp(getSettings()->hotChatSensitivity.getValue(), 1, 10);
@@ -593,6 +599,8 @@ void Notebook::refreshHotChat()
         }
         item.tab->setHotChat(hot);
     }
+
+    this->refreshingHotChat_ = false;
 }
 
 void Notebook::selectHistoryBack(bool focusPage)
