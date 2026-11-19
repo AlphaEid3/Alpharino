@@ -4,8 +4,6 @@
 
 #include "widgets/buttons/LabelButton.hpp"
 
-#include "util/StartupTrace.hpp"
-
 #include <QTimer>
 
 namespace chatterino {
@@ -117,9 +115,7 @@ void LabelButton::syncLabelFont()
         return;
     }
 
-    startupTrace(QStringLiteral("LabelButton setFont"));
     this->label_.setFont(next);
-    startupTrace(QStringLiteral("LabelButton setFont done"));
 }
 
 void LabelButton::updatePadding()

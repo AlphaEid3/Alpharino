@@ -38,7 +38,6 @@
 #include "singletons/ImageUploader.hpp"
 #include "singletons/NativeMessaging.hpp"
 #include "singletons/UrlShortener.hpp"
-#include "util/StartupTrace.hpp"
 #ifdef CHATTERINO_HAVE_PLUGINS
 #    include "controllers/plugins/PluginController.hpp"
 #endif
@@ -428,12 +427,8 @@ int Application::run()
 
     if (!this->args_.isFramelessEmbed)
     {
-        startupTrace(QStringLiteral("run before show"));
         this->windows->getMainWindow().show();
-        startupTrace(QStringLiteral("run after show"));
     }
-
-    startupTrace(QStringLiteral("run exec"));
 
     QTimer::singleShot(2500, qApp, [] {
         getMoltorinoPresence()->startHeartbeat();

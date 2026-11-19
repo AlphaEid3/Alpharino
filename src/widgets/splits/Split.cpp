@@ -35,7 +35,6 @@
 #include "util/CustomPlayer.hpp"
 #include "util/IncognitoBrowser.hpp"
 #include "util/MultiChannel.hpp"
-#include "util/StartupTrace.hpp"
 #include "util/StreamLink.hpp"
 #include "widgets/ChatterListWidget.hpp"
 #include "widgets/dialogs/SelectChannelDialog.hpp"
@@ -427,21 +426,24 @@ SplitHeader *Split::ensureHeader()
         return this->header_;
     }
 
-    startupTrace(QStringLiteral("header new"));
     this->header_ = new SplitHeader(this);
-    startupTrace(QStringLiteral("header created"));
     this->applyScaleToLazyChild(this->header_);
     this->vbox_->insertWidget(0, this->header_);
-    startupTrace(QStringLiteral("header inserted"));
     this->header_->setAddButtonVisible(this->isTopRightSplit_);
-    startupTrace(QStringLiteral("header add"));
     this->header_->updateRoomModes();
-    startupTrace(QStringLiteral("header modes"));
     if (this->autoModReviewBar_ != nullptr)
     {
         this->header_->setAutoModReviewBar(this->autoModReviewBar_);
     }
     return this->header_;
+}
+
+void Split::attachHeader(SplitHeader *header)
+{
+    if (this->header_ == nullptr && header != nullptr)
+    {
+        this->header_ = header;
+    }
 }
 
 SplitInput *Split::ensureInput()
@@ -1711,13 +1713,9 @@ void Split::showEvent(QShowEvent *event)
         this->addShortcuts();
         this->shortcutsActive_ = true;
     }
-    startupTrace(QStringLiteral("Split::showEvent header"));
     this->ensureHeader();
-    startupTrace(QStringLiteral("Split::showEvent input"));
     this->ensureInput();
-    startupTrace(QStringLiteral("Split::showEvent base"));
     BaseWidget::showEvent(event);
-    startupTrace(QStringLiteral("Split::showEvent done"));
     this->scheduleDeferredTwitchRefresh(!shouldUseColdTwitchFeatureDelay());
     this->refreshSelectedYouTube();
 }
@@ -2893,7 +2891,13 @@ void Split::toggleSharedChatSourceMute(const QString &sourceId)
 
 void Split::populateSharedChatMuteMenu(QMenu *menu)
 {
-    this->ensureHeader()->populateSharedChatMuteMenu(menu);
+    // Do not create a header here. This menu can be filled while that header
+    // is still under construction, and ensureHeader would start another one.
+    if (menu == nullptr || this->header_ == nullptr)
+    {
+        return;
+    }
+    this->header_->populateSharedChatMuteMenu(menu);
 }
 
 std::optional<bool> Split::checkSpellingOverride() const

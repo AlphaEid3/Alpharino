@@ -43,7 +43,6 @@
 #include "util/Helpers.hpp"
 #include "util/LayoutCreator.hpp"
 #include "util/MultiChannel.hpp"
-#include "util/StartupTrace.hpp"
 #include "widgets/buttons/LabelButton.hpp"
 #include "widgets/buttons/SvgButton.hpp"
 #include "widgets/dialogs/EmotePopup.hpp"
@@ -1043,9 +1042,7 @@ SplitInput::SplitInput(QWidget *parent, Split *_chatWidget,
     // NOLINTNEXTLINE(cppcoreguidelines-prefer-member-initializer)
     auto *spellChecker = getApp()->getSpellChecker();
     this->inputHighlighter = new InputHighlighter(*spellChecker, this);
-    startupTrace(QStringLiteral("SplitInput updateChannel"));
     this->updateChannel();
-    startupTrace(QStringLiteral("SplitInput updateChannel done"));
 
     this->signalHolder_.managedConnect(this->split_->channelChanged, [this] {
         this->updateChannel();
@@ -1630,9 +1627,7 @@ void SplitInput::updateMultiChannelDestinationButton()
             ? u"Y"_s
             : platform.left(1).toUpper();
     const QString label = shortPlatform % u": " % channelName;
-    // ASCII only. A missing glyph (the old triangle) with the input font
-    // walks Qt 6.9's fallback engines until Qt6Gui overflows the stack.
-    const auto arrow = u" >"_s;
+    const auto arrow = u" \u25BE"_s;
     this->ui_.multiChannelDestinationButton->setText(label + arrow);
     this->ui_.multiChannelDestinationButton->setToolTip(
         u"Send to " % active->channel->getDisplayName() % u" on " % platform %
@@ -1650,23 +1645,6 @@ void SplitInput::updateSendAccountButton()
     {
         return;
     }
-    // The first call happens while the split is still inside showEvent.
-    // Showing the button there re-enters Qt layout and font setup.
-    if (!this->sendAccountButtonDeferredOnce_)
-    {
-        if (!this->sendAccountButtonDeferQueued_)
-        {
-            this->sendAccountButtonDeferQueued_ = true;
-            startupTrace(QStringLiteral("send-account defer"));
-            QTimer::singleShot(0, this, [this] {
-                this->sendAccountButtonDeferredOnce_ = true;
-                this->sendAccountButtonDeferQueued_ = false;
-                this->updateSendAccountButton();
-            });
-        }
-        return;
-    }
-    startupTrace(QStringLiteral("send-account update"));
     this->updatingSendAccountButton_ = true;
     const auto finish = [this] {
         this->updatingSendAccountButton_ = false;
@@ -1693,8 +1671,6 @@ void SplitInput::updateSendAccountButton()
     auto account = this->split_->sendTwitchAccount();
     const bool show =
         channel && channel->isTwitchChannel() && account && !account->isAnon();
-    startupTrace(show ? QStringLiteral("send-account show")
-                      : QStringLiteral("send-account hide"));
     if (button->isHidden() == show)
     {
         button->setVisible(show);
@@ -1711,15 +1687,10 @@ void SplitInput::updateSendAccountButton()
     auto login = account->getUserName();
     if (login.size() > 14)
     {
-        login = login.left(11) + QStringLiteral("...");
+        login = login.left(12) + QStringLiteral("…");
     }
-    // Keep this ASCII. U+25BE / U+25CF / U+2026 are not in every interface
-    // font, and Qt 6.9 recurses forever in QFontEngineMulti looking for them.
-    const QString prefix =
-        pinned ? QStringLiteral("* ") : QStringLiteral("as ");
-    startupTrace(QStringLiteral("send-account text"));
-    button->setText(prefix + login + QStringLiteral(" >"));
-    startupTrace(QStringLiteral("send-account text done"));
+    button->setText((pinned ? QStringLiteral("● ") : QStringLiteral("as ")) +
+                    login + QStringLiteral(" ▾"));
     button->setToolTip(
         pinned ? QStringLiteral(
                      "This split sends as %1, not the current account. Click "
@@ -5890,7 +5861,6 @@ void SplitInput::updateChannelPointsDisplay(TwitchChannel *channel)
 
 void SplitInput::updateFonts()
 {
-    startupTrace(QStringLiteral("SplitInput updateFonts"));
     auto *app = getApp();
     const auto scale = this->scale();
     const auto exactlyScaledFont = [app, scale](FontStyle style) {
@@ -5920,33 +5890,15 @@ void SplitInput::updateFonts()
     {
         this->ui_.pauseHoldLabel->setFont(inputActionFont);
     }
-    // These labels draw names and a menu marker, not numbers. The tabular
-    // figure feature builds a face that drops symbols such as U+25BE, and
-    // Qt 6.9 then recurses in the fallback font engine on startup.
-    const auto menuFont = exactlyScaledFont(FontStyle::UiMedium);
-    auto assignMenuFont = [&](QWidget *widget) {
-        if (widget == nullptr)
-        {
-            return;
-        }
-        const auto current = widget->font();
-        if (current.family() == menuFont.family() &&
-            current.pixelSize() == menuFont.pixelSize() &&
-            current.pointSizeF() == menuFont.pointSizeF() &&
-            current.weight() == menuFont.weight() &&
-            current.style() == menuFont.style() &&
-            current.hintingPreference() == menuFont.hintingPreference())
-        {
-            return;
-        }
-        widget->setFont(menuFont);
-    };
     if (this->ui_.multiChannelDestinationButton != nullptr)
     {
-        assignMenuFont(this->ui_.multiChannelDestinationButton);
+        this->ui_.multiChannelDestinationButton->setFont(inputActionFont);
         this->updateMultiChannelDestinationButton();
     }
-    assignMenuFont(this->ui_.sendAccountButton);
+    if (this->ui_.sendAccountButton != nullptr)
+    {
+        this->ui_.sendAccountButton->setFont(inputActionFont);
+    }
     this->updateActionRowCompactness();
 #if MOLTORINO_ENABLE_CHANNEL_POINT_REWARDS
     this->ui_.channelPointRewardPromptTitle->setFont(

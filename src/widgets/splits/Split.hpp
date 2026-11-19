@@ -53,6 +53,7 @@ class TwitchChannel;
 // Each sub-element has a reference to the parent Chat Widget
 class Split : public BaseWidget
 {
+    friend class SplitHeader;
     friend class SplitInput;
 
     Q_OBJECT
@@ -155,6 +156,9 @@ protected:
 
 private:
     SplitHeader *ensureHeader();
+    // Stores the header while its constructor is still running. Callers that
+    // run from that constructor must see this header instead of building one.
+    void attachHeader(SplitHeader *header);
     AutoModReviewBar *ensureAutoModReviewBar();
     SplitOverlay *ensureOverlay();
     SplitInput *ensureInput();

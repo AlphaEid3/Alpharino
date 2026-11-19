@@ -40,7 +40,6 @@
 #include "util/Helpers.hpp"
 #include "util/LayoutHelper.hpp"
 #include "util/MultiChannel.hpp"
-#include "util/StartupTrace.hpp"
 #include "widgets/buttons/DrawnButton.hpp"
 #include "widgets/buttons/LabelButton.hpp"
 #include "widgets/buttons/SvgButton.hpp"
@@ -472,17 +471,16 @@ SplitHeader::SplitHeader(Split *split)
     : BaseWidget(split)
     , split_(split)
 {
-    startupTrace(QStringLiteral("header ctor"));
+    // Publish the header before any Setting::connect callback runs. Those
+    // callbacks fire immediately, and they must not construct another header.
+    this->split_->attachHeader(this);
+
     this->initializeLayout();
-    startupTrace(QStringLiteral("header layout"));
 
     this->setMouseTracking(true);
     this->updateChannelText();
-    startupTrace(QStringLiteral("header text"));
     this->handleChannelChanged();
-    startupTrace(QStringLiteral("header channel"));
     this->updateIcons();
-    startupTrace(QStringLiteral("header icons"));
 
     if (auto *recordings = getApp()->getChatRecordings())
     {
@@ -630,9 +628,7 @@ SplitHeader::SplitHeader(Split *split)
         });
     }
 
-    startupTrace(QStringLiteral("header before scale"));
     this->scaleChangedEvent(this->scale());
-    startupTrace(QStringLiteral("header ctor done"));
 }
 
 SplitHeader::~SplitHeader()
@@ -861,6 +857,8 @@ void SplitHeader::initializeLayout()
         this->split_->addSibling();
     });
 
+    // false: do not run the callback now. createMainMenu reaches back into
+    // the split, and this header is still inside its constructor.
     getSettings()->customURIScheme.connect(
         [this] {
             if (auto *const drop = this->dropdownButton_)
@@ -868,7 +866,7 @@ void SplitHeader::initializeLayout()
                 drop->setMenu(this->createMainMenu());
             }
         },
-        this->managedConnections_);
+        this->managedConnections_, false);
 
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
@@ -940,7 +938,7 @@ std::unique_ptr<QMenu> SplitHeader::createMainMenu()
         auto *sendAs = menu->addMenu(QStringLiteral("Send messages as"));
         this->split_->populateSendAccountMenu(sendAs);
         auto *shared = menu->addMenu(QStringLiteral("Shared chat sources"));
-        this->split_->populateSharedChatMuteMenu(shared);
+        this->populateSharedChatMuteMenu(shared);
     }
     menu->addAction("Set filters",
                     h->getDisplaySequence(HotkeyCategory::Split, "pickFilters"),
@@ -1917,10 +1915,7 @@ void SplitHeader::updateSharedChatButton()
     const auto maxTextWidth = std::max(24, int(78 * this->scale()));
     text = QFontMetrics(this->font())
                .elidedText(text, Qt::ElideRight, maxTextWidth);
-    // elidedText inserts U+2026. That glyph, and U+25BE, make Qt 6.9 recurse
-    // in QFontEngineMulti when the interface font has no fallback for them.
-    text.replace(QChar(0x2026), QStringLiteral("..."));
-    this->sharedChatButton_->setText(text + QStringLiteral(" >"));
+    this->sharedChatButton_->setText(text + QStringLiteral(" ▾"));
     if (this->sharedChatButton_->isHidden())
     {
         this->sharedChatButton_->show();

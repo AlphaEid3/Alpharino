@@ -98,11 +98,9 @@ if (-not (Test-Path -PathType Leaf $exe)) {
 
 $stdout = Join-Path $dest "smoke-stdout.txt"
 $stderr = Join-Path $dest "smoke-stderr.txt"
-$trace = Join-Path $dest "startup-trace.txt"
 # The GitHub-hosted runner has a desktop session. The windows platform runs
 # the same Qt GUI path that overflows on launch; offscreen is not deployed.
 $env:QT_QPA_PLATFORM = "windows"
-$env:ALPHARINO_STARTUP_TRACE = "1"
 
 $proc = Start-Process -FilePath $exe -WorkingDirectory $dest -PassThru `
     -RedirectStandardOutput $stdout -RedirectStandardError $stderr
@@ -130,7 +128,7 @@ try {
     $hex = "unparsed"
 }
 Write-Host "ERROR: Alpharino exited during startup. Exit code $code ($hex)."
-foreach ($log in @($trace, $stdout, $stderr)) {
+foreach ($log in @($stdout, $stderr)) {
     if (Test-Path $log) {
         Write-Host "----- $log -----"
         Get-Content $log -Tail 160
