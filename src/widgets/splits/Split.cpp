@@ -427,11 +427,16 @@ SplitHeader *Split::ensureHeader()
         return this->header_;
     }
 
+    startupTrace(QStringLiteral("header new"));
     this->header_ = new SplitHeader(this);
+    startupTrace(QStringLiteral("header created"));
     this->applyScaleToLazyChild(this->header_);
     this->vbox_->insertWidget(0, this->header_);
+    startupTrace(QStringLiteral("header inserted"));
     this->header_->setAddButtonVisible(this->isTopRightSplit_);
+    startupTrace(QStringLiteral("header add"));
     this->header_->updateRoomModes();
+    startupTrace(QStringLiteral("header modes"));
     if (this->autoModReviewBar_ != nullptr)
     {
         this->header_->setAutoModReviewBar(this->autoModReviewBar_);

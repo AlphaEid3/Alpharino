@@ -97,6 +97,7 @@ private:
     DrawnButton *dropdownButton_{};
     Label *titleLabel_{};
     QSpacerItem *autoModHeaderBalance_{};
+    bool updatingAutoModLayout_ = false;
 
     LabelButton *modeButton_{};
     SvgButton *recordingButton_{};

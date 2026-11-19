@@ -9,6 +9,7 @@
 #include "singletons/Settings.hpp"
 #include "singletons/Theme.hpp"
 #include "singletons/WindowManager.hpp"
+#include "util/StartupTrace.hpp"
 
 #include <QDebug>
 #include <QFontDatabase>
@@ -448,8 +449,10 @@ Fonts::FontData &Fonts::getOrCreateFontData(FontStyle type, float scale)
 
 Fonts::FontData Fonts::createFontData(FontStyle type, float scale)
 {
+    startupTrace(QStringLiteral("font %1").arg(int(type)));
     auto font = makeResolvedFont(fontFamily(type), fontSize(type) * scale,
                                  fontWeight(type), isItalic(type));
+    startupTrace(QStringLiteral("font %1 done").arg(int(type)));
 
     switch (type)
     {

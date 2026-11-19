@@ -40,6 +40,7 @@
 #include "util/Helpers.hpp"
 #include "util/LayoutHelper.hpp"
 #include "util/MultiChannel.hpp"
+#include "util/StartupTrace.hpp"
 #include "widgets/buttons/DrawnButton.hpp"
 #include "widgets/buttons/LabelButton.hpp"
 #include "widgets/buttons/SvgButton.hpp"
@@ -471,12 +472,17 @@ SplitHeader::SplitHeader(Split *split)
     : BaseWidget(split)
     , split_(split)
 {
+    startupTrace(QStringLiteral("header ctor"));
     this->initializeLayout();
+    startupTrace(QStringLiteral("header layout"));
 
     this->setMouseTracking(true);
     this->updateChannelText();
+    startupTrace(QStringLiteral("header text"));
     this->handleChannelChanged();
+    startupTrace(QStringLiteral("header channel"));
     this->updateIcons();
+    startupTrace(QStringLiteral("header icons"));
 
     if (auto *recordings = getApp()->getChatRecordings())
     {
@@ -624,7 +630,9 @@ SplitHeader::SplitHeader(Split *split)
         });
     }
 
+    startupTrace(QStringLiteral("header before scale"));
     this->scaleChangedEvent(this->scale());
+    startupTrace(QStringLiteral("header ctor done"));
 }
 
 SplitHeader::~SplitHeader()
@@ -2054,6 +2062,12 @@ void SplitHeader::setAutoModReviewBar(AutoModReviewBar *bar)
 
 void SplitHeader::updateAutoModLayout()
 {
+    if (this->updatingAutoModLayout_)
+    {
+        return;
+    }
+    this->updatingAutoModLayout_ = true;
+
     const bool isAutoMod = this->split_->getIndirectChannel().getType() ==
                            Channel::Type::TwitchAutomod;
 
@@ -2090,8 +2104,13 @@ void SplitHeader::updateAutoModLayout()
     }
     this->titleLabel_->setShouldElide(isAutoMod);
     this->titleLabel_->setCentered(true);
-    this->titleLabel_->setSizePolicy(QSizePolicy::MinimumExpanding,
-                                     QSizePolicy::Preferred);
+    const auto titlePolicy =
+        QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+    if (this->titleLabel_->sizePolicy() != titlePolicy)
+    {
+        this->titleLabel_->setSizePolicy(titlePolicy);
+    }
+    this->updatingAutoModLayout_ = false;
 }
 
 void SplitHeader::hideEvent(QHideEvent *event)

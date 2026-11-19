@@ -60,12 +60,22 @@ bool Label::getCentered() const
 
 void Label::setCentered(bool centered)
 {
+    if (this->centered_ == centered)
+    {
+        return;
+    }
+
     this->centered_ = centered;
     this->updateSize();
 }
 
 void Label::setPadding(QMargins padding)
 {
+    if (this->basePadding_ == padding)
+    {
+        return;
+    }
+
     this->basePadding_ = padding;
     this->updateSize();
 }
@@ -83,6 +93,11 @@ void Label::setWordWrap(bool wrap)
 
 void Label::setShouldElide(bool shouldElide)
 {
+    if (this->shouldElide_ == shouldElide)
+    {
+        return;
+    }
+
     this->shouldElide_ = shouldElide;
     this->updateSize();
     this->update();
@@ -90,6 +105,11 @@ void Label::setShouldElide(bool shouldElide)
 
 void Label::setFontStyle(FontStyle style)
 {
+    if (this->fontStyle_ == style)
+    {
+        return;
+    }
+
     this->fontStyle_ = style;
     this->updateSize();
 }
