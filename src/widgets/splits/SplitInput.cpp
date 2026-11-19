@@ -233,7 +233,7 @@ public:
         this->applying_ = true;
 
         const int previousHeight = this->height();
-        this->setFixedHeight(this->carouselHeight());
+        this->applyHeight();
         this->update();
 
         if (this->isVisible() && previousHeight != this->height() &&
@@ -280,7 +280,7 @@ public:
         }
 
         const bool changedVisibility = this->isHidden();
-        this->setFixedHeight(this->carouselHeight());
+        this->applyHeight();
         this->show();
         this->update();
         this->applying_ = false;
@@ -521,7 +521,15 @@ protected:
 
     void showEvent(QShowEvent *event) override
     {
+        if (this->showing_)
+        {
+            QWidget::showEvent(event);
+            return;
+        }
+
+        this->showing_ = true;
         BaseWidget::showEvent(event);
+        this->showing_ = false;
         if (!this->gifRepaintConnection_.isConnected())
         {
             this->gifRepaintConnection_ =
@@ -541,6 +549,17 @@ protected:
     }
 
 private:
+    void applyHeight()
+    {
+        const int next = this->carouselHeight();
+        if (this->minimumHeight() == next && this->maximumHeight() == next)
+        {
+            return;
+        }
+
+        this->setFixedHeight(next);
+    }
+
     int carouselHeight() const
     {
         const auto size = getSettings()->emoteTabCarouselSize.getValue();
@@ -587,6 +606,7 @@ private:
     std::function<void()> visibilityCallback_;
     pajlada::Signals::ScopedConnection gifRepaintConnection_;
     bool applying_ = false;
+    bool showing_ = false;
 };
 
 namespace {
@@ -1607,7 +1627,9 @@ void SplitInput::updateMultiChannelDestinationButton()
             ? u"Y"_s
             : platform.left(1).toUpper();
     const QString label = shortPlatform % u": " % channelName;
-    const auto arrow = u" \u25BE"_s;
+    // ASCII only. A missing glyph (the old triangle) with the input font
+    // walks Qt 6.9's fallback engines until Qt6Gui overflows the stack.
+    const auto arrow = u" >"_s;
     this->ui_.multiChannelDestinationButton->setText(label + arrow);
     this->ui_.multiChannelDestinationButton->setToolTip(
         u"Send to " % active->channel->getDisplayName() % u" on " % platform %
@@ -1651,7 +1673,10 @@ void SplitInput::updateSendAccountButton()
     auto account = this->split_->sendTwitchAccount();
     const bool show =
         channel && channel->isTwitchChannel() && account && !account->isAnon();
-    button->setVisible(show);
+    if (button->isHidden() == show)
+    {
+        button->setVisible(show);
+    }
     if (!show)
     {
         finish();
@@ -1664,10 +1689,13 @@ void SplitInput::updateSendAccountButton()
     auto login = account->getUserName();
     if (login.size() > 14)
     {
-        login = login.left(12) + QStringLiteral("…");
+        login = login.left(11) + QStringLiteral("...");
     }
-    button->setText((pinned ? QStringLiteral("● ") : QStringLiteral("as ")) +
-                    login + QStringLiteral(" ▾"));
+    // Keep this ASCII. U+25BE / U+25CF / U+2026 are not in every interface
+    // font, and Qt 6.9 recurses forever in QFontEngineMulti looking for them.
+    const QString prefix =
+        pinned ? QStringLiteral("* ") : QStringLiteral("as ");
+    button->setText(prefix + login + QStringLiteral(" >"));
     button->setToolTip(
         pinned ? QStringLiteral(
                      "This split sends as %1, not the current account. Click "
@@ -2351,6 +2379,12 @@ QSize SplitInput::minimumSizeHint() const
 
 void SplitInput::scaleChangedEvent(float scale)
 {
+    if (this->applyingScale_)
+    {
+        return;
+    }
+    this->applyingScale_ = true;
+
     // update the icon size of the buttons
     this->updateEmoteButton();
     this->updateCancelReplyButton();
@@ -2371,6 +2405,7 @@ void SplitInput::scaleChangedEvent(float scale)
     this->applyOuterMargin();
     this->updateFonts();
     this->relayoutParentWidgets();
+    this->applyingScale_ = false;
 }
 
 void SplitInput::relayoutParentWidgets()
@@ -2624,8 +2659,12 @@ void SplitInput::updateActionRowCompactness()
     const auto currentLengthWidth = static_cast<int>(std::ceil(
         lengthMetrics.horizontalAdvance(this->ui_.textEditLength->text()) +
         lengthPadding));
-    this->ui_.textEditLength->setFixedWidth(
-        std::max(reservedLengthWidth, currentLengthWidth));
+    const int lengthWidth = std::max(reservedLengthWidth, currentLengthWidth);
+    if (this->ui_.textEditLength->minimumWidth() != lengthWidth ||
+        this->ui_.textEditLength->maximumWidth() != lengthWidth)
+    {
+        this->ui_.textEditLength->setFixedWidth(lengthWidth);
+    }
 
     const auto inputWidth = this->ui_.inputWrapper->width();
     const bool hasRealWidth = inputWidth > 0;
@@ -5358,6 +5397,12 @@ void SplitInput::resizeEvent(QResizeEvent *event)
 {
     (void)event;
 
+    if (this->handlingResize_)
+    {
+        return;
+    }
+    this->handlingResize_ = true;
+
     if (this->height() == this->maximumHeight())
     {
         this->ui_.textEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -5369,6 +5414,7 @@ void SplitInput::resizeEvent(QResizeEvent *event)
 
     this->ui_.replyMessage->setWidth(this->replyMessageWidth());
     this->updateActionRowCompactness();
+    this->handlingResize_ = false;
 }
 
 void SplitInput::giveFocus(Qt::FocusReason reason)
@@ -5849,15 +5895,33 @@ void SplitInput::updateFonts()
     {
         this->ui_.pauseHoldLabel->setFont(inputActionFont);
     }
+    // These labels draw names and a menu marker, not numbers. The tabular
+    // figure feature builds a face that drops symbols such as U+25BE, and
+    // Qt 6.9 then recurses in the fallback font engine on startup.
+    const auto menuFont = exactlyScaledFont(FontStyle::UiMedium);
+    auto assignMenuFont = [&](QWidget *widget) {
+        if (widget == nullptr)
+        {
+            return;
+        }
+        const auto current = widget->font();
+        if (current.family() == menuFont.family() &&
+            current.pixelSize() == menuFont.pixelSize() &&
+            current.pointSizeF() == menuFont.pointSizeF() &&
+            current.weight() == menuFont.weight() &&
+            current.style() == menuFont.style() &&
+            current.hintingPreference() == menuFont.hintingPreference())
+        {
+            return;
+        }
+        widget->setFont(menuFont);
+    };
     if (this->ui_.multiChannelDestinationButton != nullptr)
     {
-        this->ui_.multiChannelDestinationButton->setFont(inputActionFont);
+        assignMenuFont(this->ui_.multiChannelDestinationButton);
         this->updateMultiChannelDestinationButton();
     }
-    if (this->ui_.sendAccountButton != nullptr)
-    {
-        this->ui_.sendAccountButton->setFont(inputActionFont);
-    }
+    assignMenuFont(this->ui_.sendAccountButton);
     this->updateActionRowCompactness();
 #if MOLTORINO_ENABLE_CHANNEL_POINT_REWARDS
     this->ui_.channelPointRewardPromptTitle->setFont(

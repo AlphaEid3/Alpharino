@@ -203,6 +203,12 @@ jobs:
         run: |
           ..\.CI\verify-windows-package.ps1 -InstallDir Alpharino
 
+      - name: Startup smoke test (windows)
+        working-directory: build
+        shell: pwsh
+        run: |
+          ..\.CI\startup-smoke.ps1 -InstallDir Alpharino
+
       - name: Package (windows)
         working-directory: build
         shell: pwsh

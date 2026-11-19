@@ -1649,7 +1649,11 @@ void SplitHeader::scaleChangedEvent(float scale)
     this->moderationButton_->setFixedWidth(w);
     this->recordingButton_->setFixedWidth(w);
     this->chattersButton_->setFixedWidth(w);
-    this->sharedChatButton_->setMaximumWidth(int(104 * scale));
+    const int sharedChatWidth = int(104 * scale);
+    if (this->sharedChatButton_->maximumWidth() != sharedChatWidth)
+    {
+        this->sharedChatButton_->setMaximumWidth(sharedChatWidth);
+    }
 
     this->addButton_->setFixedWidth(addSplitWidth);
     this->updateAutoModLayout();
@@ -1905,8 +1909,14 @@ void SplitHeader::updateSharedChatButton()
     const auto maxTextWidth = std::max(24, int(78 * this->scale()));
     text = QFontMetrics(this->font())
                .elidedText(text, Qt::ElideRight, maxTextWidth);
-    this->sharedChatButton_->setText(text + QStringLiteral(" ▾"));
-    this->sharedChatButton_->show();
+    // elidedText inserts U+2026. That glyph, and U+25BE, make Qt 6.9 recurse
+    // in QFontEngineMulti when the interface font has no fallback for them.
+    text.replace(QChar(0x2026), QStringLiteral("..."));
+    this->sharedChatButton_->setText(text + QStringLiteral(" >"));
+    if (this->sharedChatButton_->isHidden())
+    {
+        this->sharedChatButton_->show();
+    }
 }
 
 std::unique_ptr<QMenu> SplitHeader::createSharedChatMenu()

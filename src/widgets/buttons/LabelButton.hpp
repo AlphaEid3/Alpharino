@@ -32,13 +32,16 @@ protected:
     void paintContent(QPainter &painter) override;
 
 private:
+    void scheduleFontSync();
     void syncLabelFont();
     void updatePadding();
 
-    // Set while copying this button's font onto its label. Qt 6.9 delivers
-    // another FontChange to the parent from that setFont, which otherwise
-    // recurses until Qt6Gui overflows the stack.
+    // FontChange arrives from inside QWidgetPrivate::updateFont. Copying the
+    // font onto the label from that handler re-enters Qt 6.9's font engine
+    // until Qt6Gui overflows the stack. The copy is deferred to the next
+    // event-loop turn and skipped when the label already matches.
     bool syncingFont_ = false;
+    bool fontSyncQueued_ = false;
 
     QHBoxLayout layout_;
     QLabel label_;
