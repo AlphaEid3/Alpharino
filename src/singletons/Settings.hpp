@@ -1350,7 +1350,8 @@ public:
                                        true};
     BoolSetting showCommandArgumentHints{"/moltorino/showCommandArgumentHints",
                                          true};
-    BoolSetting showEmoteTabCarousel{"/moltorino/showEmoteTabCarousel", true};
+    // Separate key so an older saved "false" does not hide the Tab emote row.
+    BoolSetting showEmoteTabCarousel{"/moltorino/showTabEmotePopup", true};
     QStringSetting emoteTabCarouselSize{"/moltorino/emoteTabCarouselSize",
                                         "standard"};
     BoolSetting showEmoteTabCarouselNames{
